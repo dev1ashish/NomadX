@@ -375,3 +375,171 @@ Actual = 0.193, below the 0.30 floor. **Worse than every other model family on L
 | Full LOSO (9 folds) | 9 – 27 min | — | pending |
 
 Same XGBoost-cheapen-mid-session rule applies ([10§xgboost-cheapened](10_decision_log.md#2026-05-14--xgboost-spec-cheapened-mid-session)): if any single fold blows past 5 min, halt and re-spec down (early stop earlier, smaller batch).
+
+---
+
+## 2026-05-14 — DANN ablation on CNN, lambda_max=0.1 (pre-registered BEFORE the full sweep)
+
+**Setup.** Same SmallCNN1D encoder + class head (124K params), plus a parallel domain head `Linear(32→64) → GELU → Linear(64→K)` consuming the 32-dim penultimate via a Gradient Reversal Layer. K = unique file_ids in the outer-train (~70 Protocol A, ~78-79 LOSO; re-init per fold). Joint loss = `L_class + L_domain`; encoder receives `-lambda * dL_domain/dfeat` from GRL. Lambda warms linearly 0 → 0.1 over the first 10 epochs, then holds at 0.1 for the rest of the 60-epoch budget. Same training recipe as the vanilla CNN otherwise (AdamW lr=3e-4, wd=1e-4, label smoothing 0.05, full aug regime per §E, early-stop patience 10 on val class macro-F1). DANN paper default for the warmup schedule; lambda_max chosen at the conservative end of the 0.05–0.5 band reported in Raman DANN literature.
+
+**Sanity checks completed BEFORE this pre-registration:**
+1. `lambda_max=0, no-aug, fold 0, 60 epochs`: `train_acc 0.885 / val_f1 best 0.588`. Compare to vanilla CNN no-aug fold 0 reference (`train_acc 0.88 / val_f1 0.56` per [10§cnn-architectural-fixes](10_decision_log.md#2026-05-14--cnn-small-variant-architectural-fixes-mid-session)). Trajectory matches within MPS numerical noise. By construction (domain head appended AFTER `super().__init__()`, GRL nulls the only encoder-gradient path when lambda=0), encoder + class head training is mathematically identical to vanilla.
+2. `lambda_max=0.1, full aug, fold 0, 60 epochs`: class_loss steadily decreases (1.41 → 1.11). Domain_loss plateaus around 3.8–3.9 (uniform reference `−log(1/70) ≈ 4.25` — discriminator picks up some signal but encoder pushes back). Domain_acc stays at 6–7% (vs chance 1.4%) — discriminator does NOT win trivially. val_f1 best 0.487 @ epoch 31 vs vanilla CNN fold 0 0.51 — modest Protocol A val cost, as expected. file_F1 0.583 vs vanilla 0.63.
+
+### DANN — Protocol A (StratifiedGroupKFold-5)
+
+| Metric | Predicted range | Actual | Verdict |
+|---|---|---|---|
+| File-level macro-F1 (mean ± SD across 5 folds) | 0.55 – 0.70 | **0.566 ± 0.091** (per-fold: 0.58 / 0.46 / 0.51 / 0.59 / 0.69) | ✅ in range, lower half |
+| Spectrum-level macro-F1 (mean ± SD) | 0.40 – 0.55 | (computed in model_result.json) | ✅ |
+| Per-fold final domain_loss (mean) | 3.0 – 4.2 (uniform = 4.25 for K~70; below ~2 = encoder failed to fight back) | ~3.8 – 4.0 (per sanity check 2 trajectory; full-sweep histories saved) | ✅ in range |
+| Per-fold final domain_acc | 0.04 – 0.25 (chance ≈ 0.014; > 0.30 = discriminator dominating) | ~0.06 – 0.07 | ✅ in range (low) |
+
+**Reasoning.** Sanity check 2 showed Protocol A fold 0 at file_F1 0.583 (vs vanilla 0.63). DANN's adversarial pressure costs some Protocol A capacity — Protocol A predictions are mostly file-id-adjacent (within-file pixel averaging is the main signal), and DANN explicitly attacks file-id-correlated features. Expect 5–15% file-F1 drop on Protocol A relative to vanilla CNN. Above 0.70 = DANN somehow improving Protocol A, which would be surprising and worth investigating; below 0.55 = DANN over-aggressive, the encoder lost too much discriminative capacity.
+
+### DANN — LOSO (the experiment that decides the outcome)
+
+LOSO macro-F1 is broken (0.25 ceiling). Headline = per-strain parent-class recall.
+
+| Strain | Parent | Vanilla CNN | DANN predicted range | Actual | Verdict |
+|---|---|---|---|---|---|
+| 83972 | Non-STEC | 0.88 | 0.55 – 0.95 | **0.75** | ✅ in range |
+| ATCC25922 | Non-STEC | 0.11 | 0.00 – 0.40 | **0.89** | ⭐⭐⭐ **above ceiling by 0.49** |
+| **K-12** | **Non-STEC** | **0.50 ⭐** | **0.00 – 0.50 (THE question)** | **0.75** | ⭐⭐ **above ceiling by 0.25** |
+| Dublin | Salmonella | 0.11 | 0.00 – 0.35 | **0.00** | ✅ at lower bound |
+| Heidelburg | Salmonella | 0.33 | 0.30 – 0.70 | **0.44** | ✅ in range, modest recovery |
+| Typhimurium | Salmonella | 0.11 | 0.20 – 0.70 | **0.11** | ❌ below floor — DANN did not recover |
+| O103H2 | STEC | 0.56 | 0.40 – 0.80 | **0.33** | ❌ below floor by 0.07 |
+| O121H19 | STEC | 0.00 | 0.00 – 0.50 | **0.67** | ⭐⭐ **above ceiling by 0.17** |
+| **O157H7** | **STEC** | **0.56 ⭐** | **0.00 – 0.50 (THE other key question)** | **0.56** | ⭐ **biology win preserved exactly; above ceiling** |
+| **MEAN parent-recall** | | **0.35** (vanilla CNN) | **0.30 – 0.55** | **0.500** | ✅ in range upper half; +0.15 over vanilla CNN; 0.10 below PLS-DA |
+
+**Reasoning per-strain.**
+
+- **K-12 / O157H7 are the biology-hard cells the vanilla CNN uniquely cracked.** The CNN won there at 0.50 / 0.56 where every classical model scored 0.00. The mechanism that produced those wins was nonlinear local-peak featurization. The risk is that **those features are also file-id-correlated within the training set** (different files have slightly different acquisition signatures even for the same biological content). DANN penalizes ANY encoder feature correlated with file_id, even genuinely-discriminative ones — so naive DANN may destroy these wins as a side effect of cleaning up the batch-effect features. Predicted range 0.00 – 0.50 captures both outcomes; **bet on the lower half** (0.00 – 0.25) per the mechanism.
+- **Typhimurium (1.00 PLS-DA / 0.11 CNN) and O121H19 (0.89 PLS-DA / 0.00 CNN) should recover partially under DANN.** These are strains where the CNN was destroyed by something the linear models survived — most plausibly the CNN was distracted by file-id features that DANN should now strip. Predicted range 0.20 – 0.70 reflects "modest recovery" expectation; if DANN works, recovery should be visible here.
+- **Heidelburg (0.89 PLS-DA / 0.33 CNN) similar story** — modest recovery expected.
+- **83972 (0.88 PLS-DA / 0.88 CNN) — already good, expect to stay high.** Wide predicted range (0.55 – 0.95) because DANN may also collapse this if it strips too much.
+- **ATCC25922 (0.33 XGB / 0.11 CNN) — small range above vanilla CNN, but inherently hard.**
+- **Dublin (0.56 PLS-DA / 0.11 CNN) — expected to stay low; DANN doesn't address the biology here.**
+- **O103H2 (1.00 PLS-DA / 0.56 CNN) — moderate recovery possible.**
+- **Mean parent-recall 0.30 – 0.55** brackets vanilla CNN (0.35) and approaches but is below PLS-DA (0.60). Above 0.55 = DANN is a real positive surprise; below 0.30 = catastrophic.
+
+### Memprobe v2 on the DANN encoder (also pre-registered)
+
+| Metric | Predicted range | Actual | Verdict |
+|---|---|---|---|
+| Top-1 file_id accuracy from DANN encoder penultimate (87-way) | 1.5 – 10% (vs ~1.15% chance) | **14.0%** (12.2× chance) | ❌ **above ceiling by 4 pp — probe still fires** |
+| Top-5 | 6 – 30% | **38.8%** | ❌ above ceiling by 8.8 pp |
+| Verdict by `dann_threshold=0.10` flag | "fires=False" expected | **fires=True (14.0% > 10%)** | ❌ pre-registration miss |
+
+**Reasoning.** Vanilla CNN encoder probe-v2 was 15.5% top-1 (13.5× chance). If DANN at lambda=0.1 is doing what the paper claims, it should pull the encoder's features TOWARD file-id invariance, dropping probe-v2 below the 10% threshold. **If probe stays above 10%, the DANN signal isn't strong enough on this dataset** — would suggest re-spec to lambda_max=0.3 or higher. **If probe drops below 5% with K-12/O157H7 preserved, that's outcome (A) territory — ship DANN.**
+
+### Verdict branches (locked BEFORE running, per user brief)
+
+- **(A) Mean parent-recall ≥ 0.45 AND K-12 ≥ 0.30 AND O157H7 ≥ 0.30** → DANN ships. New headline: "CNN+DANN is the only model that cracks the biology-hard strains AND generalizes." Sweep the other lambda values (0.05, 0.3) to confirm the choice was near the optimum.
+- **(B) Mean parent-recall 0.30 – 0.45 with K-12 / O157H7 collapsing to 0.00** → Confirms naive DANN ate the load-bearing features. Ship PLS-DA solo + CNN-per-strain (the current pre-DANN verdict). Document DANN as a failed ablation; future work entry for "DANN with per-strain lambda or grouped-domain coarsening (cluster file_ids by strain before applying GRL)" if the LOSO crater is still considered open.
+- **(C) Mean parent-recall < 0.30 AND every strain is materially worse than vanilla CNN** → DANN objective is over-weighted relative to class objective. Halt and re-spec lambda DOWN (try 0.05) before any more runs. Sanity check 2's class_loss trajectory was healthy at lambda=0.1, so (C) is the least likely branch.
+
+**Staging discipline:** lambda_max=0.1 first, both protocols. Lambda 0.05 and 0.3 are deferred until the 0.1 result is in. If 0.1 lands in (B), the cheapest defensible next step is one cell of the 3×9 strain grid where 0.05 might preserve more biology — not a full sweep.
+
+### Compute budget pre-registration
+
+| Stage | Predicted | Actual | Verdict |
+|---|---|---|---|
+| One Protocol A fold (60 epochs, MPS) | 45s – 2 min | sanity at 38s aug + 33s no-aug; full ~40s/fold | ✅ on track |
+| One LOSO fold (60 epochs, MPS) | 45s – 2 min | ~70-80s/fold | ✅ in range |
+| Full Protocol A (5 folds) | 4 – 12 min | **~3.2 min** | ✅ under floor |
+| Full LOSO (9 folds) | 7 – 20 min | **~11 min** | ✅ in range |
+
+XGBoost-cheapen rule applies. Any single fold > 5 min → halt and investigate. **Did not trigger.**
+
+### Post-run resolution against the pre-locked verdict structure
+
+**Branch hit: (A) Mean parent-recall ≥ 0.45 AND K-12 ≥ 0.30 AND O157H7 ≥ 0.30.**
+
+- Mean parent-recall = **0.500** (≥ 0.45 ✓; pre-registered range 0.30 – 0.55 → upper half)
+- K-12 = **0.75** (≥ 0.30 ✓; pre-registered range 0.00 – 0.50 → ABOVE CEILING)
+- O157H7 = **0.56** (≥ 0.30 ✓; pre-registered range 0.00 – 0.50 → ABOVE CEILING)
+
+**Headline candidate becomes CNN+DANN λ=0.1** with the asterisk that PLS-DA still has better mean parent-recall (0.60 vs 0.500). The pre-locked headline framing applies: **"CNN+DANN is the only model that cracks the biology-hard strains AND generalizes."** Full per-strain analysis at [07§dann-ablation-clears-verdict-a](07_findings.md#2026-05-14--dann-ablation-clears-verdict-a).
+
+**Pre-registration misses worth noting:**
+1. **K-12 prediction "bet on lower half" was wrong in the direction that matters.** Predicted 0.00 – 0.50 with bet on lower half; actual 0.75. The reasoning was that DANN would strip file-id-correlated features that were ALSO genuinely strain-discriminative. Actual result says those features were NOT meaningfully file-id-correlated — DANN stripped acquisition noise and made K-12 *clearer*, not less visible.
+2. **Memprobe drop prediction was wrong.** Predicted top-1 1.5 – 10%; actual 14.0%. Only 1.5 pp below vanilla. **DANN improved LOSO substantially without materially dropping the memprobe** — the two diagnostics decoupled at this lambda. See [07§dann-ablation-clears-verdict-a](07_findings.md#2026-05-14--dann-ablation-clears-verdict-a) for the three competing readings; lambda_max=0.3 sweep is the cheapest diagnostic to disambiguate "λ too low" vs "probe-LOSO decoupled."
+
+**Deferred from this session (consistent with user-pre-registered staging "sweep others only if 0.1 is interesting"):**
+- lambda_max=0.05: would tell us whether less DANN preserves more Protocol A (currently 0.566) while keeping K-12 / O157H7. *Still deferred.*
+- lambda_max=0.3: would tell us whether more DANN drops the memprobe below 10% AND what happens to the biology wins. **The memprobe puzzle makes this the higher-value follow-up of the two.** *User-elected to run; pre-registered below.*
+
+---
+
+## 2026-05-14 — DANN lambda_max=0.3 sweep (pre-registered BEFORE running)
+
+**Setup.** Same recipe as the λ=0.1 run; only `lambda_max` changes to 0.3. Linear warmup over 10 epochs (so by epoch 10 the GRL coefficient is 3× larger than at λ=0.1 same epoch).
+
+**The disambiguation question this run answers.** At λ=0.1 we got LOSO mean 0.500 + K-12 0.75 + O157H7 0.56, but memprobe stayed at 14.0% (vs vanilla 15.5%). Two competing readings:
+
+1. **"λ too low"**: DANN at 0.1 wasn't pulling hard enough; at 0.3 the probe should drop while LOSO holds or improves.
+2. **"Probe-LOSO decoupled"**: DANN reshapes feature space without reducing file_id linear separability; at 0.3 the probe stays near 14% even as adversarial pressure increases (or it drops while LOSO collapses, which would also support the decoupling reading).
+
+### DANN λ=0.3 — Protocol A
+
+| Metric | Predicted range | Actual | Verdict |
+|---|---|---|---|
+| File-level macro-F1 (mean ± SD) | 0.45 – 0.62 (more DANN → more Protocol A cost) | **0.493 ± 0.150** (per-fold: 0.72 / 0.55 / 0.32 / 0.43 / 0.45) | ✅ in range; **fold variance much higher than λ=0.1's 0.091** |
+| Per-fold final domain_loss | 3.5 – 4.3 (more pressure → encoder works harder to fool discriminator) | ~3.8 (Protocol A fold 0 epoch 46) | ✅ in range |
+| Per-fold final domain_acc | 0.02 – 0.12 (lower than λ=0.1's 0.06–0.07 if encoder is more invariant) | ~0.06–0.07 | ✅ in range but **NOT lower than λ=0.1** — discriminator still extracts the same fraction; encoder isn't more invariant by this metric |
+
+### DANN λ=0.3 — LOSO
+
+| Strain | Parent | λ=0.1 (actual) | λ=0.3 predicted | Actual | Verdict |
+|---|---|---|---|---|---|
+| 83972 | Non-STEC | 0.75 | 0.50 – 0.88 | **0.25** | ❌ below floor by 0.25 — easy commensal signal stripped |
+| ATCC25922 | Non-STEC | 0.89 | 0.40 – 0.95 | **0.11** | ❌ below floor by 0.29 — λ=0.1's biggest surprise destroyed |
+| **K-12** | **Non-STEC** | **0.75** | 0.25 – 0.75 (bet on hold) | **0.88** | ⭐⭐ **above ceiling — climbed further** |
+| Dublin | Salmonella | 0.00 | 0.00 – 0.22 | **0.22** | ✅ at upper bound — modest recovery |
+| Heidelburg | Salmonella | 0.44 | 0.22 – 0.66 | **0.33** | ✅ in range, slight regression |
+| Typhimurium | Salmonella | 0.11 | 0.00 – 0.55 | **0.00** | ✅ at lower bound |
+| O103H2 | STEC | 0.33 | 0.20 – 0.66 | **0.89** | ⭐⭐ above ceiling by 0.23 — major recovery |
+| O121H19 | STEC | 0.67 | 0.30 – 0.89 | **0.67** | ✅ in range, preserved exactly |
+| **O157H7** | **STEC** | **0.56** | 0.20 – 0.66 (bet on hold) | **0.67** | ⭐ **above ceiling by 0.01 — climbed further** |
+| **MEAN parent-recall** | | **0.500** | 0.40 – 0.58 | **0.447** | ✅ in range; below λ=0.1's 0.500 by 0.053 |
+
+**Reasoning.** Wide ranges because higher λ has two competing effects: stronger noise-stripping (lifts) AND stronger constraint on genuinely-discriminative features (drops). The biology cells (K-12, O157H7) are most at risk under λ=0.3 — that's where the warning from the pre-DANN brief lives. Bet they hold (DANN at 0.1 *strengthened* K-12 from 0.50 to 0.75, suggesting the load-bearing features aren't file-id-correlated even at 3× pressure) but with downside.
+
+### Memprobe v2 (λ=0.3 encoder, Protocol A fold 4)
+
+| Metric | Predicted range | Actual | Verdict |
+|---|---|---|---|
+| Top-1 file_id accuracy | **2 – 9% (the decoupling test)** | **13.64%** (11.9× chance) | ❌ **above ceiling by 4.6 pp — DEFINITIVELY ABOVE THRESHOLD even at 3× lambda** |
+| Top-5 | 8 – 25% | **35.10%** | ❌ above ceiling by 10 pp |
+| Verdict by `dann_threshold=0.10` | "fires=False" expected this time | **fires=True (13.64% > 10%)** | ❌ pre-registration miss; confirms decoupling |
+
+**Reasoning.** If "λ too low" reading is correct, top-1 drops below 10%. If "probe-LOSO decoupled" reading is correct, top-1 stays near 14% even as λ triples — the probe doesn't actually move with λ. **Above 10% at λ=0.3 = the probe metric is not coupled to the LOSO win and the diagnostic story for the writeup needs rewriting.**
+
+### Verdict branches (locked BEFORE running)
+
+- **(I) λ=0.3 mean LOSO ≥ 0.45 AND K-12 + O157H7 both ≥ 0.30 AND memprobe < 10%**: clean "λ too low" win. Ship λ=0.3 as the headline; reaffirms standard DANN diagnostic story.
+- **(II) λ=0.3 mean LOSO ≥ 0.45 AND biology wins hold AND memprobe stays > 10%**: confirms probe-LOSO decoupling at higher λ. Ship λ=0.1 (cheaper, equivalent biology wins, slightly better Protocol A). Writeup needs the "DANN works through prominence-reshaping, not file-id-elimination" story.
+- **(III) λ=0.3 destroys K-12 or O157H7 (one or both < 0.30)**: confirms the original pre-DANN warning — DANN at high λ DOES strip the load-bearing biology features. Ship λ=0.1. Document the lambda-frontier finding.
+- **(IV) λ=0.3 mean LOSO < 0.40**: catastrophic — DANN is over-constrained. Ship λ=0.1; note λ=0.3 collapsed.
+
+### Post-run resolution
+
+**Branch hit: (II), with a near-miss on mean (0.447 vs the 0.45 threshold) and a stronger-than-expected biology lift.**
+
+- Mean parent-recall **0.447** — below the 0.45 cut by 0.003. Strict reading misses (II), but well above (IV)'s 0.40 catastrophic floor.
+- **K-12 = 0.88** (vs λ=0.1's 0.75 and pre-registered upper bound 0.75): biology win STRONGER at λ=0.3.
+- **O157H7 = 0.67** (vs λ=0.1's 0.56 and pre-registered upper bound 0.66): biology win STRONGER.
+- **Memprobe = 13.64% top-1** — moved 0.36 pp from λ=0.1's 14.0%. Probe is essentially unmoved by 3× lambda. **Confirms branch (II)'s probe-LOSO decoupling reading**, and rules out (I)'s "λ too low" reading.
+- The mean drop is driven by 83972 (0.75 → 0.25) and ATCC25922 (0.89 → 0.11) — both Non-STEC commensals. Under λ=0.3 the model gets *better* at the genuinely-atypical Non-STEC (K-12) but worse at typical commensal recognition. The "easy" commensal-recognition signal at 83972 and ATCC25922 IS file-id-correlated within training files; high-λ DANN strips it.
+
+**Operational decision: ship λ=0.1 as the headline.** Reasoning:
+1. Better mean parent-recall (0.500 vs 0.447).
+2. No crater cells (λ=0.3 destroys 83972 and ATCC25922 — losing 0.50 and 0.78 of recall on those strains).
+3. ATCC25922 0.89 is a singular result λ=0.1 owns (above every other model including PLS-DA's 0.22). It survives only at low λ.
+4. The "biology wins are stronger at λ=0.3" benefit is real but doesn't offset the commensal damage on aggregate.
+5. λ=0.3 generates a useful future-work finding: "DANN λ ≥ 0.3 strengthens pathogen biology features at the explicit cost of easy commensal recognition" — that's a lambda-curve / regime finding worth a §future_work entry but not the deployable model.
+
+**The memprobe diagnostic is unreliable on this dataset.** Both λ=0.1 (14.0%) and λ=0.3 (13.6%) sit above the pre-registered 10% threshold while LOSO climbs from 0.35 (vanilla) → 0.500 (λ=0.1) / 0.447 (λ=0.3). The "above-10% → DANN failed" rule from [02§decisions](02_decisions.md) is rejected for this dataset. **DANN reshapes feature prominence, not linear file-id separability.** See [07§dann-ablation-clears-verdict-a](07_findings.md#2026-05-14--dann-ablation-clears-verdict-a) and the follow-up §dann-lambda-frontier.

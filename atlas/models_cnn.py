@@ -117,3 +117,96 @@ def select_device(prefer_mps: bool = True) -> torch.device:
     if torch.cuda.is_available():
         return torch.device("cuda")
     return torch.device("cpu")
+
+
+# ----------------------------------------------------------------------------
+# DANN: Gradient Reversal Layer + domain-adversarial CNN
+# ----------------------------------------------------------------------------
+#
+# Why two flavors live in the same file:
+#   - The DANN variant IS the SmallCNN1D encoder plus a parallel domain head.
+#     Subclassing keeps `set_input_stats` / `encode` / `forward` (used by
+#     memprobe v2) identical, so the same memprobe code works on either.
+#   - The domain head is registered AFTER `super().__init__()` so the encoder
+#     and class-head parameters consume the SAME RNG draws as vanilla
+#     SmallCNN1D. With lambda_max=0 the DANN encoder trains identically to
+#     vanilla, up to MPS numerical noise (verified in sanity check 1).
+
+
+class GradReverse(torch.autograd.Function):
+    """Identity in the forward pass; negates and scales by `lambda_grl` in
+    the backward pass.
+
+    Standard Ganin & Lempitsky 2015 formulation: encoder sees
+    `-lambda_grl * dL_domain/dfeat`, while the domain head sees the unscaled
+    gradient on its own weights. lambda_grl is a Python float passed at
+    forward time so the schedule (warmup) can change every step without
+    rebuilding the graph.
+    """
+
+    @staticmethod
+    def forward(ctx, x: torch.Tensor, lambda_grl: float) -> torch.Tensor:
+        ctx.lambda_grl = float(lambda_grl)
+        return x.view_as(x)
+
+    @staticmethod
+    def backward(ctx, grad_output: torch.Tensor):
+        return -ctx.lambda_grl * grad_output, None
+
+
+def grad_reverse(x: torch.Tensor, lambda_grl: float) -> torch.Tensor:
+    return GradReverse.apply(x, lambda_grl)
+
+
+class DANNCNN1D(SmallCNN1D):
+    """SmallCNN1D + a parallel domain classifier head fed by GRL.
+
+    The encoder and class head are inherited unchanged; init order is
+    identical to SmallCNN1D, so given the same fold_seed the encoder's
+    initial weights match bit-for-bit. Domain head MLP is appended last so
+    its init draws don't perturb anything upstream.
+
+    Args:
+        n_bins:    spectrum length (default 987).
+        n_classes: number of primary classes (default 4).
+        n_domains: number of unique file_ids in the outer-train -- this
+                   varies per fold, so the factory in scripts/run_dann.py
+                   sets it per fold.
+        domain_hidden: hidden width of the domain MLP. Default 64 -- has
+                   enough capacity to actually fight the encoder; if too
+                   shallow the discriminator loses trivially and the
+                   adversarial signal evaporates.
+    """
+
+    def __init__(
+        self,
+        n_bins: int = 987,
+        n_classes: int = 4,
+        n_domains: int = 87,
+        domain_hidden: int = 64,
+    ):
+        super().__init__(n_bins=n_bins, n_classes=n_classes)
+        self.n_domains = n_domains
+        # MUST be created AFTER super().__init__() -- see module docstring.
+        self.domain_head = nn.Sequential(
+            nn.Linear(32, domain_hidden),
+            nn.GELU(),
+            nn.Linear(domain_hidden, n_domains),
+        )
+
+    def forward_with_domain(
+        self, x: torch.Tensor, lambda_grl: float
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Return (class_logits, domain_logits).
+
+        Encoder gets `-lambda_grl * dL_domain/dfeat` via the GRL. Domain head
+        weights get the unscaled +dL_domain/dparams.
+        """
+        feat = self.encode(x)                  # (B, 32)
+        class_logits = self.fc2(feat)          # (B, n_classes)
+        reversed_feat = grad_reverse(feat, lambda_grl)
+        domain_logits = self.domain_head(reversed_feat)  # (B, n_domains)
+        return class_logits, domain_logits
+
+    # forward() is inherited unchanged: SmallCNN1D.forward returns class
+    # logits only. This is what memprobe v2 / encode_dataset rely on.

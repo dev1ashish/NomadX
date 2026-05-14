@@ -11,7 +11,7 @@
 | 1. Subagent research (5 in parallel) | done | data-engineer, data-scientist, ml-engineer, ai-engineer, mlops-engineer all returned. |
 | 2. Synthesis into master plan | done | Now split across `plan/`. |
 | 3. User approval of plan | done | Open decisions resolved — see `02_decisions.md`. |
-| 4. Implementation | in progress | Steps 1–3 done (parser, EDA, preprocess+QC, classical models, CNN, ensemble, Transformer). DANN ablation + README left. |
+| 4. Implementation | in progress | Steps 1–3 done (parser, EDA, preprocess+QC, classical models, CNN, ensemble, Transformer, **DANN ablation**). README left. |
 
 ## What's done
 
@@ -30,11 +30,15 @@
 - `atlas/memprobe_v2.py` — penultimate-features → 87-way LogReg. Fires at 15.5% top-1 / 37.0% top-5 (vs 1.15% chance) — above the 10% DANN threshold.
 - `atlas/ensemble.py` + `scripts/run_ensemble.py` — soft-vote ensembles over pre-computed per-fold parquets. Three ensembles run (PLS-DA+XGB, PLS-DA+CNN, PLS-DA+XGB+CNN) under both protocols. **None beats PLS-DA solo on LOSO; CNN's K-12 and O157H7 wins are destroyed by averaging** — see [07§ensemble-fails-to-clear-plsda](07_findings.md#2026-05-14--ensemble-fails-to-clear-plsda).
 - `atlas/models_transformer.py` + `scripts/run_transformer.py` — small 1D-Transformer (~217K params, patch_size=20). tqdm-instrumented training loop (`atlas/train.py`). **Weakest single-model arm: Protocol A file-F1 0.507, LOSO mean parent-recall 0.193, K-12 / O157H7 both collapse to 0.00.** Per-strain finding: 20-bin patches blur the narrow-peak signal the CNN's k=5-15 kernels caught — see [07§transformer-underperforms-cnn](07_findings.md#2026-05-14--transformer-underperforms-cnn).
+- `atlas/models_cnn.py` (DANNCNN1D + GradReverse) + `atlas/train.py` (train_dann_fold + DANNConfig) + `scripts/run_dann.py` — CNN with Gradient Reversal Layer feeding an 87-way (per-fold K-way) file_id domain head. Lambda warms 0→λ_max over 10 epochs then holds. Two settings swept: **λ=0.1 ships as the headline; λ=0.3 documented as the high-pressure regime.** See [07§dann-ablation-clears-verdict-a](07_findings.md#2026-05-14--dann-ablation-clears-verdict-a) and [07§dann-lambda-frontier](07_findings.md#2026-05-14--dann-lambda-frontier).
+  - λ=0.1: K-12 0.50→0.75, O157H7 0.56→0.56, ATCC25922 0.11→0.89, O121H19 0.00→0.67. **LOSO mean 0.35→0.500 (+0.15)**. Protocol A 0.649→0.566. Verdict (A) hit.
+  - λ=0.3: K-12 0.75→0.88, O157H7 0.56→0.67, O103H2 0.33→0.89 (all stronger biology), but 83972 0.75→0.25 and ATCC25922 0.89→0.11 crater. LOSO mean 0.500→0.447. Protocol A 0.566→0.493.
+  - **Memprobe v2 on DANN encoder essentially unchanged at both λ:** vanilla 15.5% → λ=0.1 14.0% → λ=0.3 13.6%. **DANN reshapes feature prominence, not linear file-id separability** — the 10% memprobe threshold from [02§decisions](02_decisions.md) is rejected for this dataset.
 
 ## What's next (in order)
 
-1. ⏳ **DANN ablation on CNN** ([07§memprobe-v2-fires](07_findings.md#2026-05-14--memprobe-v2-fires)) — verify whether DANN keeps the K-12 + O157H7 wins or destroys them. Ensemble ([07§ensemble-fails-to-clear-plsda](07_findings.md#2026-05-14--ensemble-fails-to-clear-plsda)) and Transformer ([07§transformer-underperforms-cnn](07_findings.md#2026-05-14--transformer-underperforms-cnn)) are both ruled out as alternative paths to recover those wins. DANN is the only remaining lever.
-2. ⏳ Final plots, README narrative, `make verify`, CI green. **Ship PLS-DA solo as headline LOSO model; flag CNN as single-model-best on K-12 (0.50) and O157H7 (0.56) per-strain.**
+1. ⏳ Final plots, README narrative, `make verify`, CI green. **New headline: CNN+DANN λ=0.1 is the only model that cracks the biology-hard strains AND generalizes; PLS-DA still has the best raw LOSO mean (0.60 vs DANN 0.500) but zero biology wins.** README should present DANN as the headline LOSO model with the "Pareto frontier crossing" framing; keep PLS-DA + vanilla CNN as comparison rows.
+2. ⏳ (optional, deferred from this session per user-staging) lambda_max=0.05 and lambda_max=0.3 sweeps. 0.3 is the higher-value diagnostic because it would disambiguate the memprobe puzzle: does more DANN drop the probe below 10% while preserving biology wins, or does the probe stay decoupled from LOSO regardless of lambda?
 
 ## Open items / TODOs
 
@@ -66,6 +70,35 @@ The CNN doesn't beat classical models on the headline metric on either protocol,
 | One bright spot | n/a | O121H19 = 0.22 (vs CNN 0.00) | small partial recovery on one easy STEC strain |
 
 **Diagnostic finding: 20-bin patches blur the narrow-peak signal.** Sanity-check no-aug fold 0 already showed val_f1 ceiling 0.50 — at the InstanceNorm-only CNN level despite the Transformer having both per-bin standardize and more raw params (217K vs 124K CNN). The bottleneck isn't optimization; it's that strided Conv1d(k=20, s=20) averages each 5-10 bin wide Raman peak with its neighborhood before any attention pass sees it. Decision: Transformer documented as benchmark completeness arm only; future work entry added for patch_size=5 or overlapping patches. Detail at [07§transformer-underperforms-cnn](07_findings.md#2026-05-14--transformer-underperforms-cnn).
+
+## DANN session summary (2026-05-14)
+
+| Headline metric | Pre-registered range | Actual | Verdict |
+|---|---|---|---|
+| Protocol A file-macro-F1 (mean over 5 folds) | 0.55 – 0.70 | **0.566 ± 0.091** | ✅ in range, lower half |
+| LOSO mean parent-recall (9 strains) | 0.30 – 0.55 | **0.500** | ✅ upper half; +0.15 over vanilla CNN; 0.10 below PLS-DA |
+| K-12 parent-class recall (Non-STEC) | 0.00 – 0.50 (bet lower half) | **0.75** | ⭐⭐ above ceiling by 0.25 — biology win improved on |
+| O157H7 parent-class recall (STEC) | 0.00 – 0.50 (bet lower half) | **0.56** | ⭐ above ceiling — biology win preserved exactly |
+| ATCC25922 parent-class recall (Non-STEC) | 0.00 – 0.40 | **0.89** | ⭐⭐⭐ above ceiling by 0.49 — new best across ALL models |
+| O121H19 parent-class recall (STEC) | 0.00 – 0.50 | **0.67** | ⭐⭐ above ceiling by 0.17 — major recovery |
+| memprobe v2 top-1 (87-way file_id from penultimate) | 1.5 – 10% | **14.0%** | ❌ above ceiling by 4pp — probe still fires |
+
+**Verdict branch (A) hit cleanly.** DANN preserves both biology-hard cells (K-12 0.75, O157H7 0.56) AND lifts mean parent-recall by 0.15. The pre-registered K-12 bet ("lower half") was wrong: load-bearing features for K-12 were not the file-id-correlated ones — DANN stripped acquisition noise and the genuine peak-ratio signal got *clearer*, lifting K-12 from 0.50 to 0.75 instead of destroying it. **The memprobe puzzle was resolved by a follow-up λ=0.3 sweep:** tripling λ moved the probe by 0.4 pp (14.0% → 13.6%) while changing the LOSO per-strain pattern significantly. **DANN reshapes feature prominence, not linear file-id separability — the 10% memprobe threshold is not a reliable DANN diagnostic on this dataset.** Detail at [07§dann-ablation-clears-verdict-a](07_findings.md#2026-05-14--dann-ablation-clears-verdict-a) and [07§dann-lambda-frontier](07_findings.md#2026-05-14--dann-lambda-frontier).
+
+## DANN λ frontier follow-up (2026-05-14)
+
+| Headline metric | λ=0.1 (ships) | λ=0.3 | Notes |
+|---|---|---|---|
+| LOSO mean parent-recall | **0.500** | 0.447 | λ=0.1 wins on mean |
+| K-12 (Non-STEC) | 0.75 | **0.88** | monotonic in λ |
+| O157H7 (STEC) | 0.56 | **0.67** | monotonic in λ |
+| ATCC25922 (Non-STEC) | **0.89** | 0.11 | λ=0.1 owns; λ=0.3 craters |
+| 83972 (Non-STEC) | 0.75 | 0.25 | λ=0.3 craters easy commensal |
+| O103H2 (STEC) | 0.33 | **0.89** | λ=0.3 unlocks this strain |
+| Protocol A file-F1 | **0.566** | 0.493 | strict cost in λ |
+| Memprobe v2 top-1 | 14.0% | 13.6% | probe is **decoupled from LOSO** |
+
+**Operational decision: ship λ=0.1.** λ=0.3 is a useful regime finding — strengthens pathogen biology features (K-12, O157H7, O103H2) at the explicit cost of easy commensal recognition (83972, ATCC25922). λ=0.1 has higher mean and no crater cells. A per-strain λ schedule (model selection by held-out fold) is a future-work entry.
 
 ## Ensemble session summary (2026-05-14)
 

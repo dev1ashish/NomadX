@@ -544,3 +544,357 @@ def encode_dataset(
             xb = xb.to(device)
             feats.append(model.encode(xb).detach().cpu().numpy())
     return np.concatenate(feats, axis=0)
+
+
+# ----------------------------------------------------------------------------
+# DANN training mode (additive — does NOT touch the vanilla code path above)
+# ----------------------------------------------------------------------------
+#
+# Why a separate function instead of a flag on train_cnn_fold:
+#   Threading DANN through train_cnn_fold requires:
+#     - extra inputs (per-row domain_int = file_id encoded to 0..K-1),
+#     - extra forward path (forward_with_domain),
+#     - extra loss + history fields,
+#     - lambda schedule that updates every epoch.
+#   That's enough net new logic that keeping it in a dedicated function makes
+#   the vanilla code easier to read and removes any risk of accidentally
+#   changing vanilla CNN behavior. The two functions deliberately share the
+#   inner-split / class-weight / per-bin standardize / LR-schedule code.
+
+
+@dataclass(frozen=True)
+class DANNConfig:
+    """Hyperparameters specific to the DANN training mode.
+
+    lambda_max:
+        Final coefficient on the gradient-reversed domain term. Per-Raman
+        DANN literature the useful range is 0.05-0.5; we default to 0.1 as
+        the conservative starting point.
+    warmup_epochs_dann:
+        Linear warmup: lambda(epoch) = lambda_max * min(1, epoch / warmup).
+        DANN paper default is "ramp over the first ~10% of training" or so.
+        With 60-epoch budget we use 10 epochs.
+    domain_hidden:
+        Width of the hidden Linear inside the domain head. Passed through to
+        DANNCNN1D's factory; tracked here so it lands in config.resolved.
+    """
+
+    lambda_max: float = 0.1
+    warmup_epochs_dann: int = 10
+    domain_hidden: int = 64
+
+
+def _lambda_at_epoch(epoch: int, dann_cfg: DANNConfig) -> float:
+    """Linear warmup from 0 to lambda_max over `warmup_epochs_dann`, then hold."""
+    if dann_cfg.warmup_epochs_dann <= 0:
+        return float(dann_cfg.lambda_max)
+    frac = min(1.0, epoch / float(dann_cfg.warmup_epochs_dann))
+    return float(dann_cfg.lambda_max * frac)
+
+
+def _epoch_train_dann(
+    model: nn.Module,
+    loader: DataLoader,
+    optimizer: torch.optim.Optimizer,
+    scheduler: torch.optim.lr_scheduler._LRScheduler,
+    class_weights: torch.Tensor,
+    cfg: TrainConfig,
+    rng: np.random.Generator,
+    device: torch.device,
+    lambda_grl: float,
+) -> dict:
+    """One epoch of joint class + domain training.
+
+    Joint loss = L_class + L_domain. The GRL inside the model multiplies the
+    gradient through the feature path by -lambda_grl, so the encoder pulls
+    *toward* domain-invariant features while the domain head still trains on
+    +grad. lambda_grl is constant for the whole epoch (epoch-level warmup).
+    """
+    model.train()
+    n_seen = 0
+    class_loss_sum = 0.0
+    domain_loss_sum = 0.0
+    n_class_correct = 0
+    n_domain_correct = 0
+    for batch in loader:
+        # Loader yields (x, y, domain). Domain is the in-train file_id index.
+        xb, yb, db = batch
+        xb = xb.to(device)
+        yb = yb.to(device)
+        db = db.to(device)
+
+        xb_aug, y_a, y_b, lam = _augment_batch(xb, yb, cfg.aug, rng)
+        # Mixup permutes samples; the matching permutation must be applied to
+        # the domain labels too, otherwise the domain target no longer matches
+        # the (mixed) spectrum. Since _augment_batch returns y_a == y_b (and
+        # lam == 1) when no mixup happened, we detect "is this a mixup batch"
+        # by lam < 1.
+        is_mixup = float(lam) < 1.0 - 1e-6
+        if is_mixup:
+            # _augment_batch built y_b via `y_b = y[perm]` on the same RNG
+            # stream — but it didn't expose `perm`. The cleanest fix is to NOT
+            # mix domains: train the domain head on the un-mixed view, which
+            # we recover by running the encoder on `xb` (pre-aug) separately.
+            # That doubles forward-pass cost on mixup batches (p_mixup=0.3 by
+            # default), which is acceptable. The cleaner alternative (return
+            # `perm` from _augment_batch) would touch the vanilla path; we
+            # explicitly want to avoid that.
+            class_logits, _ = model.forward_with_domain(xb_aug, lambda_grl)
+            _, domain_logits = model.forward_with_domain(xb, lambda_grl)
+        else:
+            class_logits, domain_logits = model.forward_with_domain(
+                xb_aug, lambda_grl
+            )
+
+        # Class loss with class weights + label smoothing + mixup target mix
+        if not is_mixup:
+            loss_class = F.cross_entropy(
+                class_logits, y_a,
+                weight=class_weights, label_smoothing=cfg.label_smoothing,
+            )
+        else:
+            loss_a = F.cross_entropy(
+                class_logits, y_a,
+                weight=class_weights, label_smoothing=cfg.label_smoothing,
+            )
+            loss_b = F.cross_entropy(
+                class_logits, y_b,
+                weight=class_weights, label_smoothing=cfg.label_smoothing,
+            )
+            loss_class = lam * loss_a + (1 - lam) * loss_b
+
+        # Domain loss: uniform cross-entropy over K file_ids. No class weights
+        # — files are roughly equally represented per the 200-px-cap.
+        loss_domain = F.cross_entropy(domain_logits, db)
+
+        loss = loss_class + loss_domain
+
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        if cfg.grad_clip > 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.grad_clip)
+        optimizer.step()
+        scheduler.step()
+
+        bs = xb.size(0)
+        class_loss_sum += float(loss_class) * bs
+        domain_loss_sum += float(loss_domain) * bs
+        n_seen += bs
+        # Training class-acc against the dominant mixup target only.
+        n_class_correct += int((class_logits.argmax(dim=1) == yb).sum().item())
+        n_domain_correct += int((domain_logits.argmax(dim=1) == db).sum().item())
+
+    return {
+        "class_loss": class_loss_sum / max(1, n_seen),
+        "domain_loss": domain_loss_sum / max(1, n_seen),
+        "class_acc": n_class_correct / max(1, n_seen),
+        "domain_acc": n_domain_correct / max(1, n_seen),
+        "n_seen": n_seen,
+    }
+
+
+def train_dann_fold(
+    *,
+    model_factory: Callable[[int, int], nn.Module],  # (fold_seed, n_domains) -> DANNCNN1D
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    groups_train: np.ndarray,   # (N,) file_id strings, used for inner split + domain labels
+    X_test: np.ndarray,
+    fold_seed: int,
+    device: torch.device | None = None,
+    n_bins: int = 987,
+    n_classes: int = 4,
+    cfg: TrainConfig | None = None,
+    dann_cfg: DANNConfig | None = None,
+    log_fn: Callable[[str], None] = print,
+) -> tuple[np.ndarray, dict, float, nn.Module]:
+    """Train one outer fold with the DANN objective.
+
+    Returns (proba_test, info, training_time_s, trained_model). `info` includes
+    a `history` list whose rows carry class_loss, domain_loss, domain_acc,
+    val_macro_f1, lambda_grl per epoch — that's what plan/07's verdict tables
+    will read off of.
+
+    The model returned has best-val-class-F1 weights loaded. Early stop is on
+    *class* macro-F1, not domain accuracy: we're shipping a class model.
+    """
+    cfg = cfg or TrainConfig()
+    dann_cfg = dann_cfg or DANNConfig()
+    _set_seeds(fold_seed)
+
+    if device is None:
+        from atlas.models_cnn import select_device
+        device = select_device()
+
+    # Encode class labels to canonical int order
+    if y_train.dtype.kind in ("U", "O"):
+        lookup = {c: i for i, c in enumerate(PRIMARY_CLASSES)}
+        y_train_int = np.array([lookup[c] for c in y_train], dtype=np.int64)
+    else:
+        y_train_int = y_train.astype(np.int64)
+
+    # Encode file_id -> domain int 0..K-1 over OUTER-train file ids. K varies
+    # per fold (Protocol A ~70, LOSO ~78-79).
+    unique_files = sorted(set(groups_train.tolist()))
+    file_to_int = {f: i for i, f in enumerate(unique_files)}
+    domains_train_int = np.array(
+        [file_to_int[f] for f in groups_train], dtype=np.int64
+    )
+    n_domains = len(unique_files)
+
+    # Per-bin standardize, same as train_cnn_fold
+    mu = X_train.mean(axis=0, dtype=np.float64).astype(np.float32)
+    sd = (X_train.std(axis=0, dtype=np.float64) + 1e-6).astype(np.float32)
+
+    # Inner train/val split for early stopping (class objective)
+    inner_tr_idx, inner_val_idx = inner_train_val_split(
+        y_train_int, groups_train, seed=fold_seed, n_inner_folds=4
+    )
+    X_inner_tr = X_train[inner_tr_idx]
+    y_inner_tr = y_train_int[inner_tr_idx]
+    d_inner_tr = domains_train_int[inner_tr_idx]
+    X_inner_val = X_train[inner_val_idx]
+    y_inner_val = y_train_int[inner_val_idx]
+
+    # Per-fold balanced class weights from OUTER-train (same logic as vanilla)
+    present = np.unique(y_train_int)
+    cw_present = compute_class_weight("balanced", classes=present, y=y_train_int)
+    cw = np.ones(n_classes, dtype=np.float32)
+    for k, cls in enumerate(present):
+        cw[cls] = float(cw_present[k])
+    class_weights = torch.from_numpy(cw).to(device)
+
+    # Tensor datasets — train loader now ALSO yields the per-sample domain int
+    Xt = torch.from_numpy(X_inner_tr.astype(np.float32)).unsqueeze(1)
+    Yt = torch.from_numpy(y_inner_tr.astype(np.int64))
+    Dt = torch.from_numpy(d_inner_tr.astype(np.int64))
+    Xv = torch.from_numpy(X_inner_val.astype(np.float32)).unsqueeze(1)
+    Yv = torch.from_numpy(y_inner_val.astype(np.int64))
+    Xte = torch.from_numpy(X_test.astype(np.float32)).unsqueeze(1)
+    Yte_dummy = torch.zeros(X_test.shape[0], dtype=torch.int64)
+
+    bs = cfg.batch_size if device.type != "cpu" else cfg.cpu_batch_size
+
+    gen = torch.Generator(); gen.manual_seed(fold_seed)
+    train_loader = DataLoader(
+        TensorDataset(Xt, Yt, Dt), batch_size=bs, shuffle=True,
+        num_workers=cfg.num_workers, drop_last=False, generator=gen,
+    )
+    val_loader = DataLoader(
+        TensorDataset(Xv, Yv), batch_size=bs, shuffle=False,
+        num_workers=cfg.num_workers,
+    )
+    test_loader = DataLoader(
+        TensorDataset(Xte, Yte_dummy), batch_size=bs, shuffle=False,
+        num_workers=cfg.num_workers,
+    )
+
+    model = model_factory(fold_seed, n_domains).to(device)
+    if hasattr(model, "set_input_stats"):
+        model.set_input_stats(mu, sd)
+
+    optimizer = torch.optim.AdamW(
+        model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay
+    )
+    steps_per_epoch = len(train_loader)
+    total_steps = steps_per_epoch * cfg.n_epochs
+    warmup_steps = steps_per_epoch * cfg.warmup_epochs
+    scheduler = make_warmup_cosine_lr(optimizer, warmup_steps, total_steps)
+
+    rng = np.random.default_rng(fold_seed)
+
+    best_val_f1 = -float("inf")
+    best_epoch = -1
+    best_state: dict | None = None
+    history: list[dict] = []
+    bad_epochs = 0
+    t0 = time.perf_counter()
+
+    epoch_iter: range | tqdm = range(cfg.n_epochs)
+    pbar: tqdm | None = None
+    if cfg.use_tqdm:
+        desc = f"{cfg.tqdm_desc} epochs" if cfg.tqdm_desc else "epochs"
+        pbar = tqdm(epoch_iter, desc=desc, total=cfg.n_epochs, leave=False, ncols=120)
+        epoch_iter = pbar
+
+    for epoch in epoch_iter:
+        lam_grl = _lambda_at_epoch(epoch, dann_cfg)
+        tr_stats = _epoch_train_dann(
+            model, train_loader, optimizer, scheduler,
+            class_weights, cfg, rng, device, lambda_grl=lam_grl,
+        )
+        val_proba, val_y = _epoch_eval(model, val_loader, device)
+        val_f1 = _val_macro_f1(val_proba, val_y)
+        cur_lr = float(optimizer.param_groups[0]["lr"])
+        history.append({
+            "epoch": epoch,
+            "lr": cur_lr,
+            "lambda_grl": lam_grl,
+            "class_loss": tr_stats["class_loss"],
+            "domain_loss": tr_stats["domain_loss"],
+            "train_class_acc": tr_stats["class_acc"],
+            "train_domain_acc": tr_stats["domain_acc"],
+            "val_macro_f1": val_f1,
+        })
+
+        if pbar is not None:
+            pbar.set_postfix(
+                cls=f"{tr_stats['class_loss']:.2f}",
+                dom=f"{tr_stats['domain_loss']:.2f}",
+                tr_acc=f"{tr_stats['class_acc']:.2f}",
+                dom_acc=f"{tr_stats['domain_acc']:.2f}",
+                val=f"{val_f1:.3f}",
+                best=f"{max(best_val_f1, val_f1):.3f}",
+                lam=f"{lam_grl:.3f}",
+                refresh=False,
+            )
+
+        if (epoch + 1) % cfg.log_every == 0 or epoch == 0 or epoch == cfg.n_epochs - 1:
+            log_fn(
+                f"  ep {epoch+1:>2d}/{cfg.n_epochs}  "
+                f"cls={tr_stats['class_loss']:.3f}  "
+                f"dom={tr_stats['domain_loss']:.3f}  "
+                f"tr_acc={tr_stats['class_acc']:.3f}  "
+                f"dom_acc={tr_stats['domain_acc']:.3f}  "
+                f"val_f1={val_f1:.3f}  lam={lam_grl:.3f}  lr={cur_lr:.2e}"
+            )
+
+        if val_f1 > best_val_f1 + 1e-6:
+            best_val_f1 = val_f1
+            best_epoch = epoch
+            best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+            bad_epochs = 0
+        else:
+            bad_epochs += 1
+            if bad_epochs >= cfg.patience:
+                if pbar is not None:
+                    pbar.close()
+                log_fn(f"  early stop at epoch {epoch+1} (best val_f1={best_val_f1:.3f} @ epoch {best_epoch+1})")
+                break
+
+    if pbar is not None:
+        pbar.close()
+
+    assert best_state is not None, "best_state never set -- training loop ran 0 epochs"
+    model.load_state_dict({k: v.to(device) for k, v in best_state.items()})
+
+    # Predict on test (class head only)
+    test_proba, _ = _epoch_eval(model, test_loader, device)
+    dt = time.perf_counter() - t0
+    info = {
+        "best_val_macro_f1": best_val_f1,
+        "best_epoch": best_epoch + 1,
+        "n_epochs_run": len(history),
+        "n_params": sum(p.numel() for p in model.parameters()),
+        "device": str(device),
+        "class_weights": cw.tolist(),
+        "history": history,
+        "n_inner_train": int(len(inner_tr_idx)),
+        "n_inner_val": int(len(inner_val_idx)),
+        "n_domains": int(n_domains),
+        "lambda_max": float(dann_cfg.lambda_max),
+        "warmup_epochs_dann": int(dann_cfg.warmup_epochs_dann),
+        "domain_hidden": int(dann_cfg.domain_hidden),
+        "unique_files": unique_files,
+    }
+    return test_proba, info, dt, model
