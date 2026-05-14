@@ -172,3 +172,146 @@ Combined with [memorization-probe-weak](#2026-05-14--memorization-probe-weak): *
 **Interpretation:** tree-based axis-aligned splits can pick up a small set of high-discriminator bins (possibly the published STEC bands at 1338/1454/1658 cm⁻¹) that survive cross-strain transfer; this gives them partial O157H7 recall. But they overfit to non-transferable strain-specific cues on the easier folds, dropping recall there. **Linear-vs-tree models fail in different ways on different strains** — neither family wins all strains. This suggests an ensemble (linear + tree averaging) might beat the best individual classical model on LOSO. Future work.
 
 This also reinforces the earlier conclusion: most of the LOSO crater is biology, and DANN won't close the O157H7 gap (which is the largest single-strain failure). Trees show that a *small amount* of cross-strain signal exists; getting more of it requires either domain adaptation (DANN) for the biology-independent batch component OR a higher-capacity nonlinear model (CNN) for the biology-dependent within-E. coli component.
+
+## 2026-05-14 — cnn-spec-underfit-and-fixes
+
+**The §E small-CNN spec, taken literally, can't fit even the training data.** First Protocol A run (channels 16-32-48-64 per spec, InstanceNorm-only front end) produced mean file-F1 = 0.40 ± 0.19 with per-fold values [0.61, 0.50, 0.46, 0.14, 0.28] — well below the pre-registered floor of 0.92 and below RF's classical floor (0.75).
+
+Diagnostic on fold 0 with no augmentation, no class weighting, no label smoothing, 120 epochs: train_acc plateau at 0.74, val_macro_f1 ceiling 0.56. The model wasn't undertraining — it was running out of fittable capacity.
+
+**Two root causes, both architectural:**
+
+1. **The spec's `~110K param` target and `channels 16-32-48-64` description are arithmetically inconsistent** — those channel widths with kernels 15-7-7-5 give 33K params, not 110K. Doubled to 32-64-96-128: 124K params, matches the target. See [10_decision_log.md §cnn-fixes](10_decision_log.md#2026-05-14--cnn-small-variant-architectural-fixes-mid-session).
+
+2. **No per-bin normalization at the input.** SNV ensures per-row mean=0 and std=1 but per-BIN mean ranges -0.46 to +3.84 across the 987 bins. Classical models pipe through StandardScaler before PCA+LogReg; the §E spec only listed InstanceNorm1d (which is per-spectrum, near-noop on SNV data). Adding a per-bin standardize (fit on outer-train, baked into the model as a `register_buffer`) lifted train_acc from 0.43 to 0.88 in 60 epochs on the same fold.
+
+With both fixes the model trains. Without them the experiment doesn't answer any question because the architecture isn't capable of fitting train data. Logged as a future-session prerequisite: **fit one fold no-aug as a sanity check before launching any new model arm's full sweep.**
+
+## 2026-05-14 — cnn-protocol-a-underperforms-classical
+
+**CNN (fixed architecture, default §E augmentation) on Protocol A: file-macro-F1 = 0.649 ± 0.079.** Per-fold: 0.63 / 0.65 / 0.54 / 0.68 / 0.76. Compared to classical leaderboard (file-F1):
+
+```
+PLS-DA     0.951 ± 0.051   ⭐ leader
+LogReg     0.961 ± 0.042
+RBF-SVM    0.833 ± 0.096
+XGBoost    0.796 ± 0.103
+LinSVM     0.779 ± 0.112
+RandomFor  0.753 ± 0.118
+CNN small  0.649 ± 0.079   ⬅ worst classical-family-level result
+```
+
+CNN is the worst headline-metric model on Protocol A. **The Salmonella class collapses in 4 of 5 folds** (Salmonella recall sequence: 0.50 / 0.17 / 0.00 / 0.50 / 0.83) — the model often predicts Non-STEC or STEC for Salmonella files. Classical models don't show this Salm→{Non-STEC, STEC} confusion at file level.
+
+**Why is the CNN losing on Protocol A?** Protocol A is largely saturated by within-file pixel averaging (cosine 0.997 → file-level soft-vote denoises pixel-level noise). Classical models exploit this by being linear over a learned PCA(50-150) basis — their effective dimensionality matches the data's true low-dim manifold. The CNN has to LEARN that manifold from raw 987-bin SNV input with only 70 training files; 124K params + the spec'd augmentation regime overfits to file-specific signatures inside the training files (visible as bumpy per-fold val_macro_f1 trajectories: best inner-val F1 averages 0.51 ± 0.07 across folds) and the soft-vote can't denoise overfitting in the same way it denoises pixel-level noise.
+
+## 2026-05-14 — cnn-loso-complementary-pattern
+
+**CNN LOSO mean parent-class recall = 0.35**, vs PLS-DA 0.60. Below the classical floor, by 0.25.
+
+But the per-strain breakdown is the *only* meaningful finding from this run:
+
+| Strain | Parent | Linear leaders (LogReg/PLS-DA) | Trees (RF/XGB) | CNN small | Family with best recall |
+|---|---|---|---|---|---|
+| 83972      | Non-STEC   | 0.88 | 0.12–0.25 | **0.88** | linears = CNN |
+| ATCC25922  | Non-STEC   | 0.22 | 0.11–0.33 | 0.11 | trees |
+| **K-12**       | **Non-STEC**   | **0.00** | **0.00** | **0.50** | ⭐ **CNN only** |
+| Dublin     | Salmonella | 0.56 (PLS-DA) | 0.11 | 0.11 | linears |
+| Heidelburg | Salmonella | 0.89 | 0.33–0.44 | 0.33 | linears |
+| Typhimurium| Salmonella | 1.00 | 0.33–0.44 | 0.11 | linears |
+| O103H2     | STEC       | 1.00 | 0.67 | 0.56 | linears |
+| O121H19    | STEC       | 0.89 | 0.78 | 0.00 | linears |
+| **O157H7**     | **STEC**       | **0.00** | **0.33** | **0.56** | ⭐ **CNN > trees > linears** |
+
+**Three patterns extending [§xgboost-complementary-failure-mode](07_findings.md#2026-05-14--xgboost-complementary-failure-mode):**
+
+1. **CNN cracks K-12 (parent Non-STEC) at 0.50 recall where every classical model — linear, kernel, tree — scored exactly 0.00.** K-12 is the laboratory-domesticated strain that [soupene-2003-k12](11_references.md#soupene-2003-k12--soupene-et-al-j-bacteriol-2003-laboratory-strains-of-escherichia-coli-k-12-things-are-seldom-what-they-seem) flagged as genomically atypical. Pre-registered prediction was 0.00–0.15 ("biological ceiling"); the actual 0.50 is well above that ceiling. **The CNN's nonlinear featurization picks up something on K-12 that linear methods on PCA-50 simply cannot reach.** Plausible mechanism: K-12 may share local peak ratios with other Non-STEC strains in fingerprint regions that PCA collapses but a CNN preserves; what looks like "biology no model can solve" on linear features may turn out to be "no shared low-dim manifold linear methods can find, BUT shared local peaks a CNN can find."
+
+2. **CNN cracks O157H7 (parent STEC) at 0.56 recall**, above trees (0.33) and linear models (0.00). O157H7 is the second-hardest "biology" fold (published-STEC bands at 1338/1454/1658, but the STEC vs Non-STEC distinction is virulence-defined and most of the Raman signal is phylogenetic, not virulence). This corroborates pattern 1: nonlinear features capture sub-peak structure that linears miss.
+
+3. **CNN loses on the "easy" strains the linear models ace** — Typhimurium (1.00 → 0.11), Heidelburg (0.89 → 0.33), O121H19 (0.89 → 0.00), O103H2 (1.00 → 0.56). On these strains the held-out file simply *looks similar* to a training file via PCA distance; linear methods nail this; the CNN destroys this signal during augmentation (especially Beta(0.2, 0.2) mixup) and replaces it with whatever its 124K-param encoder happened to learn.
+
+**Linear / tree / CNN are three different inductive biases.** None of them wins all strains. The cross-family ensemble (soft-vote across PLS-DA + XGB + CNN, or any 2 of the 3) likely scores higher mean parent-recall than any single family — [§future_work](09_future_work.md) entry recommended.
+
+## 2026-05-14 — memprobe-v2-fires
+
+**Class-trained CNN's penultimate features encode file_id at 15.5% top-1 (13.5× chance), top-5 = 37.0%.** Above the pre-registered 10% DANN threshold. Compares to memprobe v1 (from-scratch 6.6K-param tiny CNN trained directly for file_id) which got 4.1% top-1.
+
+**Why is v2 4× higher than v1?** Capacity. The class-supervised 124K-param CNN, even though its training objective is 4-way class prediction, ends up incidentally encoding 87-way file-id features at higher fidelity than the tiny network *optimized for the file-id task* could extract. Files share calibration date, laser intensity, exposure, and operator — these correlate with class but also with sub-class file identity; the encoder's representation captures both.
+
+**Decision: defer DANN.** Probe fires, so by the strict pre-registered rule DANN should be on for the next CNN run. But the per-strain pattern shows **the CNN already cracks K-12 and O157H7**, the strains where there's NO same-strain training file to leak from. Whatever the CNN learns about K-12 and O157H7 is by definition NOT batch-effect leakage. Naive DANN would penalize any encoder feature correlated with file_id, including the genuinely-cross-strain-discriminative features that produce those K-12 / O157H7 wins.
+
+Recommend for the Transformer session: enable DANN as an *ablation arm* alongside vanilla, then compare the per-strain pattern on K-12 / O157H7 specifically. If DANN preserves K-12 and O157H7 recall AND boosts the others, ship DANN. If DANN crushes K-12 and O157H7, the right next step is an ensemble, not adaptation.
+
+## 2026-05-14 — ensemble-fails-to-clear-plsda
+
+**Soft-vote ensembles of three model families (PLS-DA + XGB + CNN, all pairwise combinations) under both protocols. None beats PLS-DA solo on LOSO mean parent-class recall.** Predicted in [08_expectations.md §ensemble](08_expectations.md#2026-05-14--soft-vote-ensemble-pre-registered-before-running); resolution: branch "all three ensembles ≤ 0.60 mean" hit.
+
+Headline numbers:
+
+| Ensemble | Protocol A file-F1 | LOSO mean parent-recall | K-12 | O157H7 |
+|---|---|---|---|---|
+| PLS-DA solo (leader) | **0.951 ± 0.051** | **0.60** ⭐ | 0.00 | 0.00 |
+| CNN small solo | 0.649 ± 0.079 | 0.35 | **0.50** ⭐ | **0.56** ⭐ |
+| XGB solo | 0.796 ± 0.103 | 0.37 | 0.00 | 0.33 |
+| (a) PLS-DA + XGB | 0.863 ± 0.104 | 0.529 | 0.00 | 0.00 |
+| (b) PLS-DA + CNN | 0.919 ± 0.030 | **0.579** | 0.00 | 0.00 |
+| (c) PLS-DA + XGB + CNN | 0.864 ± 0.105 | 0.517 | 0.00 | 0.00 |
+
+**The two biology-hard wins do not survive averaging.** Both CNN's K-12 (0.50) and CNN's O157H7 (0.56) — the wins that prompted this experiment — go to 0.00 in every ensemble. XGB's O157H7 = 0.33 also goes to 0.00. PLS-DA's wrong-class confidence on these strains is high enough that uniform averaging with a sharper-but-minority correct vote still produces file-level argmax = wrong-class.
+
+**Why averaging crushes minority-vote signal here.** Take K-12 specifically:
+- CNN K-12 file-proba: roughly (Non-STEC ≈ 0.40, Salmonella ≈ 0.45, others ≈ 0.075). Correct class is *runner-up*, not majority — CNN's K-12 win at the file level only emerges from per-spectrum aggregation favoring Non-STEC.
+- PLS-DA K-12 file-proba: roughly (Non-STEC ≈ 0.05, Salmonella ≈ 0.85, others ≈ 0.05). Confidently wrong.
+- Uniform 2-way average: (Non-STEC ≈ 0.22, Salmonella ≈ 0.65). Argmax = Salmonella. The CNN's lift on Non-STEC isn't large enough to overcome PLS-DA's confident Salmonella vote even when CNN is right.
+
+Same mechanism for O157H7: CNN's STEC vote at ~0.45 averaged with PLS-DA's confident Non-STEC vote at ~0.80 yields ensemble Non-STEC argmax. **Weight tuning can't fix this** without breaking ensemble (a) and (b)'s simultaneous wins on the easy strains — PLS-DA needs to dominate those *and* be overridden on K-12/O157H7, which is just "predict CNN on those folds," which isn't an ensemble.
+
+**Protocol A also regresses across the board.** PLS-DA solo Protocol A file-F1 = 0.951; the best ensemble (b) PLS-DA + CNN = 0.919; (a) and (c) come in at ~0.864. Two mechanisms:
+1. H₂O recall drops from 8/8 (PLS-DA solo) to 5–6/8 in ensembles. CNN and XGB are less confident on H₂O than PLS-DA; averaging dilutes the perfect H₂O signal.
+2. Salmonella files where the CNN was wrong [07§cnn-protocol-a-underperforms-classical](07_findings.md#2026-05-14--cnn-protocol-a-underperforms-classical) drag the (b) and (c) ensembles below PLS-DA's file-level argmax in fold 4 (file-F1 drops to 0.680).
+
+**Pre-registered ranges were broadly accurate** — most actuals landed inside the predicted ranges. The two notable misses are (b)'s K-12 actual 0.00 vs predicted 0.13–0.50 (lower-half), and (a)/(b)/(c)'s O157H7 actual 0.00 vs predicted lower bounds 0.00 / 0.14 / 0.00. The pre-registration honestly captured "lower half more likely"; we got the lowest possible value for both biology-hard cells.
+
+**Operational decision** (matches pre-locked verdict structure): **ship PLS-DA solo as the headline LOSO model.** Flag CNN as single-model-best on K-12 (0.50) and O157H7 (0.56) in the README — these are biologically meaningful per-strain wins that the ensemble cannot capture but a per-strain ensembling scheme (route-on-prediction-confidence, stacking with a meta-learner trained on disagreement structure) plausibly could. **Deferred to future work**, not this session.
+
+**What this tells us about DANN, on the deferred decision in [§memprobe-v2-fires](#2026-05-14--memprobe-v2-fires).** The ensemble result rules out the "ensemble preserves biology wins → DANN unnecessary" path. We're left with: DANN might lift the CNN's mean by closing the easy-strain regression (Typhimurium 0.11, O121H19 0.00) without destroying its K-12/O157H7 wins. **That's the right next session.** A weighted ensemble where CNN is up-weighted on out-of-training-distribution test files (i.e. all LOSO folds, by construction) is a possible alternative, but it's basically "use CNN on LOSO and PLS-DA on Protocol A" — not a simple ensemble.
+
+## 2026-05-14 — transformer-underperforms-cnn
+
+**Small 1D-Transformer (~217K params, patch_size=20) trained under both protocols with the same recipe as the CNN. It is the weakest single-model arm in the sweep.** Pre-registered in [08§transformer](08_expectations.md#2026-05-14--small-1d-transformer-pre-registered-before-running-the-full-sweep); pre-locked verdict branch hit: "mean parent-recall < 0.30 → Transformer is worse than CNN; treat as benchmark completeness arm only."
+
+Headline numbers:
+
+| Model | Protocol A file-F1 | LOSO mean parent-recall | K-12 | O157H7 |
+|---|---|---|---|---|
+| PLS-DA (leader) | 0.951 ± 0.051 | **0.60** ⭐ | 0.00 | 0.00 |
+| LogReg | 0.961 ± 0.042 | 0.59 | 0.00 | 0.00 |
+| RBF-SVM | 0.833 ± 0.096 | 0.42 | 0.00 | 0.00 |
+| XGBoost | 0.796 ± 0.103 | 0.37 | 0.00 | 0.33 |
+| LinSVM | 0.779 ± 0.112 | 0.52 | 0.00 | 0.00 |
+| Random Forest | 0.753 ± 0.118 | 0.31 | 0.00 | 0.33 |
+| **CNN small** | 0.649 ± 0.079 | 0.35 | **0.50** ⭐ | **0.56** ⭐ |
+| **Transformer small** | **0.507 ± 0.122** | **0.193** | 0.00 | 0.00 |
+
+**Transformer is dead last on both axes.** Protocol A file-F1 is 0.10 below the CNN (which was already last among classical+CNN) and 0.44 below PLS-DA. LOSO mean parent-recall is 0.16 below the CNN, the previous weakest LOSO performer.
+
+**The diagnostic finding: 20-bin patches blur the narrow-peak signal the CNN found.** Three pieces of evidence point at patch size as the culprit:
+
+1. **Sanity check (no-aug, fold 0, 60 epochs) reached only train_acc 0.69 / val_f1 0.50.** Compared to the CNN's no-aug progression (33K underfit → 124K InstanceNorm-only 0.69/0.51 → 124K + per-bin standardize 0.88/0.56), the Transformer sits *at the InstanceNorm-only CNN level* despite carrying per-bin standardize from the start. The per-bin buffer is wired correctly (verified in code); the bottleneck is upstream of optimization. Confirmed via param count: 217K Transformer vs 124K CNN — more raw params, less effective capacity on this signal.
+
+2. **K-12 and O157H7 — the strains the CNN uniquely cracked — both collapse to 0.00.** The mechanism the CNN was using on these biology-hard cells was almost certainly local peak ratios in the fingerprint region (~5-10 bin wide Raman peaks; CNN kernels 5-15 preserve them). A patch_size=20 strided Conv1d averages every peak with its 19-bin neighborhood before any attention pass sees it. The narrow-peak signature is gone before the encoder gets to look at it.
+
+3. **The one place Transformer beats CNN is on a strain the CNN already failed on.** O121H19 (STEC) Transformer = 0.22 vs CNN = 0.00. Linear models got 0.89 on this strain; trees 0.78. The Transformer is finding *some* O121H19 signal but only enough to catch up partway. Doesn't reverse the overall ordering.
+
+**Pre-launch sanity-check protocol paid off** ([10§cnn-architectural-fixes](10_decision_log.md#2026-05-14--cnn-small-variant-architectural-fixes-mid-session)). The 60-second no-aug fold-0 pass told us the architecture's val ceiling was ~0.50 before we burned 18 minutes on the full sweep. We chose to proceed to confirm the per-strain pattern; the result is informative for the writeup but doesn't change any deployment decision. **Lesson re-affirmed: always sanity-check a single fold no-aug before launching a new architecture's full sweep.**
+
+**Augmentation is partly to blame on Protocol A.** No-aug fold 0 reached file_F1 0.722; full Protocol A with the §E aug regime got 0.507 (per-fold 0.48 / 0.35 / 0.49 / 0.53 / 0.69). A no-aug full sweep would land ~0.72 — better than the 0.507 actual but still below the CNN (0.649) and well below PLS-DA (0.951). Not pursued this session: the per-strain LOSO finding (patch resolution loses biology signal) is the load-bearing one, and tuning aug doesn't recover patch-blurred peaks.
+
+**Operational decisions made consistent with the pre-locked verdict structure:**
+- **Headline LOSO model remains PLS-DA solo + CNN flagged as per-strain best on K-12 (0.50) and O157H7 (0.56).**
+- **Transformer documented as benchmark completeness arm** in the README; future work entry added: "try patch_size=5 or overlapping patches with the same architecture and recipe; expected to lift K-12 and O157H7 if the patch-blur hypothesis is correct."
+- **Do NOT include Transformer in any downstream ensemble or DANN experiment** — it's strictly dominated by CNN on the per-strain pattern that motivates both.
+- **DANN-as-ablation on CNN remains the next session** ([07§memprobe-v2-fires](#2026-05-14--memprobe-v2-fires)), unchanged by this finding.
+
+Total wall-clock: ~25 min for the full sweep (Protocol A 7 min + LOSO 8 min + overhead). Came in under the pre-registered 5–15 / 9–27 minute budget.

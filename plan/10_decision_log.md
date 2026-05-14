@@ -78,6 +78,46 @@ Pre-build research pass dispatched 7 subagents (ml-engineer, machine-learning-en
 - ai-engineer suggested one-config-per-experiment vs matrix-style. mlops-engineer pushed matrix. Deferred — building classical first with per-file YAMLs (`logreg_groupkfold.yaml`, etc.) is fine for 12 experiments; can refactor to matrix later if it gets painful.
 - data-analyst suggested cutting the 9-subclass recall heatmap as "bait." Will keep computing per-subclass recall in `FoldResult` (it's cheap and may surface a useful finding), but the headline plot set in the final README will be the 6 they recommended.
 
+## 2026-05-14 — CNN small-variant architectural fixes mid-session
+
+Two corrections to plan/03_architecture.md sec E (small variant) caught during the first CNN training pass.
+
+### 1. Channel widening: 16/32/48/64 → 32/64/96/128
+
+The §E spec lists channels `16 → 32 → 48 → 64` AND a `~110K params` target in the same paragraph. Those two facts are internally inconsistent: with kernels 15-7-7-5 the literal channel widths arithmetic-out to **33K params, not 110K** (precise count 32,628). 33K can't be reconciled with 110K by tweaking kernel sizes either.
+
+**Empirical confirmation that 33K underfits.** Protocol A fold 0, no augmentation, no label smoothing, no class weighting, 120 epochs (well past the spec's 60-epoch budget): `train_acc` plateaus at 0.74 and `val_macro_f1` ceiling is 0.56. Classical PLS-DA on the same fold hits file-F1 = 0.951. The CNN was not capable of fitting its own training data, let alone generalizing.
+
+**Fix.** Double every channel width to `32 → 64 → 96 → 128`. With kernels 15-7-7-5 unchanged, the literal count comes to **124,484 params** — matches the spec's `~110K` target within ~13%. The medium variant remains differentiated by its extra dilation (2 and 4 vs single dilation=2), GAP⊕GMP concat, and 2-layer MLP head, so the small/medium gap is preserved.
+
+Reading the doc charitably: the channel-width tuple was written down at planning time before anyone actually counted parameters. The `~110K` figure was the intended target; the listed widths were aspirational and off by ~3.4×. Going to `32/64/96/128` follows the intent.
+
+This is NOT a step toward the medium variant. The user's standing instruction "expand only if small CNN looks promising" was about a structural jump (dilation, dual-pool head, MLP). This is a numerical correction to the small variant itself.
+
+### 2. Per-bin standardize at input
+
+SNV-preprocessed spectra have **per-row** mean = 0 and std = 1 by construction, but **per-bin** mean ranges -0.46 to +3.84 and per-bin std ranges 0.05 to 0.39 across the 987 bins. Classical models pipe through `StandardScaler` in their sklearn `Pipeline` before PCA + LogReg; this removes the per-bin bias and re-equalizes per-bin variance so each bin contributes comparably to the linear (or kernel) decision boundary.
+
+The §E spec describes "InstanceNorm1d at input" only — InstanceNorm normalizes **per-spectrum-across-L**, which is a near-noop on data that's already SNV-normalized. There's no per-BIN normalization in the spec'd CNN front-end.
+
+**Empirical confirmation that per-bin standardize is the missing piece.** Same fold-0 / no-aug / 60-epoch test:
+
+| Front-end | train_acc @ epoch 60 | val_macro_f1 best |
+|---|---|---|
+| 33K params, InstanceNorm only | 0.43 | 0.40 |
+| 124K params, InstanceNorm only | 0.69 | 0.51 |
+| 124K params, InstanceNorm + per-bin standardize | **0.88** | **0.56** |
+
+Per-bin standardize is what turns "model can't fit train" into "model fits train but generalization is the question." That's the regime where pre-registered expectations actually apply.
+
+**Implementation.** `SmallCNN1D` carries `(input_mu, input_sd)` as `register_buffer` tensors. `train.train_cnn_fold` fits them on the outer-train per fold and calls `model.set_input_stats(mu, sd)`; `state_dict()` then captures the buffers so the memprobe v2 (which loads the encoder via `load_state_dict`) inherits the same input pipeline automatically. No external sidecar files.
+
+### What this changes about already-pre-registered expectations
+
+The CNN expectations in [08_expectations.md](08_expectations.md) were registered against a "~110K param, well-fit" model. The 33K version registered against the same numbers was a guarantee of below-floor failure (Protocol A actual 0.40 file-F1 vs predicted 0.92–0.98). With both fixes applied, the registered ranges are the right thing to compare against.
+
+Lesson logged so it's not repeated for the Transformer session: **fit a single training fold without augmentation as a sanity check before launching the full sweep.** If the model can't fit train, no amount of regularization sweep or LR tuning will help. This costs one extra fold (~1 minute on MPS) and would have caught the 33K problem in the first 5 minutes.
+
 ## 2026-05-14 — XGBoost spec cheapened mid-session
 
 **Original spec** (from machine-learning-engineer subagent recommendation): `n_estimators: 200–1000`, `max_depth: 3–7`, 20 trials, `n_jobs=1`. **Problem:** ran ~19 min on Protocol A fold 0 without finishing; projected ~2 hours per protocol. **Root cause:** I copied the subagent's "n_estimators 200–1000 with early stopping" recommendation but never implemented early stopping in `make_xgb`, so every random-search trial trained all N trees. Combined with `n_jobs=1` (mlops-engineer's reproducibility advice over-applied), each fold took forever.
