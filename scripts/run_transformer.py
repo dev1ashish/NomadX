@@ -71,6 +71,7 @@ def run_one(
     seed: int,
     cfg: TrainConfig,
     device: torch.device,
+    patch_size: int = 20,
     model_name: str = "transformer_small",
     runs_log: Path | None = None,
 ) -> dict:
@@ -140,7 +141,7 @@ def run_one(
 
         def factory(seed_in: int) -> SmallTransformer1D:
             del seed_in
-            return SmallTransformer1D(n_bins=n_bins, n_classes=4)
+            return SmallTransformer1D(n_bins=n_bins, n_classes=4, patch_size=patch_size)
 
         # Per-fold tqdm label so the inner epoch bar tells you which fold
         # it's progressing on.
@@ -280,6 +281,13 @@ def main() -> int:
                     help="Sanity-check mode: disable all augmentation.")
     ap.add_argument("--folds", nargs="*", default=None,
                     help="Optional subset of fold ids to run (e.g. for sanity check).")
+    ap.add_argument("--patch-size", type=int, default=20,
+                    help="Patch size for the strided Conv1d patch-embed. 20 (default) "
+                         "blurs 5-10 bin Raman peaks (documented in plan/07§transformer-underperforms-cnn); "
+                         "5 preserves narrow peaks but ~4x more tokens.")
+    ap.add_argument("--model-name", default=None,
+                    help="Override run model_name. Defaults to transformer_small "
+                         "or transformer_p{patch} if patch_size != 20.")
     args = ap.parse_args()
 
     cache_dir = Path(args.cache_dir)
@@ -310,9 +318,16 @@ def main() -> int:
           f"lr={cfg.lr}  patience={cfg.patience}  aug={'OFF' if args.no_aug else 'ON'}")
     print(f"Protocols: {args.protocols}\n")
 
-    tmp = SmallTransformer1D(n_bins=X_full.shape[1], n_classes=4)
-    print(f"SmallTransformer1D params: {count_params(tmp):,}  patches: {tmp.n_patches}")
+    tmp = SmallTransformer1D(n_bins=X_full.shape[1], n_classes=4, patch_size=args.patch_size)
+    print(f"SmallTransformer1D params: {count_params(tmp):,}  patches: {tmp.n_patches}  patch_size: {args.patch_size}")
     del tmp
+
+    if args.model_name:
+        model_name = args.model_name
+    elif args.patch_size == 20:
+        model_name = "transformer_small"
+    else:
+        model_name = f"transformer_p{args.patch_size}"
 
     PROTOCOL_TO_FILE = {"group_kfold": "protocol_a.json", "loso": "protocol_b.json"}
 
@@ -346,6 +361,8 @@ def main() -> int:
             seed=args.seed,
             cfg=cfg,
             device=device,
+            patch_size=args.patch_size,
+            model_name=model_name,
             runs_log=runs_log,
         )
         all_summaries.append(summary)

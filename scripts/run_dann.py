@@ -66,16 +66,48 @@ def _runs_log_append(path: Path, entry: dict) -> None:
         f.write(json.dumps(entry) + "\n")
 
 
+def _build_domain_labels(spec_df: pd.DataFrame, grouping: str) -> np.ndarray:
+    """Return a (N,) array of per-row domain labels (strings) for the DANN GRL target.
+
+    Three groupings supported:
+      file_id   - 87-way default. Same as original DANN setup.
+      subclass  - 10-way: 9 bacterial subclasses + "H2O" (since H2O files have
+                  subclass=None in spec_df). The GRL no longer penalizes
+                  within-subclass shared features, which should preserve the
+                  easy-commensal recognition signal that lambda=0.3 destroys.
+      cal_date  - 13-way: extract YYMMDD from the trailing _NNNNNN segment of
+                  file_id. The most biologically meaningful nuisance variable
+                  per plan/07§batch-effect.
+    """
+    import re
+    if grouping == "file_id":
+        return spec_df["file_id"].to_numpy()
+    if grouping == "subclass":
+        sub = spec_df["subclass"].to_numpy()
+        # Replace pandas None with the string "H2O" so the domain head sees a
+        # valid categorical target on water rows.
+        return np.array([s if s is not None else "H2O" for s in sub])
+    if grouping == "cal_date":
+        pat = re.compile(r"_(\d{6})$")
+        def _parse(fid: str) -> str:
+            m = pat.search(fid)
+            return m.group(1) if m else "unknown"
+        return np.array([_parse(f) for f in spec_df["file_id"].to_numpy()])
+    raise ValueError(f"unknown domain grouping: {grouping}")
+
+
 def run_one(
     *,
     protocol: str,
     splits_path: Path,
     spec_df: pd.DataFrame,
     X_full: np.ndarray,
+    domain_labels_all: np.ndarray,  # (N,) full-dataset per-row domain labels
     outputs_dir: Path,
     seed: int,
     cfg: TrainConfig,
     dann_cfg: DANNConfig,
+    domain_grouping: str,
     device: torch.device,
     model_name: str,
     runs_log: Path | None = None,
@@ -113,6 +145,7 @@ def run_one(
             "lambda_max": dann_cfg.lambda_max,
             "warmup_epochs_dann": dann_cfg.warmup_epochs_dann,
             "domain_hidden": dann_cfg.domain_hidden,
+            "domain_grouping": domain_grouping,
         },
         "sklearn_version": splits["meta"]["sklearn_version"],
         "split_cache_hash": splits["meta"]["cache_hash"],
@@ -139,15 +172,17 @@ def run_one(
         X_train = X_full[train_idx]
         y_train = y_all[train_idx]
         groups_train = file_ids_all[train_idx]
+        domain_labels_train = domain_labels_all[train_idx]
         X_test = X_full[test_idx]
 
         n_train_files = len(set(groups_train))
         n_test_files = len(set(file_ids_all[test_idx]))
+        n_domains_this_fold = len(set(domain_labels_train.tolist()))
         tqdm.write(
             f"\n[{run_id}] fold={fold_id}  "
             f"n_train={train_idx.size} ({n_train_files} files)  "
             f"n_test={test_idx.size} ({n_test_files} files)  "
-            f"n_domains={n_train_files}"
+            f"n_domains={n_domains_this_fold} (grouping={domain_grouping})"
         )
 
         # Factory takes (fold_seed, n_domains). _set_seeds(fold_seed) inside
@@ -185,6 +220,7 @@ def run_one(
             X_train=X_train,
             y_train=y_train,
             groups_train=groups_train,
+            domain_labels=domain_labels_train,
             X_test=X_test,
             fold_seed=fold_seed,
             device=device,
@@ -295,6 +331,7 @@ def run_one(
         "protocol": protocol,
         "lambda_max": dann_cfg.lambda_max,
         "warmup_epochs_dann": dann_cfg.warmup_epochs_dann,
+        "domain_grouping": domain_grouping,
         "spectrum_macro_f1_mean": mr.spectrum_macro_f1_mean,
         "spectrum_macro_f1_sd": mr.spectrum_macro_f1_sd,
         "file_macro_f1_mean": mr.file_macro_f1_mean,
@@ -342,6 +379,12 @@ def main() -> int:
                     help="Linear warmup over which lambda goes 0 -> lambda_max.")
     ap.add_argument("--domain-hidden", type=int, default=64,
                     help="Hidden width of the domain MLP.")
+    ap.add_argument("--domain-grouping", default="file_id",
+                    choices=["file_id", "subclass", "cal_date"],
+                    help="Granularity of the GRL target. file_id (87-way, default) is "
+                         "the original DANN setup; subclass (10-way) and cal_date (13-way) "
+                         "test the grouped-domain hypothesis (less destructive, preserves "
+                         "within-strain or within-acquisition-batch shared features).")
     ap.add_argument("--model-name", default=None,
                     help="Override model_name used for the run_id. Defaults "
                          "to cnn_dann_lam<X> e.g. cnn_dann_lam0.10.")
@@ -354,6 +397,16 @@ def main() -> int:
 
     spec_df = pd.read_parquet(cache_dir / "spectra.parquet")
     X_full = np.load(cache_dir / "spectra_array_preprocessed.npy")
+    # Build the per-row domain label array up-front (full dataset). The
+    # per-fold slice happens inside run_one. Doing it here once means we
+    # crash early if spec_df is missing the column the chosen grouping
+    # needs, rather than mid-sweep.
+    domain_labels_all = _build_domain_labels(spec_df, args.domain_grouping)
+    n_unique_global = len(set(domain_labels_all.tolist()))
+    print(
+        f"Domain grouping: {args.domain_grouping} -> {n_unique_global} unique "
+        f"domains globally; per-fold counts will be smaller (outer-train only)."
+    )
 
     device = torch.device(args.device) if args.device else select_device()
 
@@ -373,7 +426,13 @@ def main() -> int:
         domain_hidden=args.domain_hidden,
     )
 
-    model_name = args.model_name or f"cnn_dann_lam{args.lambda_max:.2f}"
+    # Tag model_name with the domain grouping when it's not the default.
+    if args.model_name:
+        model_name = args.model_name
+    elif args.domain_grouping == "file_id":
+        model_name = f"cnn_dann_lam{args.lambda_max:.2f}"
+    else:
+        model_name = f"cnn_dann_lam{args.lambda_max:.2f}_dom_{args.domain_grouping}"
 
     print(f"Loaded preprocessed array shape={X_full.shape}, dtype={X_full.dtype}")
     print(f"Device: {device}  torch: {torch.__version__}")
@@ -426,10 +485,12 @@ def main() -> int:
             splits_path=splits_path,
             spec_df=spec_df,
             X_full=X_full,
+            domain_labels_all=domain_labels_all,
             outputs_dir=outputs_dir,
             seed=args.seed,
             cfg=cfg,
             dann_cfg=dann_cfg,
+            domain_grouping=args.domain_grouping,
             device=device,
             model_name=model_name,
             runs_log=runs_log,

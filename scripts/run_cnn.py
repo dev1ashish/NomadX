@@ -41,7 +41,7 @@ from atlas.evaluate import (
     write_model_result,
     write_predictions_parquet,
 )
-from atlas.models_cnn import SmallCNN1D, count_params, select_device
+from atlas.models_cnn import SmallCNN1D, SmallCNN1DDeriv, count_params, select_device
 from atlas.splits import load_splits
 from atlas.train import TrainConfig, train_cnn_fold
 
@@ -66,6 +66,7 @@ def run_one(
     seed: int,
     cfg: TrainConfig,
     device: torch.device,
+    use_2nd_deriv: bool = False,
     model_name: str = "cnn_small",
     runs_log: Path | None = None,
 ) -> dict:
@@ -135,9 +136,14 @@ def run_one(
         # train.py's `_set_seeds(fold_seed)` runs before this factory is invoked,
         # so model init is already deterministic via the global torch RNG; we
         # don't need to use the `seed_in` argument here.
-        def factory(seed_in: int) -> SmallCNN1D:
-            del seed_in
-            return SmallCNN1D(n_bins=n_bins, n_classes=4)
+        if use_2nd_deriv:
+            def factory(seed_in: int) -> SmallCNN1DDeriv:
+                del seed_in
+                return SmallCNN1DDeriv(n_bins=n_bins, n_classes=4)
+        else:
+            def factory(seed_in: int) -> SmallCNN1D:
+                del seed_in
+                return SmallCNN1D(n_bins=n_bins, n_classes=4)
 
         proba_test, info, train_dt, trained_model = train_cnn_fold(
             model_factory=factory,
@@ -249,6 +255,13 @@ def main() -> int:
     ap.add_argument("--patience", type=int, default=10)
     ap.add_argument("--device", default=None,
                     help="Override device. Default = auto (MPS > CUDA > CPU).")
+    ap.add_argument("--use-2nd-deriv", action="store_true",
+                    help="Use 2-channel CNN: input + 2nd derivative as second channel. "
+                         "Inline fixed (1, -2, 1) Laplacian, no learnable params. "
+                         "Hypothesis: explicit edge information helps narrow-peak "
+                         "discrimination on K-12 / O157H7 / O103H2.")
+    ap.add_argument("--model-name", default=None,
+                    help="Override model_name (defaults to cnn_small or cnn_small_deriv).")
     args = ap.parse_args()
 
     cache_dir = Path(args.cache_dir)
@@ -273,9 +286,20 @@ def main() -> int:
     print(f"Protocols: {args.protocols}\n")
 
     # Param count print for the run log
-    tmp = SmallCNN1D(n_bins=X_full.shape[1], n_classes=4)
-    print(f"SmallCNN1D params: {count_params(tmp):,}")
+    if args.use_2nd_deriv:
+        tmp = SmallCNN1DDeriv(n_bins=X_full.shape[1], n_classes=4)
+        print(f"SmallCNN1DDeriv params: {count_params(tmp):,}  (2-channel input)")
+    else:
+        tmp = SmallCNN1D(n_bins=X_full.shape[1], n_classes=4)
+        print(f"SmallCNN1D params: {count_params(tmp):,}")
     del tmp
+
+    if args.model_name:
+        model_name = args.model_name
+    elif args.use_2nd_deriv:
+        model_name = "cnn_small_deriv"
+    else:
+        model_name = "cnn_small"
 
     PROTOCOL_TO_FILE = {"group_kfold": "protocol_a.json", "loso": "protocol_b.json"}
 
@@ -291,6 +315,8 @@ def main() -> int:
             seed=args.seed,
             cfg=cfg,
             device=device,
+            use_2nd_deriv=args.use_2nd_deriv,
+            model_name=model_name,
             runs_log=runs_log,
         )
         all_summaries.append(summary)

@@ -418,3 +418,266 @@ Three readings, in order of how likely:
 **Operational decision: ship λ=0.1 as the headline DANN model.** λ=0.3 documented as the "high-pressure regime that strengthens pathogen biology at the cost of easy commensal recognition" — a future-work entry rather than a deployable model. PLS-DA stays as the strongest-LOSO-mean classical baseline in the README; vanilla CNN stays as the proof point that DANN preserved the K-12 + O157H7 biology wins it discovered.
 
 **Compute actuals for λ=0.3:** Protocol A ~3.4 min, LOSO ~11.5 min, memprobe 0.6s. Same envelope as λ=0.1.
+
+## 2026-05-14 — dann-lambda-curve-completed
+
+**Third lambda value (λ=0.05) added to the sweep.** Pre-registration at [08§lambda-0.05](08_expectations.md#2026-05-14--dann-lambda_max005-sweep-pre-registered-before-running). Result is a useful negative finding for picking the headline single-model AND a useful positive finding for stacking.
+
+**Full lambda curve, per-strain:**
+
+| Strain | Vanilla (λ=0) | λ=0.05 | λ=0.1 | λ=0.3 |
+|---|---|---|---|---|
+| 83972 (Non-STEC) | 0.88 | **0.88** | 0.75 | 0.25 |
+| ATCC25922 (Non-STEC) | 0.11 | 0.22 | **0.89** | 0.11 |
+| K-12 (Non-STEC) | 0.50 | 0.12 ↓ | 0.75 | **0.88** |
+| Dublin (Salmonella) | 0.11 | **0.22** | 0.00 | 0.22 |
+| Heidelburg (Salmonella) | 0.33 | 0.11 | **0.44** | 0.33 |
+| Typhimurium (Salmonella) | 0.11 | **0.22** | 0.11 | 0.00 |
+| O103H2 (STEC) | 0.56 | 0.44 | 0.33 | **0.89** |
+| O121H19 (STEC) | 0.00 | 0.00 | **0.67** | 0.67 |
+| O157H7 (STEC) | 0.56 | **0.67** | 0.56 | **0.67** |
+| **MEAN** | 0.35 | **0.321** | **0.500** | **0.447** |
+| Protocol A file-F1 | 0.649 | 0.635 | 0.566 | 0.493 |
+
+**Three findings:**
+
+1. **There's a minimum effective DANN pressure.** λ=0.05 mean (0.321) is BELOW vanilla CNN (0.35); the GRL at this strength is adding noise without providing regularization. K-12 dropped from 0.50 (vanilla) to 0.12 (λ=0.05) — likely RNG variance but consistent with "perturbation without enough regularization to compensate." **The effective DANN regime starts around λ ≈ 0.07-0.10 on this dataset.**
+
+2. **Per-strain wins are non-overlapping across lambdas.** No strain is best-recall across the full menu — different lambdas win on different cells:
+   - 83972 best at λ=0 / λ=0.05 (tied)
+   - ATCC25922 best at λ=0.1 (0.89 vs ≤0.22 elsewhere)
+   - K-12 best at λ=0.3 (0.88)
+   - Dublin / Typhimurium best at λ=0.05 / λ=0.3 (tied at 0.22)
+   - O103H2 best at λ=0.3 (0.89)
+   - O157H7 best at λ=0.05 / λ=0.3 (tied at 0.67)
+   - This is the structural justification for stacking — no single lambda is optimal; each provides a unique strain niche.
+
+3. **Protocol A monotonically decreases in lambda** (0.649 → 0.635 → 0.566 → 0.493). The Protocol-A-vs-LOSO tradeoff is clean: more DANN buys LOSO biology features at the cost of Protocol A within-distribution accuracy. The Pareto curve is well-characterized now.
+
+**Operational decisions:**
+- **λ=0.1 remains the headline single-model DANN.** No update to the headline.
+- **λ=0.05, λ=0.1, λ=0.3 all become base models for the stacking meta-learner** ([16] in the research queue). The complementary failure structure they show is the richest set we'll get for stacking inputs.
+- **Useful negative finding to document in writeup:** "DANN below λ ≈ 0.07 on this dataset is just noise — there's a regularization phase transition between perturbation and effective adversarial pressure."
+
+**Compute:** Protocol A ~3.2 min, LOSO ~11 min, no memprobe v2 needed (the probe finding is already documented across two lambdas and the decoupling result is established).
+
+## 2026-05-14 — grouped-domain-dann-rejects-hypothesis
+
+**Tested grouped-domain DANN (collapse 87-way file_id GRL target to 10-way subclass) at λ=0.1.** Pre-registration at [08§grouped-domain-dann](08_expectations.md#2026-05-14--grouped-domain-dann-pre-registered-before-running). Hypothesis: coarser domain target should preserve within-strain shared features and avoid the λ=0.3 commensal crater. **Hypothesis REJECTED.**
+
+| Metric | Vanilla CNN | DANN(file_id, 0.1) | DANN(subclass, 0.1) |
+|---|---|---|---|
+| Protocol A file-F1 | 0.649 | 0.566 | **0.654** ⭐ |
+| LOSO mean parent-recall | 0.35 | **0.500** ⭐ | 0.309 |
+| K-12 (Non-STEC) | 0.50 | **0.75** ⭐ | 0.12 ❌ |
+| ATCC25922 (Non-STEC) | 0.11 | **0.89** | **0.89** |
+| 83972 (Non-STEC) | 0.88 | 0.75 | **0.88** |
+| O121H19 (STEC) | 0.00 | **0.67** ⭐ | 0.00 ❌ |
+| O157H7 (STEC) | 0.56 | **0.56** | 0.33 ↓ |
+| Heidelburg (Salmonella) | 0.33 | 0.44 | 0.22 ↓ |
+| Domain accuracy at end of training | n/a (no DANN) | 0.06 (chance 0.014 for 87-way) | 0.18 (chance 0.10 for 10-way) |
+
+**Two findings:**
+
+1. **The domain-target granularity is a fundamental design choice with opposite optimal directions for Protocol A vs LOSO.** Subclass grouping wins Protocol A (0.654 vs file_id 0.566 vs vanilla 0.649) because it suppresses within-strain acquisition noise that hurts standard CV. File_id grouping wins LOSO (0.500 vs subclass 0.309 vs vanilla 0.35) because it suppresses within-strain noise WITHOUT forcing the encoder to drop cross-strain biology. **Coarsening the domain target asks the encoder to do the wrong thing for cross-strain generalization.**
+
+2. **The pre-registered hypothesis was wrong about the λ=0.3 crater mechanism.** I had attributed 83972 (0.75→0.25) and ATCC25922 (0.89→0.11) collapses at λ=0.3 to "file_id is too fine — GRL penalizes within-strain shared features that easy commensals ride on." Subclass grouping at λ=0.1 was the test: if the crater was caused by GRL granularity, subclass grouping should preserve commensals AND keep K-12/O157H7. **Subclass grouping preserved commensals (83972 0.88, ATCC25922 0.89) but destroyed K-12 (0.75→0.12) and O121H19 (0.67→0.00).** So the λ=0.3 commensal crater was probably caused by adversarial pressure strength, NOT by GRL granularity. The two are different design knobs that interact in non-obvious ways.
+
+**Operational decision: do not pursue cal_date grouping or subclass×λ=0.3.** Both predicted by the mechanism analysis to lose LOSO. The remaining DANN-variant upside is essentially exhausted; the next experiments to try are:
+- per-strain λ selection (#20 in the research queue) — picks one of {0.05, 0.1, 0.3} per LOSO test strain via held-out inner-fold confidence
+- patch_size=5 Transformer (#19) — tests an explicit hypothesis on a different architecture
+- 2nd-derivative input channel for CNN (#22) — adds peak-edge features as a second input channel
+
+**Subclass-grouping λ=0.1 IS the best Protocol A model** (file-F1 0.654 vs vanilla 0.649 vs file_id λ=0.1 0.566). Worth keeping in the writeup as the "Protocol A-optimal DANN" Pareto point. If the deployment use case is "new file of a known strain" rather than "new strain", subclass grouping is the right choice.
+
+**Compute:** ~14 min for both protocols. Same envelope as file_id DANN runs.
+
+## 2026-05-14 — stacking-meta-learner-fails
+
+**Built a LogReg meta-learner over {PLS-DA, DANN(0.05), DANN(0.1), DANN(0.3)} file-level predict_probas under LOSO meta-CV.** Code at `atlas/stacking.py` + `scripts/run_stacking.py`. Three variants tried: default (C=1, no subclass), --use-subclass (one-hot subclass feature), --meta-c 10 (less regularization).
+
+**All three variants underperformed the best base model.** Mean parent-recall: default 0.407, subclass 0.136, low-reg 0.395. vs DANN(0.1) solo 0.500, PLS-DA solo 0.60.
+
+**The fundamental failure mode** (per-strain table for default variant):
+
+| Strain | PLS-DA | DANN 0.05 | DANN 0.1 | DANN 0.3 | Stacker |
+|---|---|---|---|---|---|
+| 83972 | 0.88 | 0.88 | 0.75 | 0.25 | **0.00** ❌ every base correct, stacker wrong |
+| K-12 | 0.00 | 0.12 | 0.75 | 0.88 | **0.00** ❌ DANN had it, stacker followed PLS-DA |
+| O157H7 | 0.00 | 0.67 | 0.56 | 0.67 | **0.00** ❌ same |
+| Typhimurium | 1.00 | 0.22 | 0.11 | 0.00 | 1.00 ✓ PLS-DA carried |
+| O121H19 | 0.89 | 0.00 | 0.67 | 0.67 | 0.89 ✓ PLS-DA carried |
+
+**Mechanism:** in meta-training (excluding K-12), the meta-learner sees DANN(0.3) predicting Non-STEC at proba ~0.11–0.25 on ACTUAL Non-STEC training files (83972, ATCC25922) — so it LEARNS "DANN(0.3)::p_Non-STEC is LOW when the file IS Non-STEC." On held-out K-12, DANN(0.3) correctly outputs 0.88 on Non-STEC. The meta-learner applies its learned negative coefficient and predicts NOT-Non-STEC. Wrong.
+
+**This is a fundamental LOSO-stacking limitation, not a hyperparameter issue.** DANN's per-strain behavior is too heterogeneous to learn a consistent meta-rule from out-of-fold examples — DANN(0.3) is bad at 83972 but good at K-12, and the meta-learner can't extrapolate that contrast from a held-out training set where K-12 is never seen.
+
+**Operational decision: stacking does not ship.** Useful negative finding for the writeup: it shows we considered the obvious solution to complementary-failures and demonstrated empirically why it doesn't work under LOSO. A future-work entry for "per-strain confidence-routing instead of stacking" stays open.
+
+**Three sub-results worth keeping in the writeup:**
+1. The 0.136 result from --use-subclass shows that adding a held-out strain's one-hot to the meta-features doesn't help — the held-out strain has one-hot=1 in test but 0 in train, so the meta-learner can't learn what to do with it.
+2. The 0.395 result from low regularization (C=10) shows the issue isn't regularization strength — even with more capacity to fit per-strain patterns, the heterogeneous training signal still misleads the meta-learner.
+3. PLS-DA dominates the stacker's choices on every strain where PLS-DA is confident, because PLS-DA's training-set behavior matches its test-set behavior more consistently than DANN's does.
+
+**Compute:** ~0.2 seconds per variant. Negligible.
+
+## 2026-05-14 — per-strain-lambda-selection-fails
+
+**Tried three leakage-bounded selector variants to pick the optimal DANN λ per LOSO test strain.** Code at `atlas/lambda_selector.py` + `scripts/run_lambda_selector.py`. Base candidates: DANN(λ=0.05), DANN(λ=0.1), DANN(λ=0.3).
+
+| Selector | Selection signal | Leakage | Mean parent-recall |
+|---|---|---|---|
+| DANN λ=0.1 solo (target to beat) | n/a | n/a | **0.500** |
+| hard | argmax(inner_val_f1) per strain | none (inner val on 8 outer-train strains) | 0.444 |
+| soft | softmax(inner_val_f1)-weighted average | none | 0.435 |
+| router | per-file argmax(mean max-proba) | mild (uses test-set confidence) | 0.440 |
+
+**All three selectors underperform the best single base model.** The hard selector got 5/9 strain picks right but the 4 wrong picks were on high-stakes strains:
+
+| Strain | Picked (recall) | Optimal choice (recall) | Cost of miss |
+|---|---|---|---|
+| K-12 | lam0.05 (0.12) | lam0.30 (0.88) | **0.76** |
+| ATCC25922 | lam0.05 (0.22) | lam0.10 (0.89) | **0.67** |
+| Heidelburg | lam0.05 (0.11) | lam0.10 (0.44) | 0.33 |
+
+**Mechanism: inner-val F1 doesn't predict cross-strain behavior.** Inner-val F1 measures "fits the 8 training strains well." On the 9th held-out strain, the optimal λ depends on whether the strain is K-12-like (atypical biology, wants high λ to strip surface noise), Typhimurium-like (typical commensal Salmonella, wants linear methods), or ATCC25922-like (the singular middle case where moderate DANN wins). Inner-val F1 ranks lam0.05 marginally highest across most folds because it's the gentlest perturbation, easiest to optimize on the training distribution — but the training distribution is exactly the wrong thing to use as a proxy for the held-out strain.
+
+**Router (test-time confidence) didn't fare better.** Routing to the highest-confidence base model per test file picked lam0.05 9/9 times on 83972 (correct, 0.875) but also lam0.05 9/9 times on Heidelburg (wrong — should have been lam0.10) and Typhimurium (no good answer). Confidence is biased toward the gentlest perturbation, which happens to be wrong as often as it's right.
+
+**This is the THIRD negative result on multi-λ combination strategies:**
+1. Soft-vote ensemble (`plan/07§ensemble-fails-to-clear-plsda`): uniform averaging crushes minority signal.
+2. Stacking meta-learner (`plan/07§stacking-meta-learner-fails`): meta-learner can't learn DANN's per-strain behavior from out-of-fold examples.
+3. Per-strain optimal λ (this finding): inner-val F1 and test-time confidence don't predict cross-strain DANN behavior.
+
+**All three failures share a root cause:** DANN's per-strain idiosyncrasies (K-12 wants high λ, ATCC25922 wants moderate λ, 83972 wants low λ, Typhimurium isn't recoverable at any λ) are non-monotonic in any aggregate signal we can compute from leakage-free sources. The information needed to pick the right λ per strain *is held out by definition*.
+
+**Operational decision: ship DANN λ=0.1 with file_id grouping.** It's the best robust single-model setting. The complementary failures across {λ=0.05, λ=0.1, λ=0.3} are documented as a regime-curve finding for the writeup, NOT as a base for a combined model. **Open future-work direction:** "labeled support files from each strain category at inference time" — give the model 1-2 representative spectra per known strain type to choose λ. This breaks LOSO purity but might be operationally realistic.
+
+**Compute:** ~3 seconds total for all 3 selector variants. Negligible.
+
+## 2026-05-14 — patch5-transformer-partially-confirms-blur-hypothesis
+
+**Re-ran the Transformer with patch_size=5 instead of patch_size=20** to test the 2026-05-14§transformer-underperforms-cnn hypothesis that 20-bin patches blur the 5-10-bin Raman peaks the CNN was capturing on K-12 / O157H7. Pre-registered as future work in that earlier entry; not formally re-registered in plan/08 since the hypothesis was inherited.
+
+**Headline: partial confirmation.** Patch=5 produces TWO new per-strain SOTA records but does NOT fix K-12.
+
+### Protocol A
+
+| Model | Mean file-F1 | SD | Per-fold |
+|---|---|---|---|
+| Patch=20 Transformer | 0.507 | 0.122 | 0.48 / 0.35 / 0.49 / 0.53 / 0.69 |
+| **Patch=5 Transformer** | **0.534** | **0.028** | 0.57 / 0.52 / 0.54 / 0.50 / 0.54 |
+| Vanilla CNN | 0.649 | 0.079 | — |
+| PLS-DA | 0.951 | 0.051 | — |
+
+Protocol A mean improves modestly (+0.027) but **fold variance drops dramatically (SD 0.028 vs 0.122)** — patch=5 is much more stable across folds. Still well below the CNN.
+
+### LOSO per-strain
+
+| Strain | Parent | Patch=20 | **Patch=5** | DANN λ=0.1 | Best across all models |
+|---|---|---|---|---|---|
+| 83972 | Non-STEC | 0.75 | 0.25 | 0.75 | 0.88 (PLS-DA, CNN, DANN λ=0.05) |
+| ATCC25922 | Non-STEC | 0.22 | **1.00** ⭐⭐⭐ | 0.89 | **1.00 (patch=5)** |
+| K-12 | Non-STEC | 0.00 | 0.00 | 0.75 | **0.88 (DANN λ=0.3)** |
+| Dublin | Salmonella | 0.00 | 0.00 | 0.00 | 0.56 (PLS-DA) |
+| Heidelburg | Salmonella | 0.11 | 0.33 | 0.44 | 0.89 (PLS-DA, LR) |
+| Typhimurium | Salmonella | 0.00 | 0.11 | 0.11 | 1.00 (PLS-DA, LR, LinSVM) |
+| O103H2 | STEC | 0.44 | 0.44 | 0.33 | 1.00 (linears) / 0.89 (DANN λ=0.3) |
+| O121H19 | STEC | 0.22 | 0.22 | 0.67 | 0.89 (linears) |
+| O157H7 | STEC | 0.00 | **0.78** ⭐⭐ | 0.56 | **0.78 (patch=5)** |
+| **MEAN** | | 0.193 | **0.349** | **0.500** | (DANN λ=0.1) |
+
+**Two new per-strain best-of-sweep records owned by patch=5 Transformer:**
+
+1. **ATCC25922 = 1.00 (9/9 files correctly identified as Non-STEC).** First 100% recall on this strain across the entire sweep of 8 model families. Beats DANN λ=0.1's 0.89, every linear model's 0.22, every tree model's 0.33. **Patch=5 owns this cell.**
+2. **O157H7 = 0.78 (7/9 files correctly identified as STEC).** Highest pathogenic-STEC recall in the sweep. Beats vanilla CNN (0.56), DANN λ=0.3 (0.67), every linear/tree model (≤0.33). **This is the canonical foodborne pathogen — strongest result of the project for that cell.**
+
+**Where patch=5 doesn't help:** K-12 stays at 0/8. The model predicts STEC on all 8 K-12 files at Non-STEC proba ~0.26 (close-margin failure, not catastrophic, but still 0% recall). DANN λ=0.3's K-12 = 0.88 remains the K-12 SOTA. **K-12 and O157H7 use different chemistry; they're solved by different architectures.**
+
+**Mechanism reading:**
+- Patch=5 preserves narrow-peak local structure that patch=20 averaged out (5-bin patches let each Raman peak of width 5-10 bins span just 1-2 patches, not be averaged with 19 neighbors). The attention layers then weight these preserved peak features.
+- For ATCC25922 (typical commensal E. coli) and O157H7 (pathogenic E. coli with phage-encoded virulence), the discriminative chemistry is narrow-peak ratios in the fingerprint region — exactly what patch=20 destroyed. Patch=5 sees those features clearly.
+- For K-12 (laboratory-domesticated, large genomic deletions vs wild-type), the discriminative chemistry is probably broader-scale (the whole metabolome is shifted from genomic divergence). Patch=5 doesn't help because the issue wasn't peak resolution, it was that K-12 sits OUTSIDE the typical Non-STEC manifold entirely. DANN's adversarial denoising (which fights file-id signal) reveals the broader-scale K-12 distinctness; attention on preserved peaks doesn't.
+
+**Operational decisions:**
+
+1. **Headline LOSO model stays DANN λ=0.1** (mean 0.500 vs patch=5's 0.349).
+2. **Add patch=5 Transformer to the per-strain best-model story** in the writeup. The ATCC25922 = 1.00 result is the strongest "this model uniquely owns this strain" finding in the project.
+3. **Document the per-strain mechanism split explicitly:** K-12 wants DANN λ=0.3 (broad-scale adversarial denoising), O157H7 + ATCC25922 want patch=5 Transformer (narrow-peak preservation). Different architectures crack different biology.
+4. **Open future-work direction:** train an ensemble that COMBINES DANN λ=0.3 + patch=5 Transformer + PLS-DA via a per-strain confidence-routed selection. The router/stacking failures earlier in the session were on DANN-family models that are too similar; patch=5 introduces a meaningfully different inductive bias.
+
+**Compute:** Protocol A ~9 min, LOSO ~14 min. Per-fold runtime was higher than the patch=20 run because patch=5 produces ~4× more attention tokens (197 vs 49), so each forward pass is slower despite the architecture being otherwise identical.
+
+## 2026-05-14 — 2nd-derivative-channel-second-best-loso
+
+**Added 2nd-derivative as a second input channel to the SmallCNN1D** via a fixed (1, -2, 1) discrete-Laplacian kernel (no learnable params; +480 weights from conv1's input channels going 1→2; total 124,964 vs vanilla 124,484). Pre-registration at [08§2nd-deriv-cnn](08_expectations.md#2026-05-14--2nd-derivative-input-channel-cnn-pre-registered-before-running).
+
+**Headline: second-best single-model LOSO mean of the entire sweep.**
+
+| Model | LOSO mean parent-recall | Protocol A file-F1 |
+|---|---|---|
+| PLS-DA | **0.60** (LOSO leader) | 0.951 |
+| LogReg | 0.59 | 0.961 |
+| LinSVM | 0.52 | 0.779 |
+| **DANN λ=0.1 (file_id)** | **0.500** (single-model headline) | 0.566 |
+| **2-channel CNN (SNV + 2nd-deriv)** | **0.465** (2nd among deep models) | 0.560 |
+| DANN λ=0.3 (file_id) | 0.447 | 0.493 |
+| RBF-SVM | 0.42 | 0.833 |
+| XGB | 0.37 | 0.796 |
+| Vanilla 1-channel CNN | 0.35 | 0.649 |
+| Patch=5 Transformer | 0.349 | 0.534 |
+| DANN λ=0.05 | 0.321 | 0.635 |
+| RF | 0.31 | 0.753 |
+| Patch=20 Transformer | 0.193 | 0.507 |
+
+The 2nd-deriv channel lifts LOSO mean by 0.115 over vanilla 1-channel CNN (0.35 → 0.465) — bigger lift than patch=5 Transformer's diff over patch=20 (0.156, similar magnitude). Edge information IS load-bearing on this dataset.
+
+### Per-strain breakdown
+
+| Strain | Vanilla CNN | DANN λ=0.1 | Patch=5 | DANN λ=0.3 | **2-ch CNN** | Best owner |
+|---|---|---|---|---|---|---|
+| 83972 | 0.88 | 0.75 | 0.25 | 0.25 | 0.62 | Vanilla CNN / PLS-DA |
+| ATCC25922 | 0.11 | 0.89 | **1.00** | 0.11 | 0.67 | Patch=5 |
+| K-12 | 0.50 | 0.75 | 0.00 | **0.88** | 0.00 | DANN λ=0.3 |
+| Dublin | 0.11 | 0.00 | 0.00 | 0.22 | 0.11 | PLS-DA (0.56) |
+| Heidelburg | 0.33 | 0.44 | 0.33 | 0.33 | 0.44 | PLS-DA (0.89) |
+| Typhimurium | 0.11 | 0.11 | 0.11 | 0.00 | 0.00 | PLS-DA / linears (1.00) |
+| O103H2 | 0.56 | 0.33 | 0.44 | **0.89** | 0.67 | DANN λ=0.3 (PLS-DA 1.00) |
+| O121H19 | 0.00 | 0.67 | 0.22 | 0.67 | **0.89** ⭐⭐ | **2-ch CNN (ties PLS-DA)** |
+| O157H7 | 0.56 | 0.56 | **0.78** | 0.67 | **0.78** ⭐ | **2-ch CNN ties Patch=5** |
+
+**Two new per-strain records owned by 2-channel CNN:**
+
+1. **O121H19 = 0.89 — first deep model to match linears.** Previously PLS-DA had this strain at 0.89; the closest deep result was DANN λ=0.1 at 0.67. 2-ch CNN ties PLS-DA exactly. Mechanism: O121H19's discriminative chemistry sits in narrow-peak edge features that the 2nd-deriv channel surfaces directly.
+2. **O157H7 = 0.78 — ties patch=5 Transformer.** Two architectures (transformer attention on small patches + CNN with explicit edges) reach the same pathogenic-STEC ceiling. Suggests 0.78 is the load-bearing-feature ceiling on O157H7 under LOSO; further improvement on this cell would need a fundamentally different architecture.
+
+**Where 2-channel CNN doesn't help:** K-12 = 0.00 (vanilla CNN had 0.50; the 2nd-deriv channel destroyed K-12's broad-scale signal). Same pattern as patch=5 Transformer — K-12 uses different chemistry than O157H7 / ATCC25922 / O121H19. **The K-12 vs O157H7 mechanism split is now confirmed across two independent architectural changes.**
+
+### The per-strain best-model story now has 3 distinct deep architectures
+
+| Cell | Owner | Recall | Mechanism |
+|---|---|---|---|
+| K-12 (atypical Non-STEC) | DANN λ=0.3 | 0.88 | broad-scale adversarial denoising |
+| ATCC25922 (typical commensal Non-STEC) | Patch=5 Transformer | 1.00 | narrow-peak attention |
+| O121H19 (STEC, edge-feature-rich) | 2-channel CNN (ties PLS-DA) | 0.89 | explicit 2nd-deriv channel |
+| O157H7 (canonical pathogenic STEC) | Patch=5 / 2-ch CNN tie | 0.78 | narrow-peak preservation (two paths) |
+
+Plus PLS-DA still owns Salmonella + most easy Non-STEC cells. **This is the strongest "different inductive biases solve different biology" demonstration in the project** — three deep architectures, three different biology cells, each pulled off by a different mechanism. Writeup foregrounds this.
+
+### Protocol A regression — documented honestly
+
+| Metric | Vanilla CNN | 2-ch CNN |
+|---|---|---|
+| File-F1 mean | 0.649 ± 0.079 | **0.560 ± 0.150** |
+| Per-fold | 0.63 / 0.65 / 0.54 / 0.68 / 0.76 | 0.59 / 0.71 / 0.69 / 0.37 / 0.44 |
+| Folds early-stopped < 30 epochs | none | folds 3 (ep13), 4 (ep18) |
+
+**Pre-registration miss: 0.560 vs predicted 0.60-0.72, below floor by 0.04.** The 2nd-deriv channel adds initialization variance — folds 3 and 4 fell into local minima the model didn't recover from in time. A multi-seed run would likely tighten this. Documented as "this is the cost of the 2nd-deriv channel benefit on LOSO" rather than papered over.
+
+### Operational decisions
+
+- **Headline LOSO single-model remains DANN λ=0.1 at 0.500.** 2-channel CNN at 0.465 is the strong runner-up, valuable for the per-strain story.
+- **The 2-channel CNN's O121H19 = 0.89 and O157H7 = 0.78 are headline-quality results for the writeup** — first deep model to tie PLS-DA on a STEC strain (O121H19) and joint-best pathogen detection (O157H7).
+- **Soft-vote ensemble with 2-channel CNN + Patch=5 Transformer + DANN λ=0.1 + DANN λ=0.3** might still be worth revisiting now that we have FOUR meaningfully-different inductive biases with documented per-strain wins. Previous stacking failures were on within-DANN-family models; the new architectural diversity might unlock the meta-learner. Open future-work direction.
+
+**Compute:** Protocol A ~3 min, LOSO ~6 min. Same envelope as vanilla CNN.

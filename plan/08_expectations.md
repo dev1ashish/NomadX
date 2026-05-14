@@ -469,7 +469,7 @@ XGBoost-cheapen rule applies. Any single fold > 5 min → halt and investigate. 
 2. **Memprobe drop prediction was wrong.** Predicted top-1 1.5 – 10%; actual 14.0%. Only 1.5 pp below vanilla. **DANN improved LOSO substantially without materially dropping the memprobe** — the two diagnostics decoupled at this lambda. See [07§dann-ablation-clears-verdict-a](07_findings.md#2026-05-14--dann-ablation-clears-verdict-a) for the three competing readings; lambda_max=0.3 sweep is the cheapest diagnostic to disambiguate "λ too low" vs "probe-LOSO decoupled."
 
 **Deferred from this session (consistent with user-pre-registered staging "sweep others only if 0.1 is interesting"):**
-- lambda_max=0.05: would tell us whether less DANN preserves more Protocol A (currently 0.566) while keeping K-12 / O157H7. *Still deferred.*
+- lambda_max=0.05: would tell us whether less DANN preserves more Protocol A (currently 0.566) while keeping K-12 / O157H7. *Pre-registered + running 2026-05-14.*
 - lambda_max=0.3: would tell us whether more DANN drops the memprobe below 10% AND what happens to the biology wins. **The memprobe puzzle makes this the higher-value follow-up of the two.** *User-elected to run; pre-registered below.*
 
 ---
@@ -543,3 +543,160 @@ XGBoost-cheapen rule applies. Any single fold > 5 min → halt and investigate. 
 5. λ=0.3 generates a useful future-work finding: "DANN λ ≥ 0.3 strengthens pathogen biology features at the explicit cost of easy commensal recognition" — that's a lambda-curve / regime finding worth a §future_work entry but not the deployable model.
 
 **The memprobe diagnostic is unreliable on this dataset.** Both λ=0.1 (14.0%) and λ=0.3 (13.6%) sit above the pre-registered 10% threshold while LOSO climbs from 0.35 (vanilla) → 0.500 (λ=0.1) / 0.447 (λ=0.3). The "above-10% → DANN failed" rule from [02§decisions](02_decisions.md) is rejected for this dataset. **DANN reshapes feature prominence, not linear file-id separability.** See [07§dann-ablation-clears-verdict-a](07_findings.md#2026-05-14--dann-ablation-clears-verdict-a) and the follow-up §dann-lambda-frontier.
+
+---
+
+## 2026-05-14 — DANN lambda_max=0.05 sweep (pre-registered BEFORE running)
+
+Same recipe as λ=0.1 / λ=0.3; lambda_max=0.05. Completes the lambda curve {0, 0.05, 0.1, 0.3}.
+
+**What this run is for.** λ=0.1 → λ=0.3 showed a clean regime tradeoff: more DANN strengthens pathogen biology (K-12, O157H7, O103H2) at the cost of easy commensal recognition (83972, ATCC25922). λ=0.05 tests the other direction — does less DANN preserve more Protocol A AND more commensal recognition AND still lift the biology cells, or does the biology lift go away too?
+
+### DANN λ=0.05 — Protocol A
+
+| Metric | Predicted range | Actual | Verdict |
+|---|---|---|---|
+| File-level macro-F1 | 0.58 – 0.68 (between vanilla CNN 0.649 and λ=0.1's 0.566) | **0.635 ± 0.110** (per-fold: 0.59 / 0.64 / 0.50 / 0.80 / 0.64) | ✅ in range, upper half — preserves Protocol A near vanilla |
+
+### DANN λ=0.05 — LOSO
+
+| Strain | Parent | Vanilla CNN | λ=0.1 | λ=0.05 predicted | λ=0.05 actual | Verdict |
+|---|---|---|---|---|---|---|
+| 83972 | Non-STEC | 0.88 | 0.75 | 0.75 – 0.95 | **0.88** | ✅ matches vanilla |
+| ATCC25922 | Non-STEC | 0.11 | **0.89** | 0.30 – 0.89 | **0.22** | ❌ below floor — λ=0.1's singular win NOT preserved |
+| K-12 | Non-STEC | 0.50 | 0.75 | 0.50 – 0.75 (bet preserve) | **0.12** | ❌ catastrophic below floor — likely RNG variance |
+| Dublin | Salmonella | 0.11 | 0.00 | 0.00 – 0.22 | **0.22** | ✅ at upper bound — best across DANN |
+| Heidelburg | Salmonella | 0.33 | 0.44 | 0.30 – 0.50 | **0.11** | ❌ below floor |
+| Typhimurium | Salmonella | 0.11 | 0.11 | 0.00 – 0.30 | **0.22** | ✅ in range — best across DANN |
+| O103H2 | STEC | 0.56 | 0.33 | 0.30 – 0.66 | **0.44** | ✅ in range |
+| O121H19 | STEC | 0.00 | 0.67 | 0.30 – 0.78 | **0.00** | ❌ below floor — at vanilla level |
+| O157H7 | STEC | 0.56 | 0.56 | 0.40 – 0.66 (bet preserve) | **0.67** | ⭐ above ceiling — ties λ=0.3 |
+| **MEAN** | | 0.35 | **0.500** | 0.40 – 0.55 | **0.321** | ❌ **below floor by 0.08; below vanilla CNN** |
+
+### Verdict branches (locked BEFORE running)
+
+- **(α) λ=0.05 mean ≥ 0.50 AND Protocol A ≥ 0.60 AND K-12 + O157H7 both ≥ 0.40**: λ=0.05 Pareto-dominates λ=0.1. Ship 0.05 as the headline DANN.
+- **(β) λ=0.05 mean 0.40–0.50 AND closer to vanilla CNN than to λ=0.1**: too little DANN pressure to lift biology meaningfully. Ship λ=0.1.
+- **(γ) λ=0.05 produces a NEW pattern not seen in 0.1 / 0.3 (e.g., O103H2 recovers without ATCC25922 dropping)**: λ=0.05 has its own strain-specific niche. Becomes a third base model for the stacking meta-learner.
+
+### Post-run resolution
+
+**Branch hit: (γ) with caveats.** λ=0.05 mean (0.321) is BELOW vanilla CNN (0.35), driven by K-12 collapsing 0.50 → 0.12 (likely RNG variance — K-12 is U-shaped across the lambda curve 0.50 → 0.12 → 0.75 → 0.88, which is more parsimoniously explained by stochastic training noise than a true non-monotonic effect at this resolution). Protocol A holds near vanilla (0.635 vs 0.649). The honest read: **there's a minimum effective DANN pressure below which the GRL is just adding noise without providing regularization** — λ=0.05 is below it.
+
+**However**, λ=0.05 has 4 unique strain wins relative to λ=0.1: 83972 (0.88 vs 0.75), Typhimurium (0.22 vs 0.11), Dublin (0.22 vs 0.00), O157H7 (0.67 vs 0.56). These are different strains than λ=0.1's wins (ATCC25922, K-12, O121H19). **The complementary-failure structure across {vanilla CNN, λ=0.05, λ=0.1, λ=0.3, PLS-DA} is the richest base-model menu the stacking meta-learner will get.** Branch (γ) ships in that sense — keep λ=0.05 as a base model for stacking, do NOT ship it as a single-model headline.
+
+---
+
+## 2026-05-14 — Grouped-domain DANN (pre-registered BEFORE running)
+
+**Hypothesis (locked-in BEFORE seeing the result).** The λ=0.3 crater pattern says 87-way file_id is too fine a domain target — when GRL pushes encoder features away from ANY signal that distinguishes individual files, it strips signal that distinguishes them *within a strain*, and that signal is what easy-commensal recognition rides on. Collapsing the GRL target to a coarser grouping (subclass-strain, 10-way) should preserve within-strain shared features while still applying adversarial pressure on cross-strain / cross-batch signature. Should Pareto-dominate either λ=0.1 or λ=0.3 file_id setup.
+
+**Recipe.** Same as λ=0.1 file_id baseline (lambda_max=0.1, warmup 10 epochs, 60 epoch budget, full aug) — only the domain-head target changes from 87-way file_id to 10-way subclass (9 bacterial strains + "H2O"). Domain-head MLP capacity unchanged (32→64→K with K=10). Per-fold n_domains drops to ~9 under LOSO (one strain held out) and ~10 under Protocol A.
+
+**Three orthogonal flavors worth trying if the first lands well:**
+1. `subclass` grouping at λ=0.1 (the headline experiment)
+2. `subclass` grouping at λ=0.3 (test if higher λ STILL doesn't crater commensals under coarser grouping)
+3. `cal_date` grouping at λ=0.1 (13-way; more biologically meaningful nuisance variable per [07§batch-effect](07_findings.md#2026-05-14--batch-effect))
+
+### Grouped-domain DANN (subclass, λ=0.1) — Protocol A
+
+| Metric | Predicted range | Actual | Verdict |
+|---|---|---|---|
+| File-level macro-F1 | 0.60 – 0.72 (HIGHER than file_id λ=0.1's 0.566 — easy commensal signal preserved) | — | pending |
+| Final domain_acc | 0.20 – 0.50 (chance ≈ 0.10 for 10-way; discriminator easier to satisfy than 87-way) | — | pending |
+
+### Grouped-domain DANN (subclass, λ=0.1) — LOSO
+
+| Strain | Parent | Vanilla CNN | DANN(file_id, λ=0.1) | Grouped(subclass, λ=0.1) predicted |
+|---|---|---|---|---|
+| 83972 | Non-STEC | 0.88 | 0.75 | 0.75 – 0.95 (recover toward CNN) |
+| ATCC25922 | Non-STEC | 0.11 | **0.89** | 0.50 – 0.95 (keep the win) |
+| K-12 | Non-STEC | 0.50 | 0.75 | 0.50 – 0.88 (preserve) |
+| Dublin | Salmonella | 0.11 | 0.00 | 0.00 – 0.33 |
+| Heidelburg | Salmonella | 0.33 | 0.44 | 0.33 – 0.66 |
+| Typhimurium | Salmonella | 0.11 | 0.11 | 0.00 – 0.55 (recover toward PLS-DA) |
+| O103H2 | STEC | 0.56 | 0.33 | 0.40 – 0.78 (recover) |
+| O121H19 | STEC | 0.00 | 0.67 | 0.40 – 0.89 |
+| O157H7 | STEC | 0.56 | 0.56 | 0.40 – 0.78 (preserve) |
+| **MEAN** | | 0.35 | **0.500** | **0.50 – 0.65 (THE bet — should beat file_id λ=0.1)** |
+
+### Verdict branches (locked BEFORE running)
+
+- **(P) Grouped(subclass, 0.1) mean ≥ 0.55 AND Protocol A ≥ 0.62 AND K-12 ≥ 0.50 AND O157H7 ≥ 0.40 AND no crater (no strain regresses > 0.30 from file_id λ=0.1)**: grouped-domain Pareto-dominates everything tried. Becomes new headline.
+- **(Q) Grouped mean 0.45–0.55, no craters, modest Protocol A recovery**: solid result, ship grouped λ=0.1 alongside file_id λ=0.1 as a "less destructive" variant. Stacking meta-learner benefits from both as base models.
+- **(R) Grouped mean ≈ file_id λ=0.1 0.500 with similar per-strain pattern**: the file_id-vs-subclass grouping is a wash; the adversarial pressure dominates either way. Move on to other experiments.
+- **(S) Grouped mean < file_id λ=0.1**: surprise downside. Indicates 87-way file_id ISN'T the cause of the λ=0.3 crater — something else is going on. Document and reconsider.
+
+### Post-run resolution
+
+**Branch (S) hit cleanly.** Grouped-domain (subclass, λ=0.1) LOSO mean = 0.309, BELOW vanilla CNN's 0.35 and far below file_id λ=0.1's 0.500. K-12 collapsed 0.75 → 0.12; O121H19 collapsed 0.67 → 0.00. Pre-registered hypothesis (87-way file_id is too fine, coarsening to 10-way subclass should preserve more) **REJECTED.**
+
+| Strain | Vanilla CNN | DANN(file_id, 0.1) | DANN(subclass, 0.1) |
+|---|---|---|---|
+| 83972 | 0.88 | 0.75 | **0.88** ✓ preserved (hypothesis held here) |
+| ATCC25922 | 0.11 | **0.89** | **0.89** ✓ preserved (hypothesis held here) |
+| K-12 | 0.50 | 0.75 | **0.12** ❌ destroyed |
+| O121H19 | 0.00 | 0.67 | **0.00** ❌ destroyed |
+| O157H7 | 0.56 | 0.56 | 0.33 ↓ |
+| **MEAN** | 0.35 | **0.500** | **0.309** |
+| **Protocol A** | 0.649 | 0.566 | **0.654** ⭐ best of all DANN variants |
+
+**Mechanism: subclass grouping is too coarse for cross-strain LOSO.** Final domain_acc dropped to 0.177 (chance 0.10 for 10-way) — the encoder produced near-subclass-invariant features. Under LOSO that's catastrophic: subclass-invariance means the encoder threw away strain-discriminative features. **Fine-grained 87-way file_id was actually correct** because it suppresses within-strain acquisition noise WITHOUT forcing the encoder to drop cross-strain biology. Coarsening the domain target makes the GRL ask the encoder to do the wrong thing for LOSO.
+
+**One genuine Pareto split worth documenting:** Subclass grouping gives Protocol A file-F1 = 0.654 — HIGHER than vanilla CNN (0.649) and far above file_id λ=0.1 (0.566). The within-strain noise suppression IS helpful for within-distribution prediction; just not for cross-strain LOSO. **Subclass grouping is the right choice IF the deployment use case is Protocol-A-like (new file of a known strain, not new strain).**
+
+**Operational decision:** keep file_id λ=0.1 as headline LOSO. Document subclass λ=0.1 as the "Protocol-A-best" Pareto point. Do NOT run cal_date grouping or subclass+λ=0.3 — the mechanism analysis predicts they'd both lose LOSO too. Move on to other experiments (per-strain λ selection #20 still has the best remaining LOSO upside).
+
+---
+
+## 2026-05-14 — 2nd-derivative input channel CNN (pre-registered BEFORE running)
+
+**Hypothesis.** Adding the 2nd-derivative of the SNV spectrum as a second input channel gives the CNN explicit edge information. Fixed (1, -2, 1) Laplacian — no learnable params, no extra capacity cost beyond conv1's 1→2 input channels (+480 params; 124,484 → 124,964 total). The 2nd-deriv channel emphasizes peak edges and inflection points — exactly the narrow-peak discrimination signal the patch=5 Transformer just confirmed is what cracks O157H7 + ATCC25922.
+
+**Why now.** The classical pipeline dropped 2nd-derivative concat (plan/10 §pre-build-adjustments §6) because PCA + LogReg got most of the signal from SNV alone and 2nd-deriv added 987 noisy features. The CNN is different: it has explicit downsampling (MaxPool) and BatchNorm to absorb noise, and limited capacity to recover edge features from a single channel. The patch=5 Transformer result suggests narrow-peak/edge features ARE load-bearing on this dataset — so giving the CNN edge information explicitly should help.
+
+**The two prediction extremes:** if 2nd-deriv adds signal, expect K-12 / O157H7 / ATCC25922 lift (matching the patch=5 pattern). If 2nd-deriv adds only noise (classical concern), expect Protocol A regression with no LOSO improvement.
+
+### 2-channel CNN — Protocol A
+
+| Metric | Predicted range | Actual | Verdict |
+|---|---|---|---|
+| File-level macro-F1 | 0.60 – 0.72 | **0.560 ± 0.150** (per-fold 0.59 / 0.71 / 0.69 / 0.37 / 0.44) | ❌ below floor by 0.04; high fold variance — folds 3/4 early-stopped at ep13/18 |
+
+**Reasoning.** Vanilla CNN is 0.649. If 2nd-deriv adds useful signal, expect modest improvement (~0.05). If it adds noise, expect modest regression. Wide range either way; the meaningful diagnostic is the per-strain pattern below.
+
+### 2-channel CNN — LOSO per-strain parent-recall
+
+| Strain | Parent | Vanilla CNN | Patch=5 (for ref) | DANN λ=0.1 (for ref) | 2-ch CNN predicted | Actual |
+|---|---|---|---|---|---|---|
+| 83972 | Non-STEC | 0.88 | 0.25 | 0.75 | 0.50 – 0.95 (bet preserve) | **0.62** | ✅ in range |
+| ATCC25922 | Non-STEC | 0.11 | **1.00** | 0.89 | 0.30 – 0.89 (edge features should help) | **0.67** | ✅ in range |
+| K-12 | Non-STEC | 0.50 | 0.00 | 0.75 | 0.30 – 0.75 (uncertain — K-12 not narrow-peak) | **0.00** | ❌ below floor — confirms K-12 doesn't use edge features |
+| Dublin | Salmonella | 0.11 | 0.00 | 0.00 | 0.00 – 0.30 | **0.11** | ✅ in range |
+| Heidelburg | Salmonella | 0.33 | 0.33 | 0.44 | 0.22 – 0.55 | **0.44** | ✅ in range |
+| Typhimurium | Salmonella | 0.11 | 0.11 | 0.11 | 0.00 – 0.33 | **0.00** | ✅ at lower bound |
+| O103H2 | STEC | 0.56 | 0.44 | 0.33 | 0.40 – 0.78 | **0.67** | ✅ in range |
+| O121H19 | STEC | 0.00 | 0.22 | 0.67 | 0.00 – 0.44 | **0.89** | ⭐⭐ above ceiling by 0.45; **ties PLS-DA, first deep model to match linears on this cell** |
+| O157H7 | STEC | 0.56 | **0.78** | 0.56 | 0.50 – 0.78 (bet on lift) | **0.78** | ⭐ at ceiling; ties patch=5 Transformer |
+| **MEAN** | | 0.35 | 0.349 | **0.500** | 0.35 – 0.55 | **0.465** | ✅ in range upper half; 2nd-best single-model LOSO mean across the entire sweep |
+
+**Reasoning per-strain.** ATCC25922 and O157H7 should be the cleanest tests of the edge-features hypothesis — patch=5 showed those cells benefit massively from narrow-peak preservation. If 2nd-deriv channel works on the same mechanism, expect non-trivial recovery. K-12 is the harder call — DANN λ=0.3 gets 0.88 there via broad-scale adversarial denoising, NOT via peak features (patch=5 got 0.00 on K-12). Adding edge features may not help K-12.
+
+### Verdict branches (locked BEFORE running)
+
+- **(I) Mean ≥ 0.45 AND K-12 ≥ 0.40 AND O157H7 ≥ 0.60**: 2-channel CNN matches or beats DANN's biology profile without DANN's Protocol A cost. Strong result — becomes a viable headline alternative to DANN λ=0.1.
+- **(II) Mean 0.35–0.45 AND ATCC25922 ≥ 0.50 OR O157H7 ≥ 0.65**: 2nd-deriv channel solves edge-feature cells but doesn't touch K-12. Useful complementary base model. Worth including in any future ensemble work.
+- **(III) Mean ≈ vanilla CNN 0.35 AND per-strain pattern is essentially vanilla CNN**: 2nd-deriv channel adds noise that BatchNorm absorbs, model effectively ignores the extra channel. Negative result; document and move on.
+- **(IV) Mean < 0.30 OR Protocol A < 0.55**: 2nd-deriv channel actively destabilizes training. Halt and check the kernel / padding implementation.
+
+**Compute budget:** Same as vanilla CNN — Protocol A ~3 min, LOSO ~6-9 min. Per-batch forward pass adds one fixed Conv1d (negligible). Total expected ~10-15 min.
+
+### Post-run resolution
+
+**Branch hit: between (I) and (II).** LOSO mean = 0.465 (≥ 0.45 → meets (I)'s threshold), but K-12 = 0.00 (well below (I)'s 0.40 floor). O157H7 = 0.78 (≥ 0.65 → exceeds (II)'s threshold). ATCC25922 = 0.67 (≥ 0.50). The 2nd-deriv channel **solves edge-feature cells (O121H19 0.89, O157H7 0.78, O103H2 0.67) but does NOT help K-12** — confirming the patch=5 reading that K-12 uses broad-scale chemistry, not narrow-peak structure.
+
+**Operational decisions:**
+- 2-channel CNN is the **second-best single-model LOSO** (0.465) after DANN λ=0.1 (0.500), and AHEAD of patch=5 Transformer (0.349), DANN λ=0.3 (0.447), vanilla CNN (0.35), and DANN λ=0.05 (0.32).
+- **Two new per-strain SOTA records**: O121H19 = 0.89 (ties PLS-DA — first deep model to match linears here) and O157H7 = 0.78 (ties patch=5 Transformer).
+- Document the Protocol A regression honestly: 0.560 vs predicted 0.60-0.72, below floor by 0.04. Folds 3 and 4 early-stopped at epochs 13/18 with low val_f1 — the 2nd-deriv channel adds initialization variance. A multi-seed run would likely tighten this; deferred.
+- **Per-strain best-model story now has 3 distinct deep architectures owning different biology cells**: DANN λ=0.3 owns K-12 (broad-scale adversarial), patch=5 Transformer owns ATCC25922 (narrow-peak attention), 2-channel CNN ties for O121H19 + O157H7 (explicit edges). Plus PLS-DA still owns most Salmonella cells. This is now the strongest "different inductive biases solve different biology" demonstration in the project.

@@ -698,9 +698,10 @@ def train_dann_fold(
     model_factory: Callable[[int, int], nn.Module],  # (fold_seed, n_domains) -> DANNCNN1D
     X_train: np.ndarray,
     y_train: np.ndarray,
-    groups_train: np.ndarray,   # (N,) file_id strings, used for inner split + domain labels
+    groups_train: np.ndarray,   # (N,) file_id strings, ALWAYS used for inner-split grouping
     X_test: np.ndarray,
     fold_seed: int,
+    domain_labels: np.ndarray | None = None,  # (N,) explicit domain target; default = groups_train
     device: torch.device | None = None,
     n_bins: int = 987,
     n_classes: int = 4,
@@ -717,6 +718,14 @@ def train_dann_fold(
 
     The model returned has best-val-class-F1 weights loaded. Early stop is on
     *class* macro-F1, not domain accuracy: we're shipping a class model.
+
+    Args:
+        domain_labels: optional per-row domain target (strings or ints). If
+            None, defaults to groups_train (file_id, 87-way under Protocol A).
+            Passing e.g. subclass strings collapses the GRL target to a
+            coarser grouping — see grouped-domain DANN finding in plan/07.
+            `groups_train` is ALWAYS used for inner-split file-grouped CV;
+            decoupling these two is the whole point of this parameter.
     """
     cfg = cfg or TrainConfig()
     dann_cfg = dann_cfg or DANNConfig()
@@ -733,14 +742,24 @@ def train_dann_fold(
     else:
         y_train_int = y_train.astype(np.int64)
 
-    # Encode file_id -> domain int 0..K-1 over OUTER-train file ids. K varies
-    # per fold (Protocol A ~70, LOSO ~78-79).
-    unique_files = sorted(set(groups_train.tolist()))
-    file_to_int = {f: i for i, f in enumerate(unique_files)}
+    # Domain target source. Defaults to file_id (groups_train); caller can
+    # override with subclass / cal_date / etc. for grouped-domain DANN.
+    domain_source = domain_labels if domain_labels is not None else groups_train
+    if not isinstance(domain_source, np.ndarray):
+        domain_source = np.asarray(domain_source)
+
+    # Encode the chosen domain target to ints over the OUTER-train unique values.
+    # K varies per fold (file_id: ~70 Protocol A / ~78 LOSO; subclass: ~9; cal_date: ~10-12).
+    unique_domains = sorted(set(domain_source.tolist()))
+    domain_to_int = {d: i for i, d in enumerate(unique_domains)}
     domains_train_int = np.array(
-        [file_to_int[f] for f in groups_train], dtype=np.int64
+        [domain_to_int[d] for d in domain_source], dtype=np.int64
     )
-    n_domains = len(unique_files)
+    n_domains = len(unique_domains)
+    # Backwards-compat alias for the rest of this function and downstream
+    # `info["unique_files"]` reads (the field name is historical; we keep it
+    # but the content is whatever domain grouping was used).
+    unique_files = unique_domains
 
     # Per-bin standardize, same as train_cnn_fold
     mu = X_train.mean(axis=0, dtype=np.float64).astype(np.float32)
