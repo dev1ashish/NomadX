@@ -37,8 +37,9 @@
 
 ## What's next (in order)
 
-1. ⏳ Final plots, README narrative, `make verify`, CI green. **New headline: CNN+DANN λ=0.1 is the only model that cracks the biology-hard strains AND generalizes; PLS-DA still has the best raw LOSO mean (0.60 vs DANN 0.500) but zero biology wins.** README should present DANN as the headline LOSO model with the "Pareto frontier crossing" framing; keep PLS-DA + vanilla CNN as comparison rows.
-2. ⏳ (optional, deferred from this session per user-staging) lambda_max=0.05 and lambda_max=0.3 sweeps. 0.3 is the higher-value diagnostic because it would disambiguate the memprobe puzzle: does more DANN drop the probe below 10% while preserving biology wins, or does the probe stay decoupled from LOSO regardless of lambda?
+1. ⏳ **Re-ensemble with the architecturally-diverse 4-model base.** Previous ensembling attempts (`plan/07§ensemble-fails-to-clear-plsda`, `§stacking-meta-learner-fails`, `§per-strain-lambda-selection-fails`) all failed when the base models were too similar (DANN-family variants). The current base — {PLS-DA (linear chemometrics), DANN λ=0.1 (adversarial CNN), Patch=5 Transformer (narrow-peak attention), 2-channel CNN (explicit edge features)} — has FOUR genuinely-different inductive biases each owning different per-strain cells. Worth retrying soft-vote + stacking + confidence-routing on this richer set. Pre-register expectations BEFORE running. Plausible LOSO mean ceiling: 0.55-0.65 if it works; failure mode is "still no ensemble beats the single-model leader," which is itself useful evidence.
+2. ⏳ Remaining diagnostic + polish experiments (no expected LOSO lift, but valuable for the writeup): variance-aware memprobe (PCA-3 probe), TTA on best DANN, arPLS crop fix + bacteria-only ANOVA, SHAP/saliency on the best DANN and 2-channel CNN.
+3. ⏳ Final plots, README narrative update with all the new findings, `make verify`, CI green.
 
 ## Open items / TODOs
 
