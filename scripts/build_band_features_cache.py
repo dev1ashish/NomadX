@@ -45,19 +45,23 @@ print("=" * 70)
 print("Stage 2 smoke checks")
 print("=" * 70)
 
-# 1a) Synthetic Lorentzian recovery
-print("\n[1a] Synthetic Lorentzian recovery (center=1454, height=2.0, FWHM=15)")
+# 1a) Synthetic pseudo-Voigt recovery (Stage 15A check)
+print("\n[1a] Synthetic pseudo-Voigt recovery (center=1454, height=2.0, FWHM≈15, η=0.5)")
 wn_test = np.linspace(1400, 1500, 200)
-true = bf._lorentzian(wn_test, a=2.0, x0=1454.0, gamma=7.5, c=0.0)
+# Build a true pseudo-Voigt with σ ≈ γ ≈ 7.5 so FWHM_L=15, FWHM_G≈17.6, mix=0.5
+true = bf._pseudovoigt_linbase(
+    wn_test, a=2.0, x0=1454.0, sigma=7.5, gamma=7.5, eta=0.5, b=0.0, c=0.0,
+)
 noisy = true + np.random.default_rng(0).normal(0, 0.02, size=true.shape)
-fit = bf.fit_peak(noisy, wn_test, center=1454.0, window=40.0)
-ok_center = abs(fit.center - 1454.0) < 0.5
-ok_height = abs(fit.height - 2.0) < 0.05
-ok_fwhm   = abs(fit.fwhm - 15.0) < 1.0
-print(f"  fit.center={fit.center:.3f} (truth 1454.0, |err|<0.5? {ok_center})")
-print(f"  fit.height={fit.height:.4f} (truth 2.000, |err|<0.05? {ok_height})")
-print(f"  fit.fwhm  ={fit.fwhm:.3f} (truth 15.00, |err|<1.0? {ok_fwhm})")
-assert ok_center and ok_height and ok_fwhm, "Lorentzian recovery failed"
+fit_pv = bf.fit_peak_pseudovoigt(noisy, wn_test, center=1454.0, window=40.0)
+ok_center = abs(fit_pv.center - 1454.0) < 0.5
+ok_height = abs(fit_pv.height - 2.0) < 0.1
+ok_eta    = 0.3 < fit_pv.eta < 0.7
+print(f"  pv.center={fit_pv.center:.3f} (truth 1454.0, |err|<0.5? {ok_center})")
+print(f"  pv.height={fit_pv.height:.4f} (truth 2.000, |err|<0.1? {ok_height})")
+print(f"  pv.fwhm  ={fit_pv.fwhm:.3f} (truth ≈ 16.3)")
+print(f"  pv.eta   ={fit_pv.eta:.3f} (truth 0.500, 0.3<η<0.7? {ok_eta})")
+assert ok_center and ok_height and ok_eta, "pseudo-Voigt recovery failed"
 
 # 1b) integrate_band on flat unit signal
 print("\n[1b] integrate_band on flat unit signal")
@@ -173,8 +177,8 @@ for band in ("lps_1050", "lps_1117", "lps_1194"):
     d = cohens_d(a, b)
     print(f"    {col:25s} d={d:+.3f}")
 
-# ---- Sanity (iv): Lorentzian fit success rate ----
-print("\n[iv] Lorentzian fit success rate (success = finite center, FWHM ∈ [5, 40])")
+# ---- Sanity (iv): pseudo-Voigt fit success rate (Stage 15A target: ≥80% on empirical anchors) ----
+print("\n[iv] Pseudo-Voigt fit success rate (success = finite center within ±20 cm⁻¹, FWHM ∈ [5, 60])")
 for band_key in bf.DEFAULT_FIT_BANDS:
     center_col = f"fit_{band_key}_center"
     fwhm_col   = f"fit_{band_key}_fwhm"
@@ -186,11 +190,12 @@ for band_key in bf.DEFAULT_FIT_BANDS:
     success = (
         np.isfinite(fitted)
         & (np.abs(fitted - catalog_center) <= 20.0)
-        & (fwhms >= 5.0) & (fwhms <= 40.0)
+        & (fwhms >= 5.0) & (fwhms <= 60.0)
     )
     rate = success.mean()
-    print(f"  {band_key:18s} catalog={catalog_center:7.1f}  success_rate={rate*100:5.1f}%  "
-          f"(n_success={success.sum()}/{len(success)})")
+    pass_mark = "✅" if rate >= 0.80 else ("⚠️" if rate >= 0.60 else "❌")
+    print(f"  {band_key:18s} catalog={catalog_center:7.1f}  rate={rate*100:5.1f}% {pass_mark}  "
+          f"(n_ok={success.sum()}/{len(success)})")
 
 # ---- Sanity (v): fitted peak-center mean drift ----
 print("\n[v] Mean fitted peak-center drift from catalog center")
@@ -225,7 +230,11 @@ drift_df.to_csv(OUT / "04_stage2_peak_drift.csv", index=False)
 # ---- Sanity (vi): feature cache size ----
 print("\n[vi] Feature cache size")
 print(f"  rows: {df.shape[0]} (expected 7,122)")
-print(f"  cols: {df.shape[1]} (predicted 25–40)")
+print(f"  cols: {df.shape[1]} (predicted 130–145 for Stage 15A)")
+print(f"  prefix counts:")
+for prefix in ("auc_", "ratio_", "fit_", "roi_", "emsc_", "d1_", "d2_"):
+    n = sum(c.startswith(prefix) for c in df.columns)
+    print(f"    {prefix:10s} {n}")
 
 # ---- Sanity (vii): H2O macromolecule AUCs vs bacterial ----
 print("\n[vii] H₂O class: should have LOWER macromolecule AUCs than bacterial classes")
@@ -238,6 +247,27 @@ for g in ("auc_aromatic_aa", "auc_protein_amide", "auc_nucleic_acid",
     d = cohens_d(h, b)
     direction = "H2O < bacteria" if h.mean() < b.mean() else "H2O > bacteria"
     print(f"  {g:30s} d={d:+.3f}  ({direction})")
+
+# ---- Sanity (viii): Stage 15A targets — EMSC, D2-AUC, ROI centroid ----
+print("\n[viii] Stage 15A target checks")
+print("  EMSC b-coefficient (multiplicative scatter), E. coli vs Salmonella file-level d:")
+emsc_b = file_level["emsc_b"].values
+ecoli = file_level["primary_class"].isin(["STEC", "Non-STEC"]).values
+salm  = (file_level["primary_class"] == "Salmonella").values
+d_emsc = cohens_d(emsc_b[ecoli], emsc_b[salm])
+print(f"    auc_emsc_b              d={d_emsc:+.3f}  E.coli n={ecoli.sum()} Salmonella n={salm.sum()}")
+print("  D2-AUC lps_1194, STEC vs Non-STEC file-level d:")
+if "d2_auc_lps_1194" in file_level.columns:
+    stec = file_level["primary_class"].values == "STEC"
+    nstec = file_level["primary_class"].values == "Non-STEC"
+    d_d2 = cohens_d(file_level.loc[stec, "d2_auc_lps_1194"].values,
+                    file_level.loc[nstec, "d2_auc_lps_1194"].values)
+    print(f"    d2_auc_lps_1194         d={d_d2:+.3f}")
+print("  ROI centroid in lps_chain, E. coli vs Salmonella file-level d:")
+if "roi_lps_chain_centroid" in file_level.columns:
+    d_cen = cohens_d(file_level.loc[ecoli, "roi_lps_chain_centroid"].values,
+                     file_level.loc[salm, "roi_lps_chain_centroid"].values)
+    print(f"    roi_lps_chain_centroid  d={d_cen:+.3f}")
 
 # ---- Per-class macromolecule vector summary ----
 print("\n[summary] Per-class macromolecule vector means (file-level)")

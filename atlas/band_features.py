@@ -262,6 +262,23 @@ def _lorentzian(x: np.ndarray, a: float, x0: float, gamma: float, c: float) -> n
     return a * (gamma ** 2) / ((x - x0) ** 2 + gamma ** 2) + c
 
 
+def _pseudovoigt_linbase(
+    x: np.ndarray,
+    a: float, x0: float, sigma: float, gamma: float, eta: float,
+    b: float, c: float,
+) -> np.ndarray:
+    """Pseudo-Voigt with linear baseline (Stage 15A — plan/15 §5).
+
+    pv(x) = η · L(x; x0, γ) + (1-η) · G(x; x0, σ)
+    y     = a · pv(x) + b · (x - x0) + c
+
+    Where L and G are unit-height Lorentzian and Gaussian profiles centered at x0.
+    """
+    lor = (gamma ** 2) / ((x - x0) ** 2 + gamma ** 2)
+    gau = np.exp(-((x - x0) ** 2) / (2.0 * sigma ** 2))
+    return a * (eta * lor + (1.0 - eta) * gau) + b * (x - x0) + c
+
+
 def fit_peak(
     spec: np.ndarray,
     wn: np.ndarray,
@@ -322,10 +339,13 @@ def fit_peaks_batch(
     band_keys: Iterable[str],
     window: float = 30.0,
 ) -> dict[str, np.ndarray]:
-    """Fit each named band on every spectrum.
+    """Fit each named band on every spectrum (legacy Lorentzian).
 
     Returns a dict where each key maps to (N, 4) array of
     (center, height, fwhm, area). NaN where the fit failed.
+
+    For Stage 15A and later, prefer `fit_peaks_batch_pseudovoigt` which uses
+    pseudo-Voigt + linear baseline and yields much higher success rates.
     """
     band_keys = list(band_keys)
     out = {k: np.full((X.shape[0], 4), np.nan, dtype=np.float64) for k in band_keys}
@@ -337,6 +357,286 @@ def fit_peaks_batch(
             fit = fit_peak(X[i], wn, center, window=window)
             if fit.success:
                 out[k][i] = [fit.center, fit.height, fit.fwhm, fit.area]
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Pseudo-Voigt peak fitting (Stage 15A — plan/15)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class PseudoVoigtFit:
+    """Pseudo-Voigt + linear baseline fit result. NaN fields = fit failed."""
+    center: float       # x0
+    height: float       # a
+    fwhm: float         # convex-combination approximation: η·2γ + (1-η)·2σ·√(2 ln 2)
+    sigma: float        # Gaussian half-width
+    gamma: float        # Lorentzian half-width
+    eta: float          # mixing fraction (0=Gaussian, 1=Lorentzian)
+    baseline_slope: float       # b — linear coefficient on (x - x0)
+    baseline_intercept: float   # c
+    area: float         # ∫ a·pv(x) dx ≈ a·π·γ·η + a·σ·√(2π)·(1-η)
+    rmse: float
+    success: bool
+
+
+_FWHM_G_CONST = 2.0 * np.sqrt(2.0 * np.log(2.0))   # ≈ 2.3548
+
+
+def fit_peak_pseudovoigt(
+    spec: np.ndarray,
+    wn: np.ndarray,
+    center: float,
+    window: float = 30.0,
+    initial_fwhm: float = 12.0,
+) -> PseudoVoigtFit:
+    """Fit pseudo-Voigt + linear baseline within ±window cm⁻¹ around `center`.
+
+    Returns a PseudoVoigtFit; if any step fails, all numeric fields are NaN and
+    `success` is False.
+    """
+    nan_fit = PseudoVoigtFit(
+        center=np.nan, height=np.nan, fwhm=np.nan,
+        sigma=np.nan, gamma=np.nan, eta=np.nan,
+        baseline_slope=np.nan, baseline_intercept=np.nan,
+        area=np.nan, rmse=np.nan, success=False,
+    )
+    m = (wn >= center - window) & (wn <= center + window)
+    if m.sum() < 7:
+        return nan_fit
+    x = wn[m].astype(np.float64)
+    y = spec[m].astype(np.float64)
+    if not np.all(np.isfinite(y)):
+        return nan_fit
+
+    # Robust amplitude/baseline guesses against either-sign peaks.
+    base_lo = float(np.percentile(y, 10))
+    base_hi = float(np.percentile(y, 90))
+    if (y.max() - base_lo) >= (base_hi - y.min()):
+        a_init = float(y.max() - base_lo)
+        c_init = base_lo
+    else:
+        a_init = float(y.min() - base_hi)
+        c_init = base_hi
+    gamma_init = max(2.0, float(initial_fwhm / 2.0))
+    sigma_init = max(2.0, float(initial_fwhm / _FWHM_G_CONST))
+    eta_init = 0.5
+    b_init = 0.0
+
+    try:
+        popt, _pcov = curve_fit(
+            _pseudovoigt_linbase, x, y,
+            p0=[a_init, float(center), sigma_init, gamma_init,
+                eta_init, b_init, c_init],
+            bounds=(
+                [-np.inf, center - window, 1.5, 1.5, 0.0, -np.inf, -np.inf],
+                [ np.inf, center + window,  30.0,  30.0, 1.0,  np.inf,  np.inf],
+            ),
+            maxfev=4000,
+        )
+    except (RuntimeError, ValueError):
+        return nan_fit
+
+    a, x0, sigma, gamma, eta, b, c = popt
+    fwhm_l = 2.0 * gamma
+    fwhm_g = _FWHM_G_CONST * sigma
+    fwhm = eta * fwhm_l + (1.0 - eta) * fwhm_g  # convex-combination approximation
+    area = float(np.pi * gamma * a * eta + sigma * np.sqrt(2.0 * np.pi) * a * (1.0 - eta))
+    residual = y - _pseudovoigt_linbase(x, *popt)
+    rmse = float(np.sqrt(np.mean(residual ** 2)))
+    return PseudoVoigtFit(
+        center=float(x0),
+        height=float(a),
+        fwhm=float(fwhm),
+        sigma=float(sigma),
+        gamma=float(gamma),
+        eta=float(eta),
+        baseline_slope=float(b),
+        baseline_intercept=float(c),
+        area=area,
+        rmse=rmse,
+        success=True,
+    )
+
+
+def fit_peaks_batch_pseudovoigt(
+    X: np.ndarray,
+    wn: np.ndarray,
+    band_keys: Iterable[str],
+    window: float = 30.0,
+) -> dict[str, np.ndarray]:
+    """Pseudo-Voigt batch fit. Returns dict band_key -> (N, 6) array of
+    (center, height, fwhm, eta, area, rmse). NaN where fit failed.
+
+    eta is included so downstream features can use "how Lorentzian vs Gaussian"
+    as a discriminator. Sigma/gamma individually omitted to keep the column
+    count manageable; recoverable from FWHM and η if ever needed.
+    """
+    band_keys = list(band_keys)
+    out = {k: np.full((X.shape[0], 6), np.nan, dtype=np.float64) for k in band_keys}
+    for k in band_keys:
+        center = BANDS[k]["center"]
+        if center < wn[0] or center > wn[-1]:
+            continue
+        for i in range(X.shape[0]):
+            fit = fit_peak_pseudovoigt(X[i], wn, center, window=window)
+            if fit.success:
+                out[k][i] = [fit.center, fit.height, fit.fwhm,
+                             fit.eta, fit.area, fit.rmse]
+    return out
+
+
+# ---------------------------------------------------------------------------
+# ROI moments (Stage 15A — SP10-SP16)
+# ---------------------------------------------------------------------------
+
+# 6 named regions covering the preprocessed wavenumber axis.
+DEFAULT_ROIS: dict[str, tuple[float, float]] = {
+    "fingerprint_low":         (400.0,  800.0),
+    "lps_chain":               (800.0, 1200.0),    # Stage 1/2 empirical anchor
+    "protein_amide_extended": (1200.0, 1500.0),
+    "amide_aromatic":         (1500.0, 1700.0),
+    "silent":                 (1700.0, 2800.0),    # quality-check region
+    "ch_stretch":             (2800.0, 3050.0),
+}
+
+
+def roi_moments(
+    X: np.ndarray,
+    wn: np.ndarray,
+    regions: dict[str, tuple[float, float]] | None = None,
+) -> dict[str, np.ndarray]:
+    """6-statistic moments per ROI per spectrum.
+
+    For each region, returns columns:
+        roi_<name>_mean       — mean intensity
+        roi_<name>_std        — std intensity
+        roi_<name>_skew       — Fisher-Pearson skew (NaN if std=0)
+        roi_<name>_kurt       — excess kurtosis (NaN if std=0)
+        roi_<name>_centroid   — Σ(wn · y) / Σ(y); spectral center of mass
+        roi_<name>_entropy    — Shannon entropy of normalized |y|
+
+    `centroid` uses Σ(y) directly (signed) — meaningful when most y > 0;
+    for SNV-centered data the centroid is interpreted relative to the region.
+    """
+    if regions is None:
+        regions = DEFAULT_ROIS
+    from scipy.stats import skew, kurtosis, entropy
+    N = X.shape[0]
+    out: dict[str, np.ndarray] = {}
+    for name, (lo, hi) in regions.items():
+        m = (wn >= lo) & (wn <= hi)
+        if m.sum() < 3:
+            for stat in ("mean", "std", "skew", "kurt", "centroid", "entropy"):
+                out[f"roi_{name}_{stat}"] = np.full(N, np.nan, dtype=np.float64)
+            continue
+        sub = X[:, m]
+        sub_wn = wn[m]
+        out[f"roi_{name}_mean"]  = sub.mean(axis=1)
+        out[f"roi_{name}_std"]   = sub.std(axis=1)
+        # skew/kurt are NaN where std=0
+        sk = skew(sub, axis=1, bias=False, nan_policy="omit")
+        kt = kurtosis(sub, axis=1, fisher=True, bias=False, nan_policy="omit")
+        out[f"roi_{name}_skew"] = np.asarray(sk, dtype=np.float64)
+        out[f"roi_{name}_kurt"] = np.asarray(kt, dtype=np.float64)
+        # Centroid via signed weights — fragile when Σ y ≈ 0; use eps
+        sum_y = sub.sum(axis=1)
+        eps = 1e-9
+        safe_sum = np.where(np.abs(sum_y) < eps,
+                            np.sign(sum_y) * eps + eps, sum_y)
+        out[f"roi_{name}_centroid"] = (sub * sub_wn[None, :]).sum(axis=1) / safe_sum
+        # Shannon entropy of normalized |y| (always non-negative input).
+        abs_sub = np.abs(sub)
+        norm = abs_sub / (abs_sub.sum(axis=1, keepdims=True) + eps)
+        out[f"roi_{name}_entropy"] = -np.sum(
+            norm * np.log(norm + eps), axis=1
+        )
+    return out
+
+
+# ---------------------------------------------------------------------------
+# EMSC scatter correction (Stage 15A — SP25)
+# ---------------------------------------------------------------------------
+
+def emsc_correct(
+    X: np.ndarray,
+    wn: np.ndarray,
+    reference: np.ndarray | None = None,
+    poly_degree: int = 2,
+    return_corrected: bool = True,
+) -> tuple[np.ndarray | None, np.ndarray]:
+    """Extended Multiplicative Scatter Correction.
+
+    Models each spectrum as:
+        y = a + b · ref + sum_{k=1..poly_degree} c_k · wn^k + chem_residual
+
+    Returns:
+        corrected — (N, B) — chem_residual (if return_corrected=True), else None
+        coefs     — (N, 2 + poly_degree) — columns [a, b, c1, ..., c_poly]
+
+    The 4 coefficients (with poly_degree=2) are scatter-correction features that
+    capture per-spectrum baseline offset, reference scaling, linear and
+    quadratic wavenumber-dependent baselines.
+    """
+    N, B = X.shape
+    if reference is None:
+        reference = X.mean(axis=0)
+    # Build the design matrix: columns [1, ref, wn, wn^2, ...]
+    cols = [np.ones(B), reference]
+    wn_norm = (wn - wn.mean()) / (wn.std() + 1e-9)  # numerical stability
+    for k in range(1, poly_degree + 1):
+        cols.append(wn_norm ** k)
+    A = np.stack(cols, axis=1)            # (B, 2 + poly_degree)
+    # Least-squares solve per spectrum: y = A @ θ + residual
+    # Solve all spectra at once via pinv.
+    AtA_inv_At = np.linalg.pinv(A)        # (2+poly_degree, B)
+    coefs = (AtA_inv_At @ X.T).T          # (N, 2+poly_degree)
+    if return_corrected:
+        # chem_residual = y - A @ θ
+        residual = X - coefs @ A.T
+        return residual, coefs
+    return None, coefs
+
+
+# ---------------------------------------------------------------------------
+# Derivative features (Stage 15A — SP1, SP2)
+# ---------------------------------------------------------------------------
+
+def derivative_band_auc(
+    X: np.ndarray,
+    wn: np.ndarray,
+    deriv: int,
+    band_keys: Iterable[str],
+    half_width: float = 10.0,
+    sg_window: int = 11,
+    sg_poly: int = 3,
+) -> dict[str, np.ndarray]:
+    """Trapezoidal AUC of |y'| (deriv=1) or |y''| (deriv=2) over each named
+    band's ±half_width window. Uses Savitzky-Golay smoothed derivatives.
+
+    Returns dict band_key -> (N,) AUC values.
+    """
+    from scipy.signal import savgol_filter
+    assert deriv in (1, 2), "deriv must be 1 or 2"
+    if sg_window % 2 == 0:
+        sg_window += 1
+    # wn spacing in cm-1 per bin (uniform-grid assumption — true for our cache)
+    dx = float(np.median(np.diff(wn)))
+    Y_deriv = savgol_filter(
+        X, window_length=sg_window, polyorder=sg_poly,
+        deriv=deriv, delta=dx, axis=1, mode="interp",
+    )
+    abs_deriv = np.abs(Y_deriv)
+    out: dict[str, np.ndarray] = {}
+    for k in band_keys:
+        center = BANDS[k]["center"]
+        if center < wn[0] or center > wn[-1]:
+            continue
+        m = (wn >= center - half_width) & (wn <= center + half_width)
+        if m.sum() < 2:
+            out[k] = np.full(X.shape[0], np.nan, dtype=np.float64)
+            continue
+        out[k] = np.trapz(abs_deriv[:, m], wn[m], axis=1)
     return out
 
 
@@ -360,9 +660,17 @@ def feature_frame(
     *,
     ratios: bool = True,
     fits: bool = True,
+    fit_model: str = "pseudovoigt",       # "pseudovoigt" | "lorentzian"
     fit_bands: Iterable[str] = DEFAULT_FIT_BANDS,
     half_width: float = 10.0,
     fit_window: float = 30.0,
+    rois: bool = True,                     # Stage 15A — SP10-SP16
+    emsc: bool = True,                     # Stage 15A — SP25
+    derivatives: bool = True,              # Stage 15A — SP1, SP2
+    deriv_bands: Iterable[str] | None = None,   # defaults to DEFAULT_FIT_BANDS
+    emsc_reference: np.ndarray | None = None,
+    sg_window: int = 11,
+    sg_poly: int = 3,
 ) -> pd.DataFrame:
     """One-shot DataFrame of all band-aware features for each spectrum.
 
@@ -372,7 +680,13 @@ def feature_frame(
       auc_lps_chain_discrim  — 800–1200 LPS continuous AUC (Stage 1 anchor)
       auc_<band_key>         — per-band ±10 AUC for every catalog band
       ratio_<name>           — band-ratio features (if ratios=True)
-      fit_<band>_{center,height,fwhm,area} — Lorentzian fit params (if fits=True)
+      fit_<band>_{center,height,fwhm,eta,area,rmse}  — pseudo-Voigt fit params
+        (if fits=True; with fit_model="lorentzian", returns only
+         center/height/fwhm/area — eta/rmse columns absent for backwards-compat)
+      roi_<region>_{mean,std,skew,kurt,centroid,entropy} — Stage 15A (if rois=True)
+      emsc_{a,b,c1,c2}       — Stage 15A scatter coefs (if emsc=True)
+      d1_auc_<band>          — Stage 15A 1st-derivative AUC (if derivatives=True)
+      d2_auc_<band>          — Stage 15A 2nd-derivative AUC (if derivatives=True)
     """
     cols: dict[str, np.ndarray] = {}
 
@@ -395,14 +709,56 @@ def feature_frame(
         for ratio_name, vals in band_ratios(X, wn, half_width=half_width).items():
             cols[f"ratio_{ratio_name}"] = vals
 
-    # Lorentzian fits
+    # Peak fits (Stage 15A: pseudo-Voigt default; lorentzian as legacy option)
     if fits:
-        fits_dict = fit_peaks_batch(X, wn, fit_bands, window=fit_window)
-        for band_key, mat in fits_dict.items():
-            cols[f"fit_{band_key}_center"] = mat[:, 0]
-            cols[f"fit_{band_key}_height"] = mat[:, 1]
-            cols[f"fit_{band_key}_fwhm"]   = mat[:, 2]
-            cols[f"fit_{band_key}_area"]   = mat[:, 3]
+        if fit_model == "pseudovoigt":
+            fits_dict = fit_peaks_batch_pseudovoigt(X, wn, fit_bands, window=fit_window)
+            for band_key, mat in fits_dict.items():
+                cols[f"fit_{band_key}_center"] = mat[:, 0]
+                cols[f"fit_{band_key}_height"] = mat[:, 1]
+                cols[f"fit_{band_key}_fwhm"]   = mat[:, 2]
+                cols[f"fit_{band_key}_eta"]    = mat[:, 3]
+                cols[f"fit_{band_key}_area"]   = mat[:, 4]
+                cols[f"fit_{band_key}_rmse"]   = mat[:, 5]
+        elif fit_model == "lorentzian":
+            fits_dict = fit_peaks_batch(X, wn, fit_bands, window=fit_window)
+            for band_key, mat in fits_dict.items():
+                cols[f"fit_{band_key}_center"] = mat[:, 0]
+                cols[f"fit_{band_key}_height"] = mat[:, 1]
+                cols[f"fit_{band_key}_fwhm"]   = mat[:, 2]
+                cols[f"fit_{band_key}_area"]   = mat[:, 3]
+        else:
+            raise ValueError(f"fit_model must be 'pseudovoigt' or 'lorentzian', got {fit_model!r}")
+
+    # ROI moments (Stage 15A)
+    if rois:
+        for col_name, vals in roi_moments(X, wn).items():
+            cols[col_name] = vals
+
+    # EMSC scatter coefficients (Stage 15A)
+    if emsc:
+        _residual, emsc_coefs = emsc_correct(
+            X, wn, reference=emsc_reference, poly_degree=2, return_corrected=False
+        )
+        # columns: a, b, c1, c2
+        cols["emsc_a"]  = emsc_coefs[:, 0]
+        cols["emsc_b"]  = emsc_coefs[:, 1]
+        cols["emsc_c1"] = emsc_coefs[:, 2]
+        cols["emsc_c2"] = emsc_coefs[:, 3]
+
+    # Derivative AUCs (Stage 15A)
+    if derivatives:
+        d_bands = list(deriv_bands or DEFAULT_FIT_BANDS)
+        d1 = derivative_band_auc(X, wn, deriv=1, band_keys=d_bands,
+                                 half_width=half_width,
+                                 sg_window=sg_window, sg_poly=sg_poly)
+        d2 = derivative_band_auc(X, wn, deriv=2, band_keys=d_bands,
+                                 half_width=half_width,
+                                 sg_window=sg_window, sg_poly=sg_poly)
+        for k, vals in d1.items():
+            cols[f"d1_auc_{k}"] = vals
+        for k, vals in d2.items():
+            cols[f"d2_auc_{k}"] = vals
 
     df = pd.DataFrame(cols)
     return df
