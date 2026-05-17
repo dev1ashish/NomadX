@@ -118,7 +118,9 @@ def run_one(
         fold_id = fold["fold"]
         train_idx = np.asarray(fold["train_row_indices"], dtype=np.int64)
         test_idx = np.asarray(fold["test_row_indices"], dtype=np.int64)
-        fold_seed = int(fold["fold_seed"])
+        # Apply master seed offset so different --seed values produce different
+        # per-fold training trajectories. seed == 42 preserves baseline behavior.
+        fold_seed = int(fold["fold_seed"]) + (seed - 42)
 
         X_train = X_full[train_idx]
         y_train = y_all[train_idx]

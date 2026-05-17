@@ -163,23 +163,35 @@ def soft_predictions_for_fold(
 def router_predictions_for_fold(
     candidates: list[LambdaCandidate],
     fold_id: str,
+    signal: str = "max_proba",
 ) -> tuple[pd.DataFrame, dict]:
-    """For each test FILE, pick the candidate whose mean max-proba on the file's
-    spectra is highest. Confidence-routing (file-level, not spectrum-level).
+    """For each test FILE, pick the candidate whose file-level confidence is highest.
 
-    This uses test-set confidence (mild leakage; documented). Aggregating to
-    file level before routing means a single noisy spectrum doesn't flip the
-    choice — consistent with the file-level eval downstream.
+    Confidence signal options:
+      "max_proba"   — mean of max(p) across the file's spectra (original).
+      "margin"      — mean of (max(p) − second_max(p)) across spectra.
+                      Calibration-INVARIANT for well-trained models because
+                      shifting all logits by a constant cancels out.
+
+    Aggregating to file level before routing means a single noisy spectrum
+    doesn't flip the choice.
     """
+    if signal not in ("max_proba", "margin"):
+        raise ValueError(f"unknown signal: {signal}")
     frames = {c.name: pd.read_parquet(c.run_dir / f"predictions_fold_{fold_id}.parquet")
               for c in candidates}
-    # Compute file-level mean max-proba per candidate
+    # Compute file-level mean confidence per candidate
     file_max_proba: dict[str, pd.DataFrame] = {}
     for name, df in frames.items():
-        max_per_spectrum = df[PROBA_COLS].max(axis=1)
-        df = df.assign(_max_proba=max_per_spectrum)
-        agg = df.groupby("file_id", as_index=False)["_max_proba"].mean()
-        agg = agg.rename(columns={"_max_proba": f"max_proba_{name}"})
+        proba = df[PROBA_COLS].to_numpy()
+        if signal == "max_proba":
+            score_per_spectrum = proba.max(axis=1)
+        else:  # margin
+            sorted_p = np.sort(proba, axis=1)
+            score_per_spectrum = sorted_p[:, -1] - sorted_p[:, -2]
+        df = df.assign(_score=score_per_spectrum)
+        agg = df.groupby("file_id", as_index=False)["_score"].mean()
+        agg = agg.rename(columns={"_score": f"max_proba_{name}"})
         file_max_proba[name] = agg
 
     # Combine into a single DataFrame keyed on file_id with one column per candidate.

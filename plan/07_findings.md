@@ -678,6 +678,274 @@ Plus PLS-DA still owns Salmonella + most easy Non-STEC cells. **This is the stro
 
 - **Headline LOSO single-model remains DANN λ=0.1 at 0.500.** 2-channel CNN at 0.465 is the strong runner-up, valuable for the per-strain story.
 - **The 2-channel CNN's O121H19 = 0.89 and O157H7 = 0.78 are headline-quality results for the writeup** — first deep model to tie PLS-DA on a STEC strain (O121H19) and joint-best pathogen detection (O157H7).
-- **Soft-vote ensemble with 2-channel CNN + Patch=5 Transformer + DANN λ=0.1 + DANN λ=0.3** might still be worth revisiting now that we have FOUR meaningfully-different inductive biases with documented per-strain wins. Previous stacking failures were on within-DANN-family models; the new architectural diversity might unlock the meta-learner. Open future-work direction.
+- **Soft-vote ensemble with 2-channel CNN + Patch=5 Transformer + DANN λ=0.1 + DANN λ=0.3** might still be worth revisiting now that we have FOUR meaningfully-different inductive biases with documented per-strain wins. Previous stacking failures were on within-DANN-family models; the new architectural diversity might unlock the meta-learner. Open future-work direction. **Update 2026-05-15:** this re-ensemble was run with the architecturally-diverse 4-model base ({PLS-DA, DANN λ=0.1, Patch=5, 2-ch CNN}). All three combination schemes failed — soft-vote and router degenerate to PLS-DA solo via calibration mismatch; stacking can't extrapolate under LOSO. See [§2026-05-15--4-architecture-re-ensemble-fails-to-beat-plsda](#2026-05-15--4-architecture-re-ensemble-fails-to-beat-plsda).
+
+## 2026-05-15 — 4-architecture re-ensemble fails to beat PLS-DA — 4th negative result on ensembling {#2026-05-15--4-architecture-re-ensemble-fails-to-beat-plsda}
+
+**Setup.** Re-ran the three combination schemes — soft-vote, stacking, confidence-router — over the four ARCHITECTURALLY-DIVERSE base models that previous attempts lacked: **{PLS-DA (linear chemometrics), DANN λ=0.1 (adversarial CNN), Patch=5 Transformer (narrow-peak attention), 2-channel CNN (explicit edge features)}**. Per-strain ownership of these 4 bases differs cleanly:
+
+```
+STRAIN       PLS-DA  DANN λ=0.1  Patch=5    2-ch CNN
+83972        0.875   0.750       0.250      0.625    ← PLS-DA wins
+ATCC25922    0.222   0.889       1.000      0.667    ← Patch=5 wins
+Dublin       0.556   0.000       0.000      0.111    ← PLS-DA wins (only > 0.11)
+Heidelburg   0.889   0.444       0.333      0.444    ← PLS-DA wins
+K-12         0.000   0.750       0.000      0.000    ← DANN wins (only > 0)
+O103H2       1.000   0.333       0.444      0.667    ← PLS-DA wins
+O121H19      0.889   0.667       0.222      0.889    ← PLS-DA / 2-ch CNN tie
+O157H7       0.000   0.556       0.778      0.778    ← Patch=5 / 2-ch CNN tie
+Typhimurium  1.000   0.111       0.111      0.000    ← PLS-DA wins
+MEAN         0.603   0.500       0.349      0.465
+```
+
+Oracle ceiling (per-strain argmax) is **0.86** — *if* any combination scheme could route correctly per strain. None did.
+
+### Results
+
+| Variant | Mean LOSO parent-recall | K-12 | O157H7 | Per-strain detail |
+|---|---|---|---|---|
+| Soft-vote uniform | **0.579** | 0.000 | 0.111 | 83972=0.88, ATCC25922=0.33, Dublin=0.22, Heidelburg=0.89, O103H2=1.00, O121H19=1.00, Typhimurium=0.78 |
+| Stacking (LogReg meta) | **0.432** | 0.000 | 0.000 | 83972=0.00, ATCC25922=0.11, Dublin=0.22, Heidelburg=0.67, O103H2=1.00, O121H19=0.89, Typhimurium=1.00 |
+| Confidence-router (file-level argmax mean max-proba) | **0.603** | 0.000 | 0.000 | **Identical to PLS-DA solo — router picked PLS-DA on 78/78 files (every file in every fold)** |
+
+**No variant clears verdict (X)** (≥ 0.55 mean AND K-12 ≥ 0.30 AND O157H7 ≥ 0.50). Soft-vote and router each have mean ≥ 0.55 but fail both biology gates (K-12 + O157H7 cratered). Stacking lands in (Z) (< 0.50) cleanly.
+
+### Mechanism: PLS-DA's miscalibrated confidence dominates
+
+PLS-DA's file-level max-proba is calibrated systematically higher than any of the three deep models' on this dataset. In a uniform soft-vote, PLS-DA's vote acts like a *doubled-weight* base:
+
+- Where PLS-DA is correct (Heidelburg, O103H2, O121H19, Typhimurium), the ensemble inherits its confident-correct vote and **exceeds the per-strain predicted range** (Heidelburg 0.89, O121H19 1.00, O103H2 1.00, Typhimurium 0.78).
+- Where PLS-DA is *confidently wrong* (ATCC25922, K-12, O157H7), 3-of-4 majority deep votes are **dragged down to 0.0–0.33** — even when all three deep models agree on the correct class with moderate-to-high confidence.
+
+For the **router**, the same calibration mismatch is fatal in a different way: file-level confidence is the routing signal, and PLS-DA's max-proba exceeds every deep model's on every single file. The router thus degenerates to "always pick PLS-DA," recovering PLS-DA solo (0.603) by tautology. **Confidence-routing across heterogeneous architectures requires per-base temperature calibration; raw max-proba is uninformative when one base has a fundamentally different calibration scale.**
+
+For **stacking**, the LOSO meta-CV problem from [§stacking-meta-learner-fails](#2026-05-14--stacking-meta-learner-fails) is unchanged: the meta-learner trained on 8 strains can't extrapolate the right base-pattern to the 9th strain when each strain's optimal base is by definition held-out. The richer feature space (4 architectures × 4 classes vs. 4 DANN-lambdas × 4 classes) didn't help — possibly because the meta-learner picked up on PLS-DA's confidence-scale and weighted it heavily, then PLS-DA's per-fold variance hurt the held-out predictions.
+
+### Verdict: 4th negative result on ensembling
+
+This experiment was the strongest pro-ensemble test we could mount given the artifacts on disk — 4 base models with genuinely-different inductive biases each cleanly owning different per-strain cells, and three orthogonal combination schemes. **All three fail to Pareto-dominate PLS-DA solo.** Soft-vote and router *match or beat* PLS-DA's mean only by inheriting its predictions; neither contributes a single biology cell PLS-DA didn't already own. Stacking trails by 0.17.
+
+**Operational decision.** Ship PLS-DA solo as the LOSO headline. The per-strain best-model table — one strain per architecture — is the actual story:
+
+| Strain | Owner | Architecture | Mechanism |
+|---|---|---|---|
+| K-12 | DANN λ=0.3 (0.88) / λ=0.1 (0.75) | broad-scale adversarial denoising | broad-scale chemistry separates Non-STEC |
+| ATCC25922 | Patch=5 Transformer (1.00) | narrow-peak attention | sharp peaks discriminate this Non-STEC |
+| O121H19 | 2-channel CNN (0.89) / PLS-DA (0.89) | explicit edge features / linear chemometrics | edge structure + linear shape |
+| O157H7 | Patch=5 / 2-ch CNN (0.78) | narrow-peak preservation / edges | both narrow-peak mechanisms work |
+| Heidelburg / Typhimurium / Dublin / 83972 / O103H2 | PLS-DA | linear chemometrics | shape signature is linearly separable for these |
+
+This is the writeup story: **four different inductive biases each crack different biology cells; no soft-vote, meta-learner, or confidence router on this dataset captures all the wins simultaneously, because PLS-DA's miscalibrated max-proba dominates every voting/routing scheme.** The complementary-failures narrative — extended from [classical+CNN](#2026-05-14--ensemble-fails-to-clear-plsda) to four architectures — is the strongest version of the project's central finding.
+
+### Follow-up worth recording (out of scope this session)
+
+- **Temperature-scaled soft-vote** — calibrate each base's proba to a common reliability curve (e.g., Platt scaling or isotonic regression on a held-out subset of training folds) BEFORE averaging. The current failure is purely a calibration mismatch; with equalized calibration the soft-vote would respect the actual class-prediction agreement instead of PLS-DA's scale advantage.
+- **Disagreement-based abstention router** — instead of "argmax max-proba," route to "argmax (max-proba − second-max-proba)" or "argmin entropy" — both measure confidence in a calibration-invariant way for well-trained models. Documented in plan/09.
+- **Per-strain oracle baseline** — for a writeup figure showing the gap between achievable per-strain wins (oracle 0.86) and what non-leaky combination schemes can extract (0.43–0.60). Not a ship-worthy model; useful as a "ceiling" reference.
+
+### Artifacts
+
+- `outputs/2026-05-15_ens_plsda_dann10_patch5_cnn2ch_loso_e1878a38/` (soft-vote)
+- `outputs/2026-05-15_stack_4arch_loso_28e391eb/` (stacking)
+- `outputs/2026-05-15_lambda_select_router_plsda_dann10_patch5_cnn2ch_loso_faec0bad/` (router)
+
+Pre-registration and post-run resolution: [plan/08 §2026-05-15-re-ensemble-with-4-architecturally-diverse-bases](08_expectations.md).
+
+## 2026-05-15 — Temperature-scaled soft-vote — partial calibration mechanism, no headline shift {#2026-05-15--temperature-scaled-softvote}
+
+**Hypothesis under test.** The 4-architecture re-ensemble post-mortem identified PLS-DA's miscalibrated confidence as the dominant mechanism (mean max-proba 0.747 vs 0.43–0.49 for the 3 deep models). Temperature-scaling each base before averaging should equalize the effective vote weight and let the deep majority surface on cells where PLS-DA is confidently wrong.
+
+**Implementation.** Per-base scalar temperature T_b fit by maximum likelihood on the union of predictions from the OTHER 8 LOSO folds (LOO-on-strains; same leakage tolerance as the stacking meta-learner). Applied per-spectrum to each base's probas, then uniform 4-way soft-vote, then file-level aggregation. Module: `atlas/calibrated_ensemble.py`; runner: `scripts/run_calibrated_ensemble.py`.
+
+**Fitted temperatures (mean over 9 LOSO folds):** PLS-DA = **6.43**, DANN = 1.23, Patch=5 = 1.70, 2-ch CNN = 1.63. PLS-DA needed ~5× more softening than the deep models — quantitatively confirms the calibration mismatch.
+
+### Results
+
+| Strain | Uniform soft-vote (pre-cal) | **T-scaled 4-base** | T-scaled 3-deep (excl. PLS-DA) | PLS-DA solo (for ref) |
+|---|---|---|---|---|
+| 83972 | 0.875 | 0.875 | 0.500 | 0.875 |
+| ATCC25922 | 0.333 | **0.667** ⭐ +0.34 | 0.778 | 0.222 |
+| Dublin | 0.222 | 0.111 | 0.000 | 0.556 |
+| Heidelburg | 0.889 | 0.778 | 0.556 | 0.889 |
+| **K-12** | 0.000 | **0.000** | **0.375** | 0.000 |
+| O103H2 | 1.000 | 1.000 | 0.667 | 1.000 |
+| O121H19 | 1.000 | 0.889 | 0.889 | 0.889 |
+| **O157H7** | 0.111 | **0.667** ⭐ +0.56 | 0.667 | 0.000 |
+| Typhimurium | 0.778 | 0.111 ↓ | 0.000 | 1.000 |
+| **MEAN** | **0.579** | **0.566** | 0.492 | **0.603** |
+
+### Sharp mechanism findings
+
+1. **Calibration was the mechanism for ATCC25922 and O157H7.** Both flipped from confident-wrong (0.33, 0.11) to confident-correct (0.67, 0.67) after temperature scaling. The 3-of-4 deep-model majority became audible once PLS-DA's vote scaled down 5×. **First time the project's ensembles cleanly captured these cells.**
+2. **K-12 is NOT a calibration problem.** It's a **minority-of-one** problem — only DANN is right; PLS-DA + Patch5 + 2-ch CNN all confidently call K-12 something else. T_dann = 1.23 barely sharpens DANN's vote; even fully calibrated, 1-of-4 right votes can't outvote 3 wrong votes. **Confirmed by 3-deep sanity check**: K-12 = 0.375 when PLS-DA is removed (1-of-3 wrong is easier to overcome than 1-of-4).
+3. **Typhimurium is K-12's symmetric failure.** Only PLS-DA is right; all 3 deep models confidently call Typhimurium something other than Salmonella. Softening PLS-DA's sole-correct vote crashes Typhimurium 0.78 → 0.11. **The minority-of-one failure mode is symmetric across PLS-DA-owns and DANN-owns cells.**
+4. **The structural tradeoff.** Any ensemble that reduces PLS-DA's weight to fix K-12 / O157H7 / ATCC25922 necessarily hurts Typhimurium / Dublin where PLS-DA is the sole right voter. With the current 4-base set there is **no Pareto-improving combination** — test-time signals alone cannot distinguish "trust PLS-DA on Typhimurium" from "trust DANN on K-12."
+
+### Disagreement-based (margin) router — also degenerates to PLS-DA
+
+To rule out calibration-invariance: ran `router_margin` — route by argmax(mean(max_proba − second_max_proba)) per file. PLS-DA's distributions are not just over-confident, they're **systematically more peaked** (smaller mass on runner-up class) on every file. PLS-DA wins the margin signal 78/78 files. Mean = 0.603 (identical to original confidence router, identical to PLS-DA solo). **Disagreement-based routing across heterogeneous architectures fails for the same structural reason as confidence-based routing — PLS-DA's classifier produces categorically peaked distributions on every file regardless of correctness.**
+
+### Verdict: branch (B) on temperature scaling; ensemble story now fully closed
+
+- Temperature-scaled 4-base mean 0.566 ≥ 0.55 ✓, O157H7 0.67 ≥ 0.50 ✓, but **K-12 0.00 < 0.30 ✗** — branch (A) gate fails, lands in (B).
+- 5 distinct combination schemes attempted (uniform soft-vote, stacking, max-proba router, margin router, T-scaled soft-vote) across 3 base sets (3-classical, 3-DANN, 4-architectural). **None Pareto-dominates PLS-DA solo.**
+- **The story is sharp now:** PLS-DA solo wins LOSO mean because (a) it owns 5/9 strains outright, and (b) its calibration scale dominates any voting/routing scheme, and (c) the cells where PLS-DA is wrong are minority-of-one cells that no non-leaky scheme can route to the correct sole-voter.
+
+### Operational decision
+
+**Ship PLS-DA solo at 0.603 as the LOSO headline.** Temperature-scaled soft-vote at 0.566 is the second-best ensemble result and the cleanest demonstration of the calibration mechanism — include in the writeup as the "what *would* have to be true for ensembles to work" narrative. The deeper-takeaway sentence: *the per-strain best-model table is irreducible because each strain's optimal model is structurally hidden from any LOSO-clean routing signal.*
+
+### Future-work directions worth recording
+
+- **Per-base out-of-fold inner-validation calibration**. Retrain each of the 4 base models with a held-out *inner* fold (15% of training files) for honest calibration fitting. This is the leakage-free version of what we did with cross-fold predictions. Out of session scope; estimated 4× current LOSO retraining time.
+- **Stacked routing with class-prior features**. Add per-base class-prior disagreement (e.g., "does this file have the H₂O signature?") as a meta-feature. May give the LOSO meta-learner a partial signal for "this is a Salmonella file → trust PLS-DA" that the architectural base probas don't carry. Speculative; documented in plan/09.
+- **A per-strain-aware abstention scheme** — bases output an additional "I don't know" probability, and the ensemble routes based on which base abstains least. Requires retraining with abstention heads.
+
+### Artifacts
+
+- `outputs/2026-05-15_tcal_4base_all_loso_d5780c7b/` (4-base T-scaled, **the partial-fix result**)
+- `outputs/2026-05-15_tcal_3deep_noplsda_loso_674f6163/` (3-deep T-scaled sanity check)
+- `outputs/2026-05-15_lambda_select_router_margin_plsda_dann10_patch5_cnn2ch_loso_4d39c6d6/` (margin router; degenerates to PLS-DA)
 
 **Compute:** Protocol A ~3 min, LOSO ~6 min. Same envelope as vanilla CNN.
+
+## 2026-05-15 — DANN aug-regime sweep — aug is load-bearing for LOSO, not over-tuning {#2026-05-15--dann-aug-regime-sweep}
+
+**Hypothesis under test.** plan/00 carried a TODO since 2026-05-14 claiming the CNN aug regime was over-tuned (folds early-stop with train_acc 0.4-0.5; no-aug fold-0 reaches train_acc 0.88). The implied prescription: lighter aug → better convergence → higher LOSO. Tested by sweeping DANN λ=0.1 across 3 aug presets.
+
+### Results
+
+| Variant | p_noise | p_scale | p_shift | p_baseline | p_mixup | **LOSO mean** | K-12 | O157H7 | ATCC25922 |
+|---|---|---|---|---|---|---|---|---|---|
+| default (baseline) | 0.50 | 0.40 | 0.40 | 0.30 | 0.30 | **0.500** | 0.750 | 0.556 | 0.889 |
+| light (all halved) | 0.25 | 0.20 | 0.20 | 0.15 | 0.15 | **0.347** ↓ | 0.375 | 0.222 | 0.444 |
+| no_mixup | 0.50 | 0.40 | 0.40 | 0.30 | **0.00** | **0.423** ↓ | **0.875** ⭐ | 0.556 | 0.556 |
+| minimal | 0.30 | 0.00 | 0.20 | 0.00 | 0.00 | skipped | — | — | — |
+
+**Verdict (δ) — heavy aug is load-bearing for LOSO regularization, not over-tuning.** Both lighter variants regress on LOSO mean. `minimal` skipped after `light` showed the direction was wrong; predicted strictly worse.
+
+### Mechanism finding
+
+**plan/00's "over-tuned aug" diagnosis was using the wrong proxy.** Reading train_acc 0.4-0.5 as undertraining is correct for Protocol A (within-distribution); under LOSO it's the **correct** training endpoint. Climbing train_acc past 0.5 means memorizing the 8 training strains' file-id correlated signals, which actively hurts generalization to the held-out 9th. The no-aug fold-0 train_acc 0.88 sanity-check was a misleading signal because it measured *within-distribution* overfitting capacity, not *cross-strain* generalization.
+
+The lighter-aug runs are *overfitting* the training strains — their per-fold val_f1 climbs higher early on (light's epoch-15 val_f1 = 0.45 vs default's ~0.35) but they crash on held-out strain prediction because the encoder has memorized training-strain features.
+
+### Surprise per-strain finding worth keeping
+
+**no_mixup gives K-12 = 0.875 — joint-best K-12 across all DANN variants (ties DANN λ=0.3's K-12 = 0.875).** Mixup blends Non-STEC + STEC + Salmonella labels with random α; the blended targets suppress the broad-scale chemistry signal that lets DANN identify K-12. Removing mixup unlocks K-12 to the same ceiling DANN λ=0.3 hits with adversarial pressure — at the cost of regressing 83972 / ATCC25922 / Heidelburg. Useful Pareto data point but not a new headline since DANN λ=0.3 already serves K-12 = 0.875 with a less destructive cost profile elsewhere.
+
+### Operational decisions
+
+- **Default aug regime is correct.** TODO removed from plan/00. Documented as a closed negative finding (lighter ≠ better for LOSO).
+- **Pivot to multi-seed averaging** as the next swing — different mechanism (variance reduction across stochastic training, not regularization tuning). Soft-vote across 3 seeds of DANN λ=0.1 + default aug. Launched in parallel to this writeup.
+
+### Artifacts
+
+- `outputs/2026-05-15_cnn_dann_lam0.10_auglight_loso_0e66e23f/` (light aug — 0.347)
+- `outputs/2026-05-15_cnn_dann_lam0.10_nomixup_loso_f50345d9/` (no_mixup — 0.423, **K-12 = 0.875 ⭐**)
+
+## 2026-05-15 — DANN λ=0.1 5-seed robustness: the headline 0.500 was a lucky seed {#2026-05-15--dann-5seed-robustness}
+
+**Hypothesis under test.** Multi-seed averaging as the next swing for headline movement. Pre-registered expectation: stabilize per-strain variance, lift mean 0.03–0.07.
+
+**Result: invalidates a major prior claim.** Five seeds of DANN λ=0.1 + default aug + LOSO:
+
+| Seed | LOSO mean | 83972 | ATCC25922 | Dublin | Heidelburg | K-12 | O103H2 | O121H19 | O157H7 | Typhimurium |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 42 (shipped) | **0.500** | 0.750 | 0.889 | 0.000 | 0.444 | **0.750** | 0.333 | 0.667 | 0.556 | 0.111 |
+| 1 | 0.153 | 0.250 | 0.444 | 0.000 | 0.111 | 0.125 | 0.333 | 0.000 | 0.111 | 0.000 |
+| 2 | 0.528 | 1.000 | 1.000 | 0.000 | 0.111 | 0.750 | 0.556 | 0.556 | 0.222 | 0.556 |
+| 3 | 0.273 | 0.125 | 1.000 | 0.000 | 0.222 | 0.000 | 1.000 | 0.000 | 0.000 | 0.111 |
+| 4 | 0.270 | 0.875 | 0.889 | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 | 0.667 | 0.000 |
+| **mean ± SD** | **0.345 ± 0.145** | 0.600 ± 0.348 | **0.844 ± 0.206** | 0.000 | 0.178 ± 0.151 | 0.325 ± 0.350 | 0.444 ± 0.330 | 0.244 ± 0.301 | 0.311 ± 0.257 | 0.156 ± 0.206 |
+| 5-seed soft-vote | **0.370** | 0.620 | **1.000** | 0.000 | 0.220 | 0.380 | 0.670 | 0.000 | 0.440 | 0.000 |
+| Oracle (max per strain) | **0.676** | 1.000 | 1.000 | 0.000 | 0.444 | 0.750 | 1.000 | 0.667 | 0.667 | 0.556 |
+
+### Sharp findings
+
+1. **The shipped DANN λ=0.1 = 0.500 was the 2nd-best of 5 random seeds, not a typical value.** Honest reporting: **DANN λ=0.1 LOSO mean = 0.345 ± 0.145 across 5 seeds.** That's essentially **tied with vanilla CNN (0.35)** and matches DANN λ=0.3 (0.447) within 1 SD. **The "+0.15 lift vs vanilla CNN" claim from [§dann-ablation-clears-verdict-a](#2026-05-14--dann-ablation-clears-verdict-a) was a single-seed-luck artifact.**
+2. **Per-strain wins claimed for DANN are mostly seed-fragile.** K-12 = 0.75 happens on 2 of 5 seeds (the other 3 give 0.125 / 0.000 / 0.000); 5-seed soft-vote gives K-12 = 0.380. The biology-cell narrative ("DANN cracks K-12 via broad-scale chemistry") was overclaimed; only 2 of 5 random initializations land in that basin.
+3. **Only ATCC25922 = 1.00 is a robust DANN win.** Mean 0.844, SD 0.206, 5-seed soft-vote = **1.000** (3 seeds hit 1.00, 2 seeds hit 0.89, 1 hit 0.44). This is the one cell where DANN reliably outperforms the alternatives.
+4. **Dublin is consistently impossible for DANN.** 0.000 in all 5 seeds. SD 0.000. The "deep models can't do Dublin" finding holds robustly.
+5. **Oracle ceiling across 5 seeds is 0.676** — would exceed PLS-DA 0.603, but it's test-leakage (can't be deployed). Confirms there IS signal hidden in the per-seed variance, just no leakage-clean way to extract it.
+
+### Major implication: prior single-seed deep-model claims are suspect
+
+If DANN λ=0.1 has ±0.145 LOSO SD across just 5 seeds, then by parallel:
+- **DANN λ=0.3 = 0.447** (with K-12 0.875, O157H7 0.667) — likely similar seed-fragility; need 5-seed run to confirm.
+- **Patch=5 Transformer = 0.349** (with ATCC25922 1.00, O157H7 0.778) — similar concern.
+- **2-channel CNN = 0.465** (with O121H19 0.89, O157H7 0.78) — similar concern.
+- **Vanilla CNN = 0.35** — explicitly single-seed; baseline for the comparison.
+
+**The per-strain best-model table in plan/00 may be largely an artifact of lucky-seed picks across runs done at different times.** A proper multi-seed characterization of all 4 deep base models would take ~3 hours and would likely substantially compress the per-strain narrative.
+
+### Operational decisions
+
+- **Update headline DANN λ=0.1 LOSO to 0.345 ± 0.145 (5 seeds) or 0.370 (5-seed soft-vote).** The 0.500 number stays in history as the originally-shipped single-seed point estimate but is no longer the headline.
+- **PLS-DA solo at 0.603 remains the LOSO headline.** The gap to DANN is now much larger than originally claimed (0.603 vs 0.345-0.370, gap ≥ 0.23).
+- **ATCC25922 = 1.00 is the one robust DANN win** worth keeping in the per-strain best-model table.
+- **Multi-seed the other deep models next** to honestly characterize their wins. Most-suspect single-seed claims to verify: DANN λ=0.3 K-12 = 0.875, Patch=5 ATCC25922 = 1.00, 2-channel CNN O121H19 = 0.89.
+
+### Artifacts
+
+- `outputs/2026-05-15_cnn_dann_lam0.10_seed{1,2,3,4}_loso_*/` (4 new seeds)
+- `outputs/2026-05-15_ens_dann_3seed_avg_loso_5cf10c7e/` (3-seed soft-vote: 0.398)
+- `outputs/2026-05-15_ens_dann_5seed_loso_464268a6/` (5-seed soft-vote: **0.370 — the robust DANN ship**)
+
+## 2026-05-15 — DANN λ=0.3 5-seed verification: K-12 = 0.75 survives, λ=0.3 is the robust DANN config {#2026-05-15--dann-lam03-5seed-verification}
+
+**Hypothesis under test.** Given DANN λ=0.1's headline 0.500 turned out to be lucky-seed (5-seed mean 0.345 ± 0.145, soft-vote 0.370), the next most-load-bearing single-seed claim in the project is **DANN λ=0.3 K-12 = 0.875** ([§dann-lambda-frontier](#2026-05-14--dann-lambda-frontier)). 4 more seeds run; combined with the existing seed=42 baseline → full 5-seed characterization.
+
+### Results
+
+| Seed | LOSO mean | K-12 | ATCC25922 | O157H7 | O103H2 | 83972 | Typhimurium |
+|---|---|---|---|---|---|---|---|
+| 42 (shipped) | 0.447 | 0.875 | 0.111 | 0.667 | 0.889 | 0.250 | 0.000 |
+| 1 | 0.349 | 0.000 | 0.778 | 0.889 | 0.667 | 0.250 | 0.111 |
+| 2 | **0.577** | 0.750 | 1.000 | 0.778 | 0.444 | 1.000 | 0.667 |
+| 3 | 0.224 | 0.125 | 0.667 | 0.222 | 0.889 | 0.000 | 0.000 |
+| 4 | 0.369 | **1.000** | 0.889 | 0.444 | 0.000 | 0.875 | 0.000 |
+| **mean ± SD** | **0.393 ± 0.117** | **0.550 ± 0.408** | 0.689 ± 0.310 | **0.600 ± 0.239** | 0.578 ± 0.333 | 0.475 ± 0.391 | 0.156 ± 0.259 |
+| **5-seed soft-vote** | **0.448** | **0.750** ⭐ | 0.890 | **0.780** ⭐ | 0.670 | 0.500 | 0.000 |
+| Oracle (max per strain) | 0.753 | 1.000 | 1.000 | 0.889 | 0.889 | 1.000 | 0.667 |
+
+### Sharp findings
+
+1. **DANN λ=0.3 5-seed soft-vote = 0.448 essentially recovers single-seed baseline 0.447.** Unlike DANN λ=0.1 (where single-seed 0.500 was lucky vs 5-seed soft-vote 0.370), DANN λ=0.3's reported headline is **robust under multi-seed averaging**. This is the **actually-shippable DANN result**.
+2. **K-12 = 0.75 verified robust.** 5-seed soft-vote gives K-12 = 0.75; per-seed K-12 mean is 0.55 ± 0.41; **3 of 5 seeds hit ≥ 0.75 on K-12** (seeds 42, 2, 4). The "DANN λ=0.3 cracks K-12 via broad-scale adversarial denoising" narrative survives — at lower confidence than originally claimed (0.875 single-seed → 0.75 5-seed soft-vote) but the cell is genuinely solved by this architecture.
+3. **O157H7 = 0.78 also verified robust** for DANN λ=0.3 (5-seed soft-vote; mean 0.60 ± 0.24). Better than DANN λ=0.1's 0.44 5-seed soft-vote.
+4. **The originally-reported "λ=0.3 craters ATCC25922 0.89 → 0.11" was a single-seed misleading observation.** 5-seed mean ATCC25922 = 0.69 ± 0.31, soft-vote = 0.89. The seed=42 0.111 result was the worst of 5 seeds; other seeds give 0.78–1.00. **The λ-curve narrative needs a footnote: the per-strain Pareto split at higher λ is partially seed-fragile, not a hard tradeoff.**
+5. **DANN λ=0.3 dominates DANN λ=0.1 under 5-seed soft-vote**:
+   - λ=0.3 mean 0.448 vs λ=0.1 mean 0.370 (+0.078)
+   - λ=0.3 K-12 0.75 vs λ=0.1 K-12 0.38 (+0.37)
+   - λ=0.3 O157H7 0.78 vs λ=0.1 O157H7 0.44 (+0.34)
+   - λ=0.3 trades off only ATCC25922 (0.89 vs 1.00) and 83972 (0.50 vs 0.62)
+   - **The "λ=0.1 ships as headline" decision from 2026-05-14 was based on single-seed numbers and was wrong; λ=0.3 is the better DANN config under proper characterization.**
+
+### Methodological finding: 5-seed soft-vote is the right way to report deep-model LOSO
+
+Two ways to aggregate across seeds:
+- **Per-seed mean** (compute LOSO mean per seed, average means): gives a "what's the expected LOSO from a random init" number with honest SD.
+- **5-seed soft-vote** (average per-spectrum probas across seeds, then aggregate to file-level): gives a "what's the LOSO of a 5x-ensembled model" number.
+
+The soft-vote is the right ship value because it captures **consensus across seeds at the probability level** — strains where multiple seeds confidently agree get preserved; strains where seeds disagree get averaged toward uncertainty. The per-seed mean penalizes minority-correct seeds (which are real signal that soft-vote can recover via probability mass).
+
+DANN λ=0.1 soft-vote 0.370 vs per-seed mean 0.345: soft-vote correctly preserves ATCC25922 = 1.00 even though only 3 seeds hit perfect.
+DANN λ=0.3 soft-vote 0.448 vs per-seed mean 0.393: soft-vote correctly preserves K-12 = 0.75 and O157H7 = 0.78 even though 2 seeds get them wrong.
+
+### Operational decisions
+
+- **Replace DANN headline with λ=0.3 5-seed soft-vote = 0.448 (K-12 = 0.75, O157H7 = 0.78, ATCC25922 = 0.89).** This is the robust DANN result for the writeup model card.
+- **DANN λ=0.1 5-seed soft-vote = 0.370 documented as the λ-frontier low-pressure endpoint** with ATCC25922 = 1.00 as its single robust biology win.
+- **PLS-DA solo 0.603 remains the headline LOSO mean** — gap to DANN is 0.16 not 0.10 or 0.23. Better than the post-revision λ=0.1 picture (gap 0.23) but worse than the originally-claimed picture (0.10).
+- **Per-strain best-model table revised:**
+  - K-12: DANN λ=0.3 5-seed soft-vote **0.75** (verified robust, replaces single-seed 0.875)
+  - ATCC25922: DANN λ=0.1 5-seed soft-vote **1.00** (verified robust)
+  - O157H7: DANN λ=0.3 5-seed soft-vote **0.78** (verified robust)
+  - O103H2, O121H19, Salmonella triplet: PLS-DA owns (deterministic)
+- **Multi-seed Patch=5 + 2-channel CNN next** to verify their remaining single-seed per-strain claims. Most-suspect: Patch=5 ATCC25922 = 1.00 (already verified for DANN λ=0.1 — independent confirmation would strengthen story), 2-channel CNN O121H19 = 0.89.
+
+### Artifacts
+
+- `outputs/2026-05-15_cnn_dann_lam0.30_seed{1,2,3,4}_loso_*/` (4 new seeds)
+- `outputs/2026-05-15_ens_dann_lam0p3_5seed_loso_a57438fd/` (**5-seed soft-vote — the robust DANN ship**)

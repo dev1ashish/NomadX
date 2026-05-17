@@ -125,3 +125,21 @@ Lesson logged so it's not repeated for the Transformer session: **fit a single t
 **Re-spec post-RF-postmortem:** `n_estimators: 100–300`, `max_depth: 3–6`, 10 trials, `n_jobs=4`. Resulting GroupKFold runtime: **7.4 min** (~16× speedup). Result quality: file macro-F1 = 0.796 ± 0.103 — lands between LinearSVM (0.78) and RBF-SVM (0.83), as expected for this dataset.
 
 **Lesson recorded for future model specs:** when LOSO crater + biology-ceiling has already been established, subsequent classical models should be sized to *answer the experiment cheaply*, not to "try to win." The XGBoost run cost was ~2 hours of wall time for ~0.04 macro-F1 difference vs a 7-minute cheaper run — clearly the wrong trade-off given everything we already knew. Memorialized so we don't repeat it for the CNN session: don't auto-train the medium variant unless the small variant suggests it's worth it.
+
+## 2026-05-17 — Band-chemistry research track opened (plan/14)
+
+Domain briefing supplied by user (Raman band assignments + Cisek-2013-style STEC discriminators + macromolecule groupings + briefing-stated performance bar of >95%). Cross-checked against existing `11_references.md` entries (`cisek-2013`, `yuan-2024-salmonella`, `soupene-2003-k12`); briefing largely consistent except briefing said "10 bacterial classes" (actual: 9 bacterial + H₂O).
+
+**Decision:** open a dedicated band-chemistry track at `plan/14_band_chemistry_research.md`, not a one-off block in `plan/04_eda_plan.md`. Rationale:
+
+- The work spans EDA (annotated spectra, bacteria-only ANOVA) AND modeling (engineered-feature classifier, 3-channel CNN) AND a new module (`atlas/band_features.py`) — too broad for one notebook block.
+- The catalog of bands + macromolecule groupings is a stable reference future sessions will keep loading; it belongs in its own file, not buried in EDA-plan.
+- Subsumes the existing TODO in `00_status.md` Open Items for "bacteria-only ANOVA (3 classes, excluding H₂O)".
+
+**Scope cap.** The band-chemistry plan pre-commits to interpretability parity (~LOSO 0.55+) as the success bar, not absolute accuracy lift. The briefing's >95% target is the pure-culture intra-batch literature ceiling; our LOSO problem is across-strain and the realistic ceiling per [`tang-2026-wgan`](11_references.md#tang-2026-wgan) is ~94% with thousands of training spectra. **Documented in plan/14 §9.2 so a future session doesn't anchor on the >95% figure as a floor.**
+
+**First deliverable this session:** the annotated preprocessed-spectra figure (plan/14 §6.1) saved to `images/_summary/07_annotated_preprocessed_spectra.png` and `images/_summary/08_annotated_preprocessed_subclass.png`. Module + classifier sections deferred to subsequent sessions per plan/14 §7 implementation order.
+
+Plan/00 "Open items" updated: bacteria-only ANOVA TODO redirected to plan/14 §6.2.
+
+Plan index (`plan/README.md`) updated to list files 12, 13, 14 (12 and 13 were already on disk but missing from the index — fixed in the same commit).

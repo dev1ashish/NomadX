@@ -22,6 +22,9 @@
 | 09 | [future_work.md](09_future_work.md) | stable | when writing the final README |
 | 10 | [decision_log.md](10_decision_log.md) | **append** | when a decision changes and you need provenance |
 | 11 | [references.md](11_references.md) | **append** | when interpreting biology / chemistry / domain-shift findings — published papers indexed by tag |
+| 12 | [data_gaps_and_external_datasets.md](12_data_gaps_and_external_datasets.md) | mutable | when planning external data integration / data-side research |
+| 13 | [methods_research_synthesis.md](13_methods_research_synthesis.md) | mutable | when scoping the methods/representation track (MCR-ALS, SSL, N-PLS, cross-corpus eval) |
+| 14 | [band_chemistry_research.md](14_band_chemistry_research.md) | stable | when building chemistry-grounded features, band-aware analyses, or writing about discrimination in spectroscopy vocabulary |
 
 ---
 

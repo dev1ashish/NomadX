@@ -120,7 +120,9 @@ def run_selector(
         elif selector_name == "soft":
             pred_df, info = soft_predictions_for_fold(candidates, fold_id, temperature=temperature)
         elif selector_name == "router":
-            pred_df, info = router_predictions_for_fold(candidates, fold_id)
+            pred_df, info = router_predictions_for_fold(candidates, fold_id, signal="max_proba")
+        elif selector_name == "router_margin":
+            pred_df, info = router_predictions_for_fold(candidates, fold_id, signal="margin")
         else:
             raise ValueError(f"unknown selector: {selector_name}")
 
@@ -138,7 +140,7 @@ def run_selector(
             ws = info.get("weights", {})
             w_summary = " ".join(f"{n}={w:.2f}" for n, w in ws.items())
             print(f"  fold={fold_id:12s} recall={recall:.3f}  weights={w_summary}")
-        else:  # router
+        else:  # router or router_margin
             routing = info.get("routing", {})
             # Count how often each candidate was chosen across this fold's files
             counts = {c.name: 0 for c in candidates}
@@ -175,19 +177,41 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--outputs-dir", default=str(REPO_ROOT / "outputs"))
     ap.add_argument("--selectors", nargs="+", default=["hard", "soft", "router"],
-                    choices=["hard", "soft", "router"])
+                    choices=["hard", "soft", "router", "router_margin"])
     ap.add_argument("--temperature", type=float, default=1.0,
                     help="Softmax temperature for soft selector. Default 1.0; "
                          "smaller -> more concentrated on the best lambda.")
+    ap.add_argument(
+        "--base", nargs="+", default=None,
+        help="Override default DANN-lambda set with arbitrary base run dirs, "
+             "format 'name=path' (one per base). Example: "
+             "'plsda=outputs/2026-05-14_plsda_loso_9b4a9cb3 "
+             "dann10=outputs/2026-05-14_cnn_dann_lam0.10_loso_c9ff8f33'. "
+             "Note: hard/soft selectors require history_fold_*.json with "
+             "best_val_macro_f1 in each base run dir (DANN/CNN runs have it; "
+             "PLS-DA classical runs do not). If a base is missing the history "
+             "file, hard/soft fall back to NaN→worst slot. Router uses only "
+             "test-time confidence and works for any base.",
+    )
     args = ap.parse_args()
 
     outputs_dir = Path(args.outputs_dir)
     runs_log = outputs_dir / "runs.jsonl"
 
-    candidates = _default_candidates(outputs_dir)
+    if args.base:
+        candidates = []
+        for spec in args.base:
+            if "=" not in spec:
+                raise ValueError(f"--base entries must be name=path; got: {spec}")
+            name, path = spec.split("=", 1)
+            candidates.append(LambdaCandidate(name=name.strip(),
+                                              run_dir=Path(path.strip())))
+    else:
+        candidates = _default_candidates(outputs_dir)
+
     print("Base candidates (most-recent LOSO runs):")
     for c in candidates:
-        print(f"  {c.name:8s} -> {c.run_dir.name}")
+        print(f"  {c.name:12s} -> {c.run_dir.name}")
 
     # All candidates must have the same fold set
     fold_ids = discover_fold_ids(candidates[0].run_dir)

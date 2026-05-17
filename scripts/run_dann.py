@@ -167,7 +167,10 @@ def run_one(
         fold_id = fold["fold"]
         train_idx = np.asarray(fold["train_row_indices"], dtype=np.int64)
         test_idx = np.asarray(fold["test_row_indices"], dtype=np.int64)
-        fold_seed = int(fold["fold_seed"])
+        # Apply master seed offset so different --seed values produce different
+        # per-fold training trajectories. With args.seed == 42 (default) this is
+        # a no-op, preserving baseline behavior.
+        fold_seed = int(fold["fold_seed"]) + (seed - 42)
 
         X_train = X_full[train_idx]
         y_train = y_all[train_idx]
@@ -371,6 +374,20 @@ def main() -> int:
                     help="Override device. Default = auto (MPS > CUDA > CPU).")
     ap.add_argument("--no-aug", action="store_true",
                     help="Sanity-check mode: disable all augmentation.")
+    ap.add_argument("--aug-preset", default=None,
+                    choices=["default", "light", "no_mixup", "minimal", "off"],
+                    help="Named aug regime. Overrides individual --p-* flags. "
+                         "'default' = current heavy (p_noise=0.5, p_scale=0.4, p_shift=0.4, "
+                         "p_baseline=0.3, p_mixup=0.3). "
+                         "'light' = all p halved. "
+                         "'no_mixup' = default minus mixup. "
+                         "'minimal' = only Raman-physical (noise+shift, lower probs). "
+                         "'off' = same as --no-aug.")
+    ap.add_argument("--p-noise", type=float, default=None)
+    ap.add_argument("--p-scale", type=float, default=None)
+    ap.add_argument("--p-shift", type=float, default=None)
+    ap.add_argument("--p-baseline", type=float, default=None)
+    ap.add_argument("--p-mixup", type=float, default=None)
     ap.add_argument("--folds", nargs="*", default=None,
                     help="Optional subset of fold ids to run (e.g. for sanity check).")
     ap.add_argument("--lambda-max", type=float, default=0.1,
@@ -410,9 +427,28 @@ def main() -> int:
 
     device = torch.device(args.device) if args.device else select_device()
 
-    aug = AugConfig() if not args.no_aug else AugConfig(
-        p_noise=0.0, p_scale=0.0, p_shift=0.0, p_baseline=0.0, p_mixup=0.0,
-    )
+    aug_presets = {
+        "default":  dict(p_noise=0.5,  p_scale=0.4, p_shift=0.4, p_baseline=0.3,  p_mixup=0.3),
+        "light":    dict(p_noise=0.25, p_scale=0.2, p_shift=0.2, p_baseline=0.15, p_mixup=0.15),
+        "no_mixup": dict(p_noise=0.5,  p_scale=0.4, p_shift=0.4, p_baseline=0.3,  p_mixup=0.0),
+        "minimal":  dict(p_noise=0.3,  p_scale=0.0, p_shift=0.2, p_baseline=0.0,  p_mixup=0.0),
+        "off":      dict(p_noise=0.0,  p_scale=0.0, p_shift=0.0, p_baseline=0.0,  p_mixup=0.0),
+    }
+    if args.no_aug or args.aug_preset == "off":
+        aug = AugConfig(**aug_presets["off"])
+    elif args.aug_preset is not None:
+        aug = AugConfig(**aug_presets[args.aug_preset])
+    else:
+        # Default config, with optional per-knob CLI overrides
+        base = aug_presets["default"]
+        overrides = {
+            "p_noise": args.p_noise if args.p_noise is not None else base["p_noise"],
+            "p_scale": args.p_scale if args.p_scale is not None else base["p_scale"],
+            "p_shift": args.p_shift if args.p_shift is not None else base["p_shift"],
+            "p_baseline": args.p_baseline if args.p_baseline is not None else base["p_baseline"],
+            "p_mixup": args.p_mixup if args.p_mixup is not None else base["p_mixup"],
+        }
+        aug = AugConfig(**overrides)
 
     cfg = TrainConfig(
         n_epochs=args.epochs,
