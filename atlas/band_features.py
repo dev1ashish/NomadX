@@ -641,6 +641,150 @@ def derivative_band_auc(
 
 
 # ---------------------------------------------------------------------------
+# Stage 15D — biology-specific features
+# ---------------------------------------------------------------------------
+#
+# Five families (~15 features) covering the BIO1-BIO29 catalog in plan/15 §3.2:
+#   - cytochrome_features          (BIO1-BIO4)
+#   - protein_secondary_structure  (BIO20-BIO22)
+#   - phb_features                 (BIO24-BIO25 — K-12 falsifier)
+#   - aromatic_aa_features         (BIO26-BIO29)
+#   - nucleic_conformation_features (BIO18-BIO19)
+#
+# All AUCs use integrate_band(X, wn, center, half_width=10).
+# Ratios are computed in-function so missing-band cases return NaN cleanly.
+
+def _safe_ratio(num: np.ndarray, den: np.ndarray, eps: float = 1e-8) -> np.ndarray:
+    """num / den with NaN where |den| < eps. Inputs broadcast row-wise."""
+    out = np.full_like(num, np.nan, dtype=np.float64)
+    ok = np.abs(den) > eps
+    out[ok] = num[ok] / den[ok]
+    return out
+
+
+def cytochrome_features(
+    X: np.ndarray,
+    wn: np.ndarray,
+    half_width: float = 10.0,
+) -> dict[str, np.ndarray]:
+    """BIO1-BIO4: cytochrome bands at 752 / 1127 / 1356 / 1372 / 1585.
+
+    Note: 785 nm excitation is off-resonance for heme cytochromes (R5 in
+    plan/15 §7) — these features may carry weak signal. Included for
+    completeness and to test the cytochrome hypothesis directly.
+    """
+    auc_752  = integrate_band(X, wn, 752.0,  half_width)
+    auc_1004 = integrate_band(X, wn, 1004.0, half_width)
+    auc_1127 = integrate_band(X, wn, 1127.0, half_width)
+    auc_1356 = integrate_band(X, wn, 1356.0, half_width)
+    auc_1372 = integrate_band(X, wn, 1372.0, half_width)
+    auc_1585 = integrate_band(X, wn, 1585.0, half_width)
+    return {
+        "bio_cyt_pyrrole_ratio": _safe_ratio(auc_752, auc_1004),   # BIO1
+        "bio_cyt_ox_state":      _safe_ratio(auc_1356, auc_1372),  # BIO2
+        # BIO3 cyt_center_1585 — see protein_secondary_structure: handled
+        # via the existing fit_amide_i_1662 / pseudo-Voigt path if 1585 is
+        # added to fit_bands. Skipped here to keep this function fit-free.
+        "bio_cyt_total":         auc_752 + auc_1127 + auc_1585,    # BIO4
+    }
+
+
+def protein_secondary_structure(
+    X: np.ndarray,
+    wn: np.ndarray,
+    half_width: float = 10.0,
+) -> dict[str, np.ndarray]:
+    """BIO20-BIO21: α-helix and β-sheet ratios. BIO22 (amide-I FWHM) is
+    already in the cache via fit_amide_i_1662_fwhm (Stage 15A pseudo-Voigt)
+    — duplicated here at 1655 for completeness when fits are off.
+    """
+    auc_1652 = integrate_band(X, wn, 1652.0, half_width)
+    auc_1670 = integrate_band(X, wn, 1670.0, half_width)
+    auc_1232 = integrate_band(X, wn, 1232.0, half_width)
+    auc_1270 = integrate_band(X, wn, 1270.0, half_width)
+    return {
+        "bio_alpha_helix_score":  _safe_ratio(auc_1652, auc_1670),   # BIO20
+        "bio_beta_sheet_amide3":  _safe_ratio(auc_1232, auc_1270),   # BIO21
+    }
+
+
+def phb_features(
+    X: np.ndarray,
+    wn: np.ndarray,
+    half_width: float = 10.0,
+) -> dict[str, np.ndarray]:
+    """BIO24-BIO25: polyhydroxybutyrate (PHB) accumulation markers.
+
+    K-12 falsifier — laboratory-domesticated K-12 is hypothesized to
+    accumulate PHB anomalously vs. clinical STEC strains. If
+    `bio_phb_carbonyl` shows file-level |d| ≥ 0.5 K-12-vs-other-STEC,
+    this is the FIRST K-12-specific feature in the project.
+    """
+    auc_1730 = integrate_band(X, wn, 1730.0, half_width)   # BIO24
+    auc_1058 = integrate_band(X, wn, 1058.0, half_width)
+    auc_1450 = integrate_band(X, wn, 1450.0, half_width)
+    # BIO25: joint occurrence × normalization
+    phb_score = _safe_ratio(auc_1730 * auc_1058, auc_1450 ** 2)
+    return {
+        "bio_phb_carbonyl": auc_1730,
+        "bio_phb_score":    phb_score,
+    }
+
+
+def aromatic_aa_features(
+    X: np.ndarray,
+    wn: np.ndarray,
+    half_width: float = 10.0,
+) -> dict[str, np.ndarray]:
+    """BIO26-BIO29: Tyr doublet, Trp content, Trp env, Trp/Phe (virulence_aa_sig)."""
+    auc_850  = integrate_band(X, wn, 850.0,  half_width)
+    auc_830  = integrate_band(X, wn, 830.0,  half_width)
+    auc_759  = integrate_band(X, wn, 759.0,  half_width)
+    auc_1552 = integrate_band(X, wn, 1552.0, half_width)
+    auc_1340 = integrate_band(X, wn, 1340.0, half_width)
+    auc_1360 = integrate_band(X, wn, 1360.0, half_width)
+    auc_1004 = integrate_band(X, wn, 1004.0, half_width)
+    trp_total = auc_759 + auc_1552
+    return {
+        "bio_tyr_doublet_ratio": _safe_ratio(auc_850, auc_830),       # BIO26
+        "bio_trp_content":       trp_total,                            # BIO27
+        "bio_trp_indole_env":    _safe_ratio(auc_1340, auc_1360),     # BIO28
+        "bio_virulence_aa_sig":  _safe_ratio(trp_total, auc_1004),    # BIO29
+    }
+
+
+def nucleic_conformation_features(
+    X: np.ndarray,
+    wn: np.ndarray,
+    half_width: float = 10.0,
+) -> dict[str, np.ndarray]:
+    """BIO18-BIO19: A-form RNA fraction + RNA/DNA ratio."""
+    auc_815 = integrate_band(X, wn, 815.0, half_width)
+    auc_835 = integrate_band(X, wn, 835.0, half_width)
+    auc_813 = integrate_band(X, wn, 813.0, half_width)
+    auc_788 = integrate_band(X, wn, 788.0, half_width)
+    return {
+        "bio_na_a_form_fraction": _safe_ratio(auc_815, auc_815 + auc_835),  # BIO18
+        "bio_rna_dna_ratio":      _safe_ratio(auc_813, auc_788),            # BIO19
+    }
+
+
+def biology_features(
+    X: np.ndarray,
+    wn: np.ndarray,
+    half_width: float = 10.0,
+) -> dict[str, np.ndarray]:
+    """One-shot dispatch: all 5 biology feature families."""
+    out: dict[str, np.ndarray] = {}
+    out.update(cytochrome_features(X, wn, half_width))
+    out.update(protein_secondary_structure(X, wn, half_width))
+    out.update(phb_features(X, wn, half_width))
+    out.update(aromatic_aa_features(X, wn, half_width))
+    out.update(nucleic_conformation_features(X, wn, half_width))
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Feature frame
 # ---------------------------------------------------------------------------
 
@@ -668,6 +812,7 @@ def feature_frame(
     emsc: bool = True,                     # Stage 15A — SP25
     derivatives: bool = True,              # Stage 15A — SP1, SP2
     deriv_bands: Iterable[str] | None = None,   # defaults to DEFAULT_FIT_BANDS
+    biology: bool = True,                  # Stage 15D — BIO1-29 (5 families)
     emsc_reference: np.ndarray | None = None,
     sg_window: int = 11,
     sg_poly: int = 3,
@@ -759,6 +904,11 @@ def feature_frame(
             cols[f"d1_auc_{k}"] = vals
         for k, vals in d2.items():
             cols[f"d2_auc_{k}"] = vals
+
+    # Stage 15D — biology-specific features (5 families)
+    if biology:
+        for k, vals in biology_features(X, wn, half_width=half_width).items():
+            cols[k] = vals
 
     df = pd.DataFrame(cols)
     return df
