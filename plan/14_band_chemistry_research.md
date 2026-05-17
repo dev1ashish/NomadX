@@ -102,7 +102,7 @@ than discrete ±10 windows. Justification: published O-antigen polysaccharide
 spectra are dense, overlapping peaks not assignable to single bands at our
 resolution; integrated AUC over the region is the textbook reduction.
 
-### 2.3 Targeted-discrimination "primary triple"
+### 2.3 Targeted-discrimination "primary triple" (literature)
 
 Per [`cisek-2013`](11_references.md#cisek-2013--cisek-et-al-analyst-2013-sensitive-and-specific-discrimination-of-pathogenic-and-nonpathogenic-escherichia-coli-using-raman-spectroscopy):
 
@@ -110,9 +110,32 @@ Per [`cisek-2013`](11_references.md#cisek-2013--cisek-et-al-analyst-2013-sensiti
 2. **1454 cm⁻¹** — lipid/carb
 3. **1658 cm⁻¹** — protein amide-I (virulence proteins: intimin, Shiga toxin)
 
-These three are the only bands the literature pre-commits to as **STEC vs
-non-STEC** discriminators. Every band-aware analysis below treats them as the
-headline test bands; everything else is supporting biochemistry.
+These are the only bands the literature pre-commits to as STEC vs non-STEC
+discriminators.
+
+> **⚠ Updated 2026-05-17 — falsified at file-level on this dataset.** Stage 1
+> ([07§2026-05-17-stec-triple-does-not-replicate](07_findings.md#2026-05-17--stec-triple-does-not-replicate))
+> showed 0/3 cleared file-level Welch p < 0.05 with |d| ≥ 0.3. The 1454 effect
+> was the largest (d = −0.47) but sign-reversed vs Cisek. Cisek-2013 tested
+> O157:H7 specifically; the "STEC class" in this dataset (O157 + O121 + O103)
+> is heterogeneous on these bands. The triple is **kept in the catalog as
+> supporting features** but is no longer the headline test target.
+
+### 2.4 Empirical-anchor bands (Atlas dataset)
+
+**Post-Stage-1 update 2026-05-17.** The bands that DO discriminate on this
+dataset, from the bacteria-only ANOVA and E. coli-only t-test:
+
+| cm⁻¹ | Assignment | Discrimination role | Source |
+|---:|---|---|---|
+| **1050** (≈ 1030–1055) | C-O / PO₂⁻ / carbohydrate ring | top E. coli vs Salmonella (3-class ANOVA top-30 all here) | Atlas EDA |
+| **1117** | C-C / carbohydrate skeletal | top E. coli STEC↔Non-STEC (2-class t-test top, STEC > Non-STEC) | Atlas EDA |
+| **1194** | C-O / C-OH (carbohydrate) | top E. coli STEC↔Non-STEC (2-class t-test top, STEC > Non-STEC) | Atlas EDA |
+
+All three sit in the user-highlighted **800–1200 cm⁻¹ LPS chain region**
+([[atlas-briefing-emphasis]] §2). Stage 2 (band_features module) anchors on
+this set as the primary; literature triple (1338/1454/1658) demoted to
+supporting features.
 
 ### 2.4 Data-driven additions
 
@@ -348,12 +371,16 @@ means the engineered features are losing information vs PLS-DA on full
 spectrum — still useful as the *interpretable* version of "what the model
 sees" but not a candidate ensemble member.
 
-### 6.8 Section H — Hybrid: spectrum + band features
+### 6.8 Section H — Hybrid: spectrum + band features  **[SKIPPED 2026-05-17]**
 
 3-channel CNN: (SNV, 2nd-derivative, band-feature-broadcast). Per RQ6 we don't
-expect a LOSO lift, only a calibration / multi-seed-variance improvement. Run
-5 seeds for honest comparison with the existing DANN λ=0.1 (5-seed 0.370) and
-DANN λ=0.3 (5-seed 0.448) baselines.
+expect a LOSO lift, only a calibration / multi-seed-variance improvement.
+
+> **SKIPPED 2026-05-17** per plan/08 Stage 5 stage-gate. Stage 5 hit Branch (C)
+> with LOSO mean 0.312 — engineered features fail to generalize across LOSO
+> folds. Adding the same non-generalizing features as a CNN input channel
+> won't fix the strain-specificity problem; the LOSO crater is *strain-distribution*
+> not *model-capacity*. Detail at [07§stage5-band-classifier](07_findings.md#2026-05-17--stage5-band-classifier).
 
 ---
 

@@ -25,6 +25,7 @@
 | 12 | [data_gaps_and_external_datasets.md](12_data_gaps_and_external_datasets.md) | mutable | when planning external data integration / data-side research |
 | 13 | [methods_research_synthesis.md](13_methods_research_synthesis.md) | mutable | when scoping the methods/representation track (MCR-ALS, SSL, N-PLS, cross-corpus eval) |
 | 14 | [band_chemistry_research.md](14_band_chemistry_research.md) | stable | when building chemistry-grounded features, band-aware analyses, or writing about discrimination in spectroscopy vocabulary |
+| 15 | [feature_engineering_research.md](15_feature_engineering_research.md) | stable | when extending feature engineering beyond plan/14's band-AUC catalog: spectral processing, biology-specific markers, MCR-ALS/NMF, spatial features. Anchor for the 130-feature implementation track. |
 
 ---
 
