@@ -1,0 +1,81 @@
+{
+  "model_type": "logreg",
+  "loso_mean_accuracy": 0.43611111111111106,
+  "loso_std_accuracy": NaN,
+  "loso_mean_macro_recall": 0.10902777777777777,
+  "per_strain_accuracy": {
+    "83972": 0.25,
+    "ATCC25922": 0.8888888888888888,
+    "Dublin": 0.1111111111111111,
+    "H2O": 0.0,
+    "Heidelburg": 0.3333333333333333,
+    "K-12": 0.0,
+    "O103H2": 0.5555555555555556,
+    "O121H19": 0.8888888888888888,
+    "O157H7": 0.5555555555555556,
+    "Typhimurium": 0.7777777777777778
+  },
+  "algo_comparison": {
+    "plsda": {
+      "mean_loso_accuracy": 0.32361111111111107,
+      "mean_loso_macro_recall": 0.08090277777777777
+    },
+    "logreg": {
+      "mean_loso_accuracy": 0.43611111111111106,
+      "mean_loso_macro_recall": 0.10902777777777777
+    },
+    "xgb": {
+      "mean_loso_accuracy": 0.24722222222222223,
+      "mean_loso_macro_recall": 0.06180555555555556
+    }
+  },
+  "feature_count": 35,
+  "feature_columns": [
+    "roi_ch_stretch_std",
+    "fit_amide_iii_1242_area",
+    "roi_silent_kurt",
+    "fit_amide_iii_1242_height",
+    "d1_auc_lps_1117",
+    "d1_auc_lipid_1454",
+    "d1_auc_amide_i_1658",
+    "fit_lipid_1454_height",
+    "fit_amide_iii_1242_rmse",
+    "fit_lipid_1454_area",
+    "fit_lps_1117_height",
+    "fit_lps_1117_area",
+    "fit_lps_1117_fwhm",
+    "d2_auc_lipid_1454",
+    "d2_auc_lps_1117",
+    "roi_lps_chain_entropy",
+    "fit_lps_1194_height",
+    "roi_silent_skew",
+    "d2_auc_aa_1004",
+    "fit_aa_1004_height",
+    "fit_lipid_1454_rmse",
+    "bio_trp_indole_env",
+    "fit_lps_1050_rmse",
+    "d2_auc_amide_i_1658",
+    "d1_auc_na_1338",
+    "bio_cyt_ox_state",
+    "roi_lps_chain_kurt",
+    "roi_lps_chain_skew",
+    "pca_chstretch_PC2",
+    "pca_chstretch_PC3",
+    "fit_amide_i_1658_rmse",
+    "sam_lps_sub_O121H19",
+    "fit_lps_1050_center",
+    "fit_lipid_1454_fwhm",
+    "mcr_C5_std"
+  ],
+  "r7_perm_test": {
+    "verdict": "skipped \u2014 no mcr_C1_* in selected feature set",
+    "ratios": {},
+    "drop": []
+  },
+  "training_date": "2026-05-18T17:51:45.059554+00:00",
+  "branch_hit": "C",
+  "n_seeds": 1,
+  "n_folds": 10,
+  "n_files": 87,
+  "mcr_K": 7
+}

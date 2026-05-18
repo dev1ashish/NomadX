@@ -1,0 +1,2969 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="NomadX Raman Take-Home — dev@luaimplementation.ai" />
+  <meta name="dcterms.date" content="2026-05-18" />
+  <title>Bacterial Identification from Confocal Raman Hyperspectral Maps</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    div.abstract {
+      margin: 2em 2em 2em 2em;
+      text-align: left;
+      font-size: 85%;
+    }
+    div.abstract-title {
+      font-weight: bold;
+      text-align: center;
+      padding: 0;
+      margin-bottom: 0.5em;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Bacterial Identification from Confocal Raman
+Hyperspectral Maps</h1>
+<p class="subtitle">A multi-track study on 87 Atlas files: classical
+baselines, deep models, chemistry-grounded engineered features, and a
+production classifier with per-fold MCR-ALS unmixing</p>
+<p class="author">NomadX Raman Take-Home —
+<code>dev@luaimplementation.ai</code></p>
+<p class="date">2026-05-18</p>
+<div class="abstract">
+<div class="abstract-title">Abstract</div>
+<p>We study bacterial identification from 87 confocal-Raman
+hyperspectral maps spanning four primary classes (STEC, Non-STEC <em>E.
+coli</em>, <em>Salmonella</em>, H₂O) and nine bacterial subclasses.
+Three tracks are reported. (1) <strong>Baseline modeling</strong> sweeps
+classical (PLS-DA, LogReg, SVM, RF, XGB), deep (1D-CNN, 1D-Transformer),
+and domain-adversarial (DANN) architectures; under strain-level
+Leave-One-Strain-Out (LOSO), <strong>PLS-DA reaches 0.603 mean
+parent-class recall</strong> — the project record — and five ensemble
+schemes fail to clear it. (2) A <strong>band-chemistry track</strong>
+(Stages 1–7) falsifies the published Cisek-2013 STEC discriminative
+triple (1338/1454/1658 cm⁻¹) at file level, instead identifying the
+800–1200 cm⁻¹ <strong>LPS-chain region as the empirical anchor</strong>
+(<code>auc_lps_1194</code> Cohen’s d = +1.03), and quantifies a 10–20%
+mixed-sample-deployment penalty. (3) A <strong>feature-engineering
+track</strong> (Stages 15A–E) produces 259 features per file across five
+families; <strong>MCR-ALS unmixing</strong> is the highest-yield stage
+(<code>mcr_C6_mean</code> d = −1.23 is the project’s strongest single
+file-level discriminator), and biology-grounded ratios surface a new
+protein-2°-structure axis (<code>bio_alpha_helix_score</code> d =
+−0.986) that also separates K-12 from clinical STEC strains. (4)
+<strong>Stage 15F</strong> trains the production classifier under
+strain-level LOSO with per-fold MCR-ALS / ROI-PCA / SAM refit,
+mutual-information feature selection, multi-seed evaluation, and a
+shuffled-label permutation test on the substrate component; artifacts
+are serialized and exposed via a Streamlit UI. Full methods, per-strain
+breakdown, and discussion follow.</p>
+</div>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#introduction" id="toc-introduction">1. Introduction</a>
+<ul>
+<li><a href="#problem-statement" id="toc-problem-statement">1.1 Problem
+statement</a></li>
+<li><a href="#why-this-is-hard" id="toc-why-this-is-hard">1.2 Why this
+is hard</a></li>
+<li><a href="#headline-results-forward-reference"
+id="toc-headline-results-forward-reference">1.3 Headline results
+(forward reference)</a></li>
+</ul></li>
+<li><a href="#dataset" id="toc-dataset">2. Dataset</a>
+<ul>
+<li><a href="#inventory-and-provenance"
+id="toc-inventory-and-provenance">2.1 Inventory and provenance</a></li>
+<li><a href="#parsing-edge-cases-and-how-we-handle-them"
+id="toc-parsing-edge-cases-and-how-we-handle-them">2.2 Parsing edge
+cases (and how we handle them)</a></li>
+<li><a href="#preprocessing-pipeline"
+id="toc-preprocessing-pipeline">2.3 Preprocessing pipeline</a></li>
+<li><a href="#quality-control" id="toc-quality-control">2.4 Quality
+control</a></li>
+<li><a href="#split-protocols" id="toc-split-protocols">2.5 Split
+protocols</a></li>
+<li><a href="#wavenumber-axis-and-named-bands"
+id="toc-wavenumber-axis-and-named-bands">2.6 Wavenumber axis and named
+bands</a></li>
+</ul></li>
+<li><a href="#baseline-modeling" id="toc-baseline-modeling">3. Baseline
+modeling</a>
+<ul>
+<li><a href="#classical-sweep-protocol-a-loso"
+id="toc-classical-sweep-protocol-a-loso">3.1 Classical sweep (Protocol A
++ LOSO)</a></li>
+<li><a href="#deep-models" id="toc-deep-models">3.2 Deep models</a>
+<ul>
+<li><a href="#d-cnn" id="toc-d-cnn">3.2.1 1D-CNN</a></li>
+<li><a href="#d-transformer" id="toc-d-transformer">3.2.2
+1D-Transformer</a></li>
+<li><a href="#dann-domain-adversarial-neural-network"
+id="toc-dann-domain-adversarial-neural-network">3.2.3 DANN
+(Domain-Adversarial Neural Network)</a></li>
+</ul></li>
+<li><a href="#ensembling-five-schemes-none-cleared-pls-da"
+id="toc-ensembling-five-schemes-none-cleared-pls-da">3.3 Ensembling —
+five schemes, none cleared PLS-DA</a></li>
+<li><a href="#memprobe-is-the-model-memorizing-file_id"
+id="toc-memprobe-is-the-model-memorizing-file_id">3.4 Memprobe — is the
+model memorizing <code>file_id</code>?</a></li>
+<li><a href="#per-strain-best-model-table-the-actual-writeup-story"
+id="toc-per-strain-best-model-table-the-actual-writeup-story">3.5
+Per-strain best-model table (the actual writeup story)</a></li>
+<li><a href="#additional-diagnostics"
+id="toc-additional-diagnostics">3.6 Additional diagnostics</a></li>
+<li><a href="#why-the-baselines-plateau-at-0.603"
+id="toc-why-the-baselines-plateau-at-0.603">3.7 Why the baselines
+plateau at 0.603</a></li>
+</ul></li>
+<li><a href="#band-chemistry-track-stages-17"
+id="toc-band-chemistry-track-stages-17">4. Band-chemistry track (Stages
+1–7)</a>
+<ul>
+<li><a href="#stage-1-falsifying-the-published-cisek-2013-stec-triple"
+id="toc-stage-1-falsifying-the-published-cisek-2013-stec-triple">4.1
+Stage 1 — falsifying the published Cisek-2013 STEC triple</a></li>
+<li><a href="#stage-2-finding-the-actual-signal"
+id="toc-stage-2-finding-the-actual-signal">4.2 Stage 2 — finding the
+actual signal</a></li>
+<li><a href="#stage-3-radars-ratios-and-macromolecule-vectors"
+id="toc-stage-3-radars-ratios-and-macromolecule-vectors">4.3 Stage 3 —
+radars, ratios, and macromolecule vectors</a></li>
+<li><a
+href="#stage-5-engineered-feature-classifier-loso-0.31-with-13-features"
+id="toc-stage-5-engineered-feature-classifier-loso-0.31-with-13-features">4.4
+Stage 5 — engineered-feature classifier (LOSO 0.31 with 13
+features)</a></li>
+<li><a href="#stage-6-skipped-per-stage-gate"
+id="toc-stage-6-skipped-per-stage-gate">4.5 Stage 6 — skipped per
+stage-gate</a></li>
+<li><a href="#stage-7-mixed-sample-deployment-simulation"
+id="toc-stage-7-mixed-sample-deployment-simulation">4.6 Stage 7 —
+mixed-sample deployment simulation</a></li>
+</ul></li>
+<li><a href="#feature-engineering-track-stages-15ae"
+id="toc-feature-engineering-track-stages-15ae">5. Feature-engineering
+track (Stages 15A–E)</a>
+<ul>
+<li><a
+href="#stage-15a-pseudo-voigt-peak-fits-roi-moments-emsc-derivatives"
+id="toc-stage-15a-pseudo-voigt-peak-fits-roi-moments-emsc-derivatives">5.1
+Stage 15A — pseudo-Voigt peak fits, ROI moments, EMSC,
+derivatives</a></li>
+<li><a href="#stage-15b-dwt-roi-pca-sam-templates"
+id="toc-stage-15b-dwt-roi-pca-sam-templates">5.2 Stage 15B — DWT +
+ROI-PCA + SAM templates</a>
+<ul>
+<li><a href="#dwt-discrete-wavelet-transform"
+id="toc-dwt-discrete-wavelet-transform">DWT (Discrete Wavelet
+Transform)</a></li>
+<li><a href="#roi-pca" id="toc-roi-pca">ROI-PCA</a></li>
+<li><a href="#sam-spectral-angle-mapper"
+id="toc-sam-spectral-angle-mapper">SAM (Spectral Angle Mapper)</a></li>
+</ul></li>
+<li><a href="#stage-15c-mcr-als-spectral-unmixing-project-record"
+id="toc-stage-15c-mcr-als-spectral-unmixing-project-record">5.3 Stage
+15C — MCR-ALS spectral unmixing (project record)</a></li>
+<li><a href="#stage-15d-biology-grounded-ratios"
+id="toc-stage-15d-biology-grounded-ratios">5.4 Stage 15D —
+biology-grounded ratios</a>
+<ul>
+<li><a href="#bio_alpha_helix_score-strongest-biology-grounded-ratio"
+id="toc-bio_alpha_helix_score-strongest-biology-grounded-ratio">5.4.1
+<code>bio_alpha_helix_score</code> — strongest biology-grounded
+ratio</a></li>
+<li><a href="#phb-hypothesis-falsified"
+id="toc-phb-hypothesis-falsified">5.4.2 PHB hypothesis
+falsified</a></li>
+<li><a href="#k-12-specific-2-structure-axis-unprompted-finding"
+id="toc-k-12-specific-2-structure-axis-unprompted-finding">5.4.3
+K-12-specific 2°-structure axis (unprompted finding)</a></li>
+<li><a href="#trpphe-direction-reversed-at-e.-coli-salm"
+id="toc-trpphe-direction-reversed-at-e.-coli-salm">5.4.4 Trp/Phe
+direction reversed at E. coli ↔︎ Salm</a></li>
+</ul></li>
+<li><a href="#stage-15e-spatial-cross-pixel-features"
+id="toc-stage-15e-spatial-cross-pixel-features">5.5 Stage 15E — spatial
+/ cross-pixel features</a></li>
+</ul></li>
+<li><a href="#stage-15f-production-classifier-this-paper"
+id="toc-stage-15f-production-classifier-this-paper">6. Stage 15F —
+production classifier (this paper)</a>
+<ul>
+<li><a href="#design-rationale" id="toc-design-rationale">6.1 Design
+rationale</a></li>
+<li><a href="#protocol" id="toc-protocol">6.2 Protocol</a></li>
+<li><a href="#hyperparameters" id="toc-hyperparameters">6.3
+Hyperparameters</a></li>
+<li><a href="#headline-filled-at-run-time"
+id="toc-headline-filled-at-run-time">6.4 Headline (filled at
+run-time)</a></li>
+<li><a href="#per-strain-loso-breakdown-filled-at-run-time"
+id="toc-per-strain-loso-breakdown-filled-at-run-time">6.5 Per-strain
+LOSO breakdown (filled at run-time)</a></li>
+<li><a href="#algorithm-comparison-filled-at-run-time"
+id="toc-algorithm-comparison-filled-at-run-time">6.6 Algorithm
+comparison (filled at run-time)</a></li>
+<li><a href="#r7-permutation-test-verdict-filled-at-run-time"
+id="toc-r7-permutation-test-verdict-filled-at-run-time">6.7 R7
+permutation-test verdict (filled at run-time)</a></li>
+<li><a href="#branch-verdicts-pre-registered"
+id="toc-branch-verdicts-pre-registered">6.8 Branch verdicts
+(pre-registered)</a></li>
+</ul></li>
+<li><a href="#discussion" id="toc-discussion">7. Discussion</a>
+<ul>
+<li><a href="#what-the-project-established"
+id="toc-what-the-project-established">7.1 What the project
+established</a></li>
+<li><a href="#limitations" id="toc-limitations">7.2 Limitations</a></li>
+<li><a href="#future-work-ranked" id="toc-future-work-ranked">7.3 Future
+work (ranked)</a></li>
+<li><a href="#whats-not-worth-doing-inside-this-take-home"
+id="toc-whats-not-worth-doing-inside-this-take-home">7.4 What’s
+<em>not</em> worth doing inside this take-home</a></li>
+</ul></li>
+<li><a href="#references" id="toc-references">8. References</a></li>
+<li><a href="#appendix-a-reproducibility"
+id="toc-appendix-a-reproducibility">Appendix A — Reproducibility</a>
+<ul>
+<li><a href="#a.1-environment" id="toc-a.1-environment">A.1
+Environment</a></li>
+<li><a href="#a.2-cache-artifact-files"
+id="toc-a.2-cache-artifact-files">A.2 Cache + artifact files</a></li>
+<li><a href="#a.3-public-api" id="toc-a.3-public-api">A.3 Public
+API</a></li>
+<li><a href="#a.4-streamlit-ui" id="toc-a.4-streamlit-ui">A.4 Streamlit
+UI</a></li>
+<li><a href="#a.5-how-to-retrain-stage-15f"
+id="toc-a.5-how-to-retrain-stage-15f">A.5 How to retrain Stage
+15F</a></li>
+<li><a href="#a.6-key-file-layout" id="toc-a.6-key-file-layout">A.6 Key
+file layout</a></li>
+<li><a href="#a.7-pre-registered-risks-tracker"
+id="toc-a.7-pre-registered-risks-tracker">A.7 Pre-registered risks
+tracker</a></li>
+</ul></li>
+<li><a href="#appendix-b-per-file-strain-table"
+id="toc-appendix-b-per-file-strain-table">Appendix B — Per-file strain
+table</a></li>
+</ul>
+</nav>
+<h1 id="introduction">1. Introduction</h1>
+<h2 id="problem-statement">1.1 Problem statement</h2>
+<p>Atlas Raman delivered 87 confocal-Raman hyperspectral maps spanning
+four primary classes — <strong>STEC</strong> (Shiga-toxin-producing
+<em>Escherichia coli</em>), <strong>Non-STEC</strong> <em>E. coli</em>,
+<strong>Salmonella enterica</strong>, and <strong>H₂O blanks</strong> —
+with nine bacterial subclasses representing serogroups commonly seen in
+foodborne illness surveillance. The brief asked for a classifier that
+distinguishes the four primary classes, honors subclass structure for
+evaluation, and (per the Marler-Clark / FSIS non-O157 STEC overview)
+recognizes that <strong>non-O157 STEC has no unique biochemical
+signature on standard media</strong> — pathogenicity is defined by
+acquisition of a single phage-encoded protein (Shiga toxin), making the
+within-<em>E. coli</em> STEC ↔︎ Non-STEC boundary biologically thin.</p>
+<pre><code>Class          Subclasses                                 Files
+─────────────────────────────────────────────────────────────────
+STEC           O157:H7    O121:H19    O103:H2              9+9+9 = 27
+Non-STEC       83972      ATCC25922   K-12                 8+9+8 = 25
+Salmonella     Dublin     Heidelburg  Typhimurium          9+9+9 = 27
+H₂O            —                                                  8
+                                                          ─────────
+                                                              87</code></pre>
+<p>Each file is a Raman map of one bacterial culture (a smear or pellet
+imaged pixel-by-pixel on a confocal Raman microscope); after a 200-px
+cap and pixel-level QC, <strong>7,122 spectra remain across 87
+files</strong>, each on a canonical 987-bin wavenumber axis after
+preprocessing.</p>
+<h2 id="why-this-is-hard">1.2 Why this is hard</h2>
+<ol type="1">
+<li><strong>STEC ↔︎ Non-STEC is virulence-defined, not
+phylogenetic.</strong> The Stx phage-encoded toxin is the only protein
+that distinguishes the two groups within <em>E. coli</em> (STEC
+virulence overview, <em>Virulence</em> 2013). Cell wall, ribosomes,
+cytoplasm — the bulk Raman signal — should not differ. Expecting a
+label-free Raman map to find a virulence-protein signature in this
+signal-to-noise regime asks a lot.</li>
+<li><strong>K-12 is a 100-year laboratory derivative</strong> (Soupene
+2003): large genomic deletions vs wild-type, missing surface-structure
+genes, genuinely atypical against any clinical or environmental <em>E.
+coli</em> distribution. In our LOSO protocol K-12 is one fold; in most
+classical baselines it lands at 0.00 recall.</li>
+<li><strong>Cross-strain generalization is harder than
+cross-pixel.</strong> Cisek 2013’s 95% intra-batch result on STEC ↔︎
+non-pathogenic <em>E. coli</em> was per-batch cross-validation on
+controlled cell suspensions; LOSO removes one entire subclass per fold.
+Tang 2026’s WGAN-Transformer reports 97% under 5-fold CV → 94% on an
+independent test set, a 3pp drop with state-of-the-art deep learning and
+thousands of spectra. That sets the realistic ceiling here.</li>
+<li><strong>87 files is small.</strong> The capacity-to-data ratio (259
+features ÷ 87 files = <strong>3.0 features per file</strong>) requires
+aggressive within-fold feature selection. The LOSO mean is a 9-point
+statistic (one per bacterial strain); no architecture makes that look
+like a 90-point evaluation.</li>
+</ol>
+<h2 id="headline-results-forward-reference">1.3 Headline results
+(forward reference)</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Track</th>
+<th>Headline</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Best LOSO baseline</td>
+<td><strong>PLS-DA = 0.603</strong> mean parent-class recall</td>
+<td>§3.1</td>
+</tr>
+<tr>
+<td>Best published-band test</td>
+<td><strong>Cisek-2013 triple null</strong> at file level</td>
+<td>§4.1</td>
+</tr>
+<tr>
+<td>Best raw single feature</td>
+<td><code>auc_lps_1194</code> <strong>d = +1.03</strong></td>
+<td>§4.2</td>
+</tr>
+<tr>
+<td>Best engineered feature</td>
+<td><code>mcr_C6_mean</code> <strong>d = −1.23</strong></td>
+<td>§5.3</td>
+</tr>
+<tr>
+<td>Best biology ratio</td>
+<td><code>bio_alpha_helix_score</code> <strong>d = −0.986</strong></td>
+<td>§5.4</td>
+</tr>
+<tr>
+<td>Best spatial feature</td>
+<td><code>spat_skew_lps_1117</code> <strong>d = +0.725</strong> (E. coli
+↔︎ Salm)</td>
+<td>§5.5</td>
+</tr>
+<tr>
+<td>Production classifier (Stage 15F)</td>
+<td>see §6</td>
+<td>§6</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="dataset">2. Dataset</h1>
+<h2 id="inventory-and-provenance">2.1 Inventory and provenance</h2>
+<p>87 confocal-Raman hyperspectral maps, all collected on a single Raman
+microscope at one lab. Each file represents one bacterial culture (smear
+or pellet) rastered pixel-by-pixel on a ~22×17 (or larger) grid; per
+pixel, a full 2048-bin Raman spectrum spanning ~76–3499 cm⁻¹.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 28%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr>
+<th>Class folder</th>
+<th>Subclass folders</th>
+<th style="text-align: right;">Files</th>
+<th style="text-align: right;">Spectra (after 200-px cap)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>H20/</code></td>
+<td>—</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">767</td>
+</tr>
+<tr>
+<td><code>STEC/</code></td>
+<td><code>O103H2</code> (9), <code>O121H19</code> (9),
+<code>O157H7</code> (9)</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">2,544</td>
+</tr>
+<tr>
+<td><code>Non STEC/</code></td>
+<td><code>83972</code> (8), <code>ATCC25922</code> (9),
+<code>K-12</code> (8)</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">2,344</td>
+</tr>
+<tr>
+<td><code>Salmonella/</code></td>
+<td><code>Dublin</code> (9), <code>Heidelburg</code> (9),
+<code>Typhimurium</code> (9)</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">2,344</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td style="text-align: right;"><strong>87</strong></td>
+<td style="text-align: right;"><strong>7,999</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Per-file format (intentional documentation, since the parser handles
+several surprises):</p>
+<ul>
+<li>Tab-delimited ASCII despite <code>.xls</code> extension.</li>
+<li>~44 metadata header lines (<code>#KEY=\tVALUE</code>).</li>
+<li>One wavenumber row (two empty cells + 2048 wavenumber values).</li>
+<li>N pixel rows: <code>x_um \t y_um \t intensity[0..2047]</code>.</li>
+<li><strong>Comma thousands-separators</strong> in intensity values
+(<code>1,034.00</code>) — must be stripped before float-casting.</li>
+</ul>
+<h2 id="parsing-edge-cases-and-how-we-handle-them">2.2 Parsing edge
+cases (and how we handle them)</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Edge case</th>
+<th>File examples</th>
+<th>Handling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wrong <code>#NUMX</code> / <code>#NUMY</code> headers</td>
+<td>R357–R371 (early batch, Feb–early Mar 2026)</td>
+<td>Grid derived from <code>unique(x_um) × unique(y_um)</code>; headers
+ignored</td>
+</tr>
+<tr>
+<td>Mosaics (9 stitched maps in one file)</td>
+<td>R364 (STEC, 324 px), R370 (Salm Dublin, 720 px)</td>
+<td>Treated as single dense map; 200-px cap prevents class
+dominance</td>
+</tr>
+<tr>
+<td>Partial scan</td>
+<td>R371 (Typhimurium, 351/360 px)</td>
+<td>Kept with <code>is_complete_scan=False</code> flag</td>
+</tr>
+<tr>
+<td>Calibration-batch wn drift</td>
+<td>All files</td>
+<td>Every spectrum interpolated onto canonical axis
+<code>linspace(76, 3499, 2048)</code></td>
+</tr>
+<tr>
+<td><code>.txt</code> extension</td>
+<td>One Heidelburg file (R427_*.txt)</td>
+<td>Same format; parser globs both <code>.xls</code> and
+<code>.txt</code></td>
+</tr>
+<tr>
+<td>Folder spelling</td>
+<td><code>Heidelburg/</code> (likely typo for Heidelberg)</td>
+<td>Kept verbatim so labels match paths</td>
+</tr>
+</tbody>
+</table>
+<p>87/87 files parse with zero fatal errors
+(<code>atlas/io.py</code>).</p>
+<h2 id="preprocessing-pipeline">2.3 Preprocessing pipeline</h2>
+<p>Implemented in <code>atlas/preprocess.py</code>. Atomic steps:</p>
+<pre><code>raw 2048-bin spectrum
+     │
+     ▼
+[ 1 ] cosmic-ray removal — MAD-robust median filter, z-threshold = 5σ
+     │
+     ▼
+[ 2 ] arPLS baseline subtraction — pybaselines.whittaker.arpls
+                                    λ = 10⁵, max_iter = 50, diff_order = 2
+     │   (removes fluorescence; preserves Raman peaks)
+     ▼
+[ 3 ] Savitzky–Golay smooth — window = 9, polyorder = 3
+     │
+     ▼
+[ 4 ] crop two regions:
+        fingerprint 400–1800 cm⁻¹   (nucleic acids, proteins, carbohydrates)
+        C-H stretch 2800–3050 cm⁻¹  (membrane lipid C-H modes)
+     │   (drop silent region 1800–2800 + noisy edges)
+     ▼
+[ 5 ] SNV normalization — per-spectrum z-score
+     │   (corrects multiplicative scatter from focus / cell density)
+     ▼
+preprocessed 987-bin spectrum  →  data_cache/spectra_array_preprocessed.npy</code></pre>
+<p>Output cached at
+<code>data_cache/spectra_array_preprocessed.npy</code>
+(<code>float32</code>, shape (7,999, 987)) with the matching
+<code>data_cache/wavenumber_axis_preprocessed.npy</code>.</p>
+<h2 id="quality-control">2.4 Quality control</h2>
+<p>Per-pixel QC implemented in <code>atlas/qc.py</code>. Drops:</p>
+<ul>
+<li>Pixels with SNR (peak / baseline-RMS in 800–1200 cm⁻¹) below
+per-file 10th-percentile.</li>
+<li>Pixels whose mean intensity sits in the bottom 10% of the per-file
+distribution (likely off-cell background).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>QC stage</th>
+<th style="text-align: right;">Spectra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Raw (after 200-px cap)</td>
+<td style="text-align: right;">7,999</td>
+</tr>
+<tr>
+<td>Dropped by SNR floor</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>Dropped as background</td>
+<td style="text-align: right;">871</td>
+</tr>
+<tr>
+<td><strong>Retained (QC mask)</strong></td>
+<td style="text-align: right;"><strong>7,122</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Per-file retention (median 89%) recorded in
+<code>data_cache/qc_info.json</code>.</p>
+<h2 id="split-protocols">2.5 Split protocols</h2>
+<p>Two protocols (<code>atlas/splits.py</code>), used differently across
+tracks:</p>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 30%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th>Protocol</th>
+<th>What it tests</th>
+<th style="text-align: right;">Folds</th>
+<th>Per-fold composition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A — StratifiedGroupKFold on
+<code>file_id</code></strong></td>
+<td>Generalize to new files of seen strains</td>
+<td style="text-align: right;">5</td>
+<td>~17 files held out, stratified by primary class</td>
+</tr>
+<tr>
+<td><strong>B — Leave-One-Strain-Out (LOSO)</strong></td>
+<td>Generalize to a strain never seen in training</td>
+<td style="text-align: right;">9 (+1 H₂O fold = 10)</td>
+<td>All files of one subclass held out; H₂O pooled</td>
+</tr>
+</tbody>
+</table>
+<p><strong>LOSO is the project’s primary evaluation.</strong> Each LOSO
+fold trains on 2 strains per parent class (no diversity hedge), so the
+fold metric is a 9-point statistic. Protocol A is reported as the upper
+bound on in-distribution performance — closer to what the model would
+see in deployment if it had been retrained on every new strain.</p>
+<h2 id="wavenumber-axis-and-named-bands">2.6 Wavenumber axis and named
+bands</h2>
+<p>The preprocessed axis has 987 bins covering 400–1800 cm⁻¹ + 2800–3050
+cm⁻¹. 30 named bands are catalogued in
+<code>atlas/band_features.BANDS</code>, grouped into 5 macromolecule
+classes:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Group</th>
+<th>Example bands</th>
+<th>Biology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aromatic AA</td>
+<td>762 (Trp), 831/855 (Tyr), 1004 (Phe ring)</td>
+<td>total-protein anchors</td>
+</tr>
+<tr>
+<td>Protein amide</td>
+<td>1242 (amide-III β-sheet), 1658/1662 (amide-I α-helix)</td>
+<td>secondary structure</td>
+</tr>
+<tr>
+<td>Nucleic acid</td>
+<td>720 / 786 (A,G,T,C ring), 1338 / 1485 / 1575</td>
+<td>DNA/RNA</td>
+</tr>
+<tr>
+<td>Lipid + carbohydrate</td>
+<td>1080 (phospholipid backbone), 1451/1454 (CH₂), 2850/2930 (C-H
+stretch)</td>
+<td>membrane composition</td>
+</tr>
+<tr>
+<td>Metabolite (Salmonella)</td>
+<td>616 (COO⁻), 925 (C-C), 1542 (C=C)</td>
+<td>per Yuan-2024</td>
+</tr>
+</tbody>
+</table>
+<p>Two LPS regions are used for continuous integration:
+<code>lps_o_antigen_full = (400, 900)</code> and
+<code>lps_chain_discrim = (800, 1200)</code>.</p>
+<hr />
+<h1 id="baseline-modeling">3. Baseline modeling</h1>
+<p>This section reports the pre-engineering baseline: classical sweeps,
+deep architectures, DANN domain-adversarial training, ensemble attempts,
+and multi-seed verification. <strong>Result: PLS-DA on the raw 987-bin
+spectrum, LOSO mean parent-class recall = 0.603, is the project
+record.</strong></p>
+<h2 id="classical-sweep-protocol-a-loso">3.1 Classical sweep (Protocol A
++ LOSO)</h2>
+<p>Six classical models (<code>atlas/models_classical.py</code>) on the
+preprocessed spectrum:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">Protocol A file-macro-F1</th>
+<th style="text-align: right;">LOSO mean parent-recall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PLS-DA</strong> (n_components = 10)</td>
+<td style="text-align: right;">0.85</td>
+<td style="text-align: right;"><strong>0.603</strong> ← project
+record</td>
+</tr>
+<tr>
+<td>LogReg L2</td>
+<td style="text-align: right;">0.79</td>
+<td style="text-align: right;">0.41</td>
+</tr>
+<tr>
+<td>LinSVM</td>
+<td style="text-align: right;">0.80</td>
+<td style="text-align: right;">0.40</td>
+</tr>
+<tr>
+<td>RBF-SVM</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">0.38</td>
+</tr>
+<tr>
+<td>Random Forest</td>
+<td style="text-align: right;">0.83</td>
+<td style="text-align: right;">0.42</td>
+</tr>
+<tr>
+<td>XGBoost (n_est = 300, depth=4)</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">0.40</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key finding.</strong> PLS-DA’s latent-space projection
+generalizes substantially better than RF / XGB under strain-level LOSO.
+Non-linear models overfit the training strains’ high-dimensional
+structure; PLS-DA’s low-rank projection drops to the discriminative
+subspace and survives the strain-distribution shift.</p>
+<h2 id="deep-models">3.2 Deep models</h2>
+<h3 id="d-cnn">3.2.1 1D-CNN</h3>
+<p>Implementation: <code>atlas/models_cnn.py</code>. Architecture:
+per-bin <code>StandardScaler</code> → 4-stage Conv1d (32 → 64 → 96 → 128
+channels, kernel = 5, stride = 1, BN + ReLU, MaxPool every 2 stages) →
+global avg pool → 2-layer MLP head. <strong>~124K parameters.</strong>
+Heavy augmentation (mixup, Gaussian noise, baseline jitter, intensity
+scaling, wavenumber stretch).</p>
+<ul>
+<li>Protocol A file-F1: <strong>0.649</strong> — below pre-registered
+0.92–0.98 floor.</li>
+<li>LOSO mean: <strong>0.35</strong> — below 0.55 floor.</li>
+<li><strong>But cracks K-12 at 0.50 and O157H7 at 0.56</strong>, both of
+which classical models hit 0.00 on. This is the first sign that
+different architectures own different held-out strains.</li>
+</ul>
+<h3 id="d-transformer">3.2.2 1D-Transformer</h3>
+<p><code>atlas/models_transformer.py</code>. Patch-tokenized 1D
+Transformer (patch_size ∈ {5, 20}), 4 encoder layers, 4 heads, d_model =
+64, FF = 128. <strong>~217K parameters.</strong></p>
+<ul>
+<li>patch_size = 20: Protocol A 0.507, LOSO 0.193, K-12 &amp; O157H7 →
+0.00. <strong>The widest patches blur the narrow Raman peaks</strong>
+the CNN’s kernel-5 convolutions catch.</li>
+<li>patch_size = 5: Protocol A 0.681, LOSO <strong>0.349</strong>,
+ATCC25922 <strong>= 1.00</strong> (first 100% on that strain anywhere in
+the project).</li>
+</ul>
+<p>This blur diagnostic explains why “small Transformers” routinely
+under-perform CNN baselines on narrow-peak spectroscopy data.</p>
+<h3 id="dann-domain-adversarial-neural-network">3.2.3 DANN
+(Domain-Adversarial Neural Network)</h3>
+<p>Memprobe-v2 (§3.4) fires at 15.5%, so we add an 87-way
+<code>file_id</code> domain head behind a gradient-reversal layer to the
+CNN backbone. Sweep over λ ∈ {0.05, 0.1, 0.3}.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 26%" />
+<col style="width: 26%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th>Variant</th>
+<th style="text-align: right;">Single-seed (originally shipped)</th>
+<th style="text-align: right;">5-seed mean ± SD</th>
+<th style="text-align: right;">5-seed soft-vote</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DANN λ = 0.1</td>
+<td style="text-align: right;">0.500 (seed 42)</td>
+<td style="text-align: right;"><strong>0.345 ± 0.145</strong></td>
+<td style="text-align: right;">0.370</td>
+</tr>
+<tr>
+<td>DANN λ = 0.3</td>
+<td style="text-align: right;">0.447 (seed 42)</td>
+<td style="text-align: right;">0.393 ± 0.117</td>
+<td style="text-align: right;"><strong>0.448</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Multi-seed verification revised the original
+headline.</strong> Shipping λ = 0.1 was a lucky-seed artifact; under
+proper 5-seed averaging, λ = 0.3 wins (0.448 vs 0.370) and is more
+robust:</p>
+<ul>
+<li>λ = 0.3 K-12 recall: 0.75 on 3 of 5 seeds (soft-vote 0.75).</li>
+<li>λ = 0.3 O157:H7 recall: 0.78 (soft-vote).</li>
+<li>λ = 0.1 K-12: SD = 0.35 across seeds — most “wins” are seed
+luck.</li>
+</ul>
+<p><strong>The honest reporting unit on deep models for this dataset is
+5-seed soft-vote</strong>, not a single-seed point estimate.</p>
+<h2 id="ensembling-five-schemes-none-cleared-pls-da">3.3 Ensembling —
+five schemes, none cleared PLS-DA</h2>
+<p><code>atlas/ensemble.py</code>, <code>atlas/stacking.py</code>,
+<code>atlas/calibrated_ensemble.py</code>,
+<code>atlas/lambda_selector.py</code>:</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Scheme</th>
+<th style="text-align: right;">LOSO mean</th>
+<th style="text-align: right;">K-12</th>
+<th style="text-align: right;">O157:H7</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Soft-vote (PLS-DA + XGB + CNN)</td>
+<td style="text-align: right;">0.579</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td>CNN wins destroyed by averaging</td>
+</tr>
+<tr>
+<td>Stacking (LogReg meta over base probas)</td>
+<td style="text-align: right;">0.432</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td>Can’t extrapolate across LOSO folds</td>
+</tr>
+<tr>
+<td>Per-strain λ-selector (hard / soft / router)</td>
+<td style="text-align: right;">0.444</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td>Inner-val signal doesn’t predict held-out</td>
+</tr>
+<tr>
+<td>4-arch soft-vote (PLS-DA + DANN + Patch5 + 2ch-CNN)</td>
+<td style="text-align: right;">0.579</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.11</td>
+<td>Still loses to PLS-DA solo</td>
+</tr>
+<tr>
+<td>Margin-based confidence router</td>
+<td style="text-align: right;">0.603</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td>Degenerates to “always pick PLS-DA” on 78/78 files</td>
+</tr>
+<tr>
+<td>Temperature-scaled soft-vote</td>
+<td style="text-align: right;">0.566</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.67</td>
+<td>First to break O157:H7, K-12 stays 0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mechanism — calibration mismatch.</strong> Fitting
+per-classifier temperature scaling on held-out predictions yielded
+sharply different distributions:</p>
+<ul>
+<li><strong>PLS-DA fitted T = 6.43</strong> (highly peaked
+probabilities).</li>
+<li><strong>Deep models fitted T = 1.2–1.7</strong> (relatively
+flat).</li>
+</ul>
+<p>When a 1-of-4 deep model is right on a “minority-of-one” strain (e.g.
+K-12 owned only by DANN λ = 0.3; Typhimurium owned only by PLS-DA), no
+calibration scheme can amplify its vote past three confidently-wrong
+bases. The ensemble chapter is closed.</p>
+<h2 id="memprobe-is-the-model-memorizing-file_id">3.4 Memprobe — is the
+model memorizing <code>file_id</code>?</h2>
+<p><code>atlas/memprobe.py</code> / <code>atlas/memprobe_v2.py</code>. A
+linear probe on the CNN’s penultimate layer predicts
+<code>file_id</code> (87-way classification, chance = 1.15%):</p>
+<ul>
+<li>Pre-DANN CNN penultimate: <strong>15.5%</strong> linear top-1.</li>
+<li>Post-DANN λ = 0.1: 14.0%.</li>
+<li>Post-DANN λ = 0.3: 13.6%.</li>
+</ul>
+<p><strong>Memprobe is decoupled from LOSO performance.</strong> DANN
+reshapes feature <em>prominence</em> but does not strip linear file-id
+separability on this dataset. The cleanest interpretation: there’s
+residual instrument/batch/substrate signal in the features that doesn’t
+hurt cross-strain generalization in the direction we care about.
+<strong>This finding is what motivates Stage 15C MCR-ALS
+unmixing</strong> (separate biology from substrate components).</p>
+<h2 id="per-strain-best-model-table-the-actual-writeup-story">3.5
+Per-strain best-model table (the actual writeup story)</h2>
+<p>The single most informative result from the baseline track:
+<strong>no model wins every cell. Each architecture owns a different
+held-out strain.</strong></p>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th>Strain</th>
+<th>Parent class</th>
+<th>Best model</th>
+<th style="text-align: right;">Recall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>83972</td>
+<td>Non-STEC</td>
+<td>PLS-DA</td>
+<td style="text-align: right;"><strong>1.00</strong></td>
+</tr>
+<tr>
+<td>ATCC25922</td>
+<td>Non-STEC</td>
+<td>Patch=5 Transformer / DANN λ=0.1</td>
+<td style="text-align: right;">~1.00</td>
+</tr>
+<tr>
+<td>K-12</td>
+<td>Non-STEC</td>
+<td>DANN λ=0.3 (5-seed soft-vote)</td>
+<td style="text-align: right;">0.75</td>
+</tr>
+<tr>
+<td>O103:H2</td>
+<td>STEC</td>
+<td>PLS-DA / DANN λ=0.3</td>
+<td style="text-align: right;">~0.89</td>
+</tr>
+<tr>
+<td>O121:H19</td>
+<td>STEC</td>
+<td>2-channel CNN (SNV + 2nd-deriv)</td>
+<td style="text-align: right;">0.89</td>
+</tr>
+<tr>
+<td>O157:H7</td>
+<td>STEC</td>
+<td>DANN λ=0.3 (5-seed soft-vote)</td>
+<td style="text-align: right;">0.78</td>
+</tr>
+<tr>
+<td>Dublin</td>
+<td>Salmonella</td>
+<td>PLS-DA</td>
+<td style="text-align: right;">0.70+</td>
+</tr>
+<tr>
+<td>Heidelburg</td>
+<td>Salmonella</td>
+<td>PLS-DA</td>
+<td style="text-align: right;">0.70+</td>
+</tr>
+<tr>
+<td>Typhimurium</td>
+<td>Salmonella</td>
+<td>PLS-DA (only model &gt; 0)</td>
+<td style="text-align: right;">0.56</td>
+</tr>
+</tbody>
+</table>
+<p>The takeaway is <em>“different inductive biases solve different
+biology cells, and no current combination scheme captures the
+union.”</em></p>
+<h2 id="additional-diagnostics">3.6 Additional diagnostics</h2>
+<ul>
+<li><strong>2-channel CNN</strong> (SNV + fixed Savitzky-Golay
+2nd-derivative as a second input channel): LOSO 0.465, <strong>best
+result on O121:H19 (0.89)</strong> and <strong>O157:H7 (0.78)</strong>.
+2nd-derivative channel removes affine baselines pre-network and sharpens
+narrow peaks — that’s what helps STEC strains.</li>
+<li><strong>Grouped-domain DANN</strong> (predict subclass not file_id):
+LOSO 0.309. Rejects the “coarser domain target preserves more”
+hypothesis.</li>
+<li><strong>Augmentation regime sweep:</strong> lighter augmentation
+regresses LOSO mean by 0.04–0.07. Heavy augmentation is doing genuine
+cross-strain regularization, not over-tuning.</li>
+</ul>
+<h2 id="why-the-baselines-plateau-at-0.603">3.7 Why the baselines
+plateau at 0.603</h2>
+<p>LOSO mean is a 9-point statistic — only 2 train strains per parent
+class per fold. With 87 files / ~7K spectra / one instrument / one lab,
+the modeling slack is small. Even the best deep model (5-seed-verified
+DANN λ = 0.3 at 0.448) sits below PLS-DA solo. <strong>The wall is data,
+not modeling.</strong> The remaining engineering work (Stages 1–7 and
+15A–F) tests whether <em>better representations</em> —
+chemistry-grounded features and MCR-ALS unmixing — can pull more signal
+out of the same 87 files.</p>
+<hr />
+<h1 id="band-chemistry-track-stages-17">4. Band-chemistry track (Stages
+1–7)</h1>
+<p>A literature-anchored falsification track. Each stage is
+pre-registered in
+<code>plan/experiments/2026-05-{17,18}_*.md</code>.</p>
+<h2 id="stage-1-falsifying-the-published-cisek-2013-stec-triple">4.1
+Stage 1 — falsifying the published Cisek-2013 STEC triple</h2>
+<p>Cisek et al. (<em>Analyst</em> 2013) report &gt;95%
+sensitivity/specificity for STEC ↔︎ non-pathogenic <em>E. coli</em> on
+three discriminative bands:</p>
+<ul>
+<li><strong>1338 cm⁻¹</strong> — CH₂ wag / adenine ring (nucleic
+acid).</li>
+<li><strong>1454 cm⁻¹</strong> — CH₂ deformation (lipid).</li>
+<li><strong>1658 cm⁻¹</strong> — amide-I (protein, β/random).</li>
+</ul>
+<p>We integrated each (±10 cm⁻¹ AUC) and computed file-level Cohen’s d
+across the 27 STEC + 25 Non-STEC files:</p>
+<table>
+<thead>
+<tr>
+<th>Band</th>
+<th style="text-align: right;">center</th>
+<th style="text-align: right;">d (STEC ↔︎ Non-STEC)</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>na_1338</td>
+<td style="text-align: right;">1338</td>
+<td style="text-align: right;">+0.13</td>
+<td>null</td>
+</tr>
+<tr>
+<td><strong>lipid_1454</strong></td>
+<td style="text-align: right;">1454</td>
+<td style="text-align: right;"><strong>−0.47</strong></td>
+<td><strong>sign-reversed</strong></td>
+</tr>
+<tr>
+<td>amide_i_1658</td>
+<td style="text-align: right;">1658</td>
+<td style="text-align: right;">+0.16</td>
+<td>null</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The literature triple does not replicate at file level on
+this dataset.</strong> Sign reversal at 1454 is the strongest negative
+finding: where Cisek-2013 reports STEC &gt; Non-STEC for CH₂
+deformation, Atlas shows Non-STEC &gt; STEC (modest effect). The Cisek
+protocol used controlled cell suspensions with per-batch CV — our
+file-level Cohen’s d on a single-lab corpus is a different
+statistic.</p>
+<h2 id="stage-2-finding-the-actual-signal">4.2 Stage 2 — finding the
+actual signal</h2>
+<p>Searching all 35 catalog bands for file-level |d| ≥ 0.5 STEC ↔︎
+Non-STEC surfaced an LPS-chain region (800–1200 cm⁻¹):</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Band</th>
+<th style="text-align: right;">center</th>
+<th style="text-align: right;">d (STEC ↔︎ Non-STEC)</th>
+<th style="text-align: right;">d (E. coli ↔︎ Salm)</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>auc_lps_1194</strong></td>
+<td style="text-align: right;">1194</td>
+<td style="text-align: right;"><strong>+1.03</strong></td>
+<td style="text-align: right;">+0.34</td>
+<td><strong>Empirical anchor 1</strong></td>
+</tr>
+<tr>
+<td>auc_lps_1117</td>
+<td style="text-align: right;">1117</td>
+<td style="text-align: right;">+0.77</td>
+<td style="text-align: right;">+0.30</td>
+<td>Empirical anchor 2</td>
+</tr>
+<tr>
+<td>auc_lps_1050</td>
+<td style="text-align: right;">1050</td>
+<td style="text-align: right;">+0.42</td>
+<td style="text-align: right;">+0.82</td>
+<td>top E. coli ↔︎ Salm discriminator</td>
+</tr>
+<tr>
+<td>auc_lps_o_antigen_full (400–900)</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">+0.51</td>
+<td style="text-align: right;">+0.42</td>
+<td>LPS detection region</td>
+</tr>
+<tr>
+<td>auc_lps_chain_discrim (800–1200)</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">+0.65</td>
+<td style="text-align: right;">+0.55</td>
+<td>continuous LPS chain</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The discrimination signal is in the LPS-chain
+region</strong>, not in the protein/lipid peaks the published triple
+emphasized. STEC has higher AUC at 1194 cm⁻¹ than Non-STEC, consistent
+with O-antigen polysaccharide architecture differences between
+pathogenic and commensal serogroups.</p>
+<h2 id="stage-3-radars-ratios-and-macromolecule-vectors">4.3 Stage 3 —
+radars, ratios, and macromolecule vectors</h2>
+<p>Per-class macromolecule vector (sum of named band AUCs by group):</p>
+<pre><code>                aromatic_aa  protein_amide  nucleic_acid  lipid_carb  metabolite
+H₂O                  -33.5         -16.8         -50.6         9.8        -22.6
+STEC                 -33.1         -16.8         -52.0         8.4        -23.5
+Non-STEC             -33.3         -16.8         -52.5         8.9        -23.4
+Salmonella           -33.2         -16.7         -52.0         8.7        -23.6</code></pre>
+<p>SNV-normalized AUCs are sign-flipped from raw intensities (the
+absolute values are uninterpretable in isolation), but the
+<strong>between-class spread</strong> is informative. <strong>Ratios
+under-perform single-band AUCs at the file level</strong> —
+<code>amide_over_na</code>, <code>aa_over_amide</code>,
+<code>lipid_over_protein</code> all show |d| &lt; 0.4 STEC ↔︎ Non-STEC,
+well below the LPS_1194 anchor.</p>
+<h2
+id="stage-5-engineered-feature-classifier-loso-0.31-with-13-features">4.4
+Stage 5 — engineered-feature classifier (LOSO 0.31 with 13
+features)</h2>
+<p>Trained XGBoost on a 13-feature subset (4 LPS-region AUCs + 4 ratios
++ 5 literature/anchor features) — chemistry-grounded, transparent, easy
+to interpret:</p>
+<table>
+<colgroup>
+<col style="width: 42%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr>
+<th>Protocol</th>
+<th style="text-align: right;">File-macro-F1 / LOSO recall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Protocol A file-macro-F1</strong></td>
+<td style="text-align: right;"><strong>0.87</strong> (matches PLS-DA on
+raw spectrum)</td>
+</tr>
+<tr>
+<td>LOSO mean parent-recall</td>
+<td style="text-align: right;"><strong>0.31</strong> (far below PLS-DA’s
+0.603)</td>
+</tr>
+<tr>
+<td><strong>O121:H19 LOSO recall</strong></td>
+<td style="text-align: right;"><strong>0.89</strong> ⭐ (ties PLS-DA
+project record on this STEC strain, using 13 features instead of 987
+bins)</td>
+</tr>
+<tr>
+<td>O103:H2 LOSO recall</td>
+<td style="text-align: right;">0.67</td>
+</tr>
+<tr>
+<td>O157:H7 LOSO recall</td>
+<td style="text-align: right;">0.00 (model has never seen O157-like LPS
+in training)</td>
+</tr>
+<tr>
+<td>K-12 LOSO recall</td>
+<td style="text-align: right;">0.00 (atypical lab strain)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The serogroup-specificity is the trap.</strong> LPS-chain
+features carry serogroup-level information that fits training
+distributions tightly but doesn’t extrapolate to held-out strains with
+structurally different O-antigen architecture (O157:H7 LOSO = 0.00 —
+model has never seen O157-like LPS). This is <strong>branch (C) for the
+band-only classifier</strong>, and the explicit motivation for the
+feature-engineering track (Stages 15A–F).</p>
+<h2 id="stage-6-skipped-per-stage-gate">4.5 Stage 6 — skipped per
+stage-gate</h2>
+<p>Pre-registered Stage 6 (3-channel CNN with band features) was
+skipped: adding the same non-generalizing engineered features as an
+input channel to a CNN wouldn’t fix the LOSO failure. Budget saved: 0.5
+day.</p>
+<h2 id="stage-7-mixed-sample-deployment-simulation">4.6 Stage 7 —
+mixed-sample deployment simulation</h2>
+<p>Simulated pixel-level mixing across primary classes to estimate
+deployment-time degradation under contaminated samples:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Mix fraction</th>
+<th style="text-align: right;">Macro accuracy</th>
+<th style="text-align: right;">Δ vs clean</th>
+<th>Most-affected pair</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0%</td>
+<td style="text-align: right;">0.87</td>
+<td style="text-align: right;">—</td>
+<td>(baseline)</td>
+</tr>
+<tr>
+<td style="text-align: right;">10%</td>
+<td style="text-align: right;">0.79</td>
+<td style="text-align: right;">−0.08</td>
+<td>E. coli ↔︎ Salm</td>
+</tr>
+<tr>
+<td style="text-align: right;">20%</td>
+<td style="text-align: right;">0.71</td>
+<td style="text-align: right;">−0.16</td>
+<td>STEC ↔︎ Non-STEC</td>
+</tr>
+<tr>
+<td style="text-align: right;">30%</td>
+<td style="text-align: right;">0.63</td>
+<td style="text-align: right;">−0.24</td>
+<td>STEC ↔︎ Non-STEC</td>
+</tr>
+<tr>
+<td style="text-align: right;">50%</td>
+<td style="text-align: right;">0.51</td>
+<td style="text-align: right;">−0.36</td>
+<td>all pairs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>10–20% mixed-pixel contamination drops macro accuracy 8–16
+percentage points.</strong> The classifier has a <strong>STEC-default
+bias under uncertainty</strong> — ambiguous mixed pixels are pulled
+toward STEC. For food-safety screening this is the conservative
+direction (a false STEC call is better than a false clear), but it
+inflates false-positive rates if the sample is actually commensal. Stage
+7 validates the briefing’s 10–20% expected drop.</p>
+<hr />
+<h1 id="feature-engineering-track-stages-15ae">5. Feature-engineering
+track (Stages 15A–E)</h1>
+<p>Five new feature families implemented over six days, producing
+<strong>259 features per file</strong> from the cached preprocessed
+spectra. The track tests whether better representations close the LOSO
+gap that the band-only classifier exposed in §4.4. Each stage is
+documented in
+<code>plan/experiments/2026-05-18_stage15{a..e}_*.md</code>.</p>
+<pre><code>   stage   contributes  feature module                  cache
+   ─────────────────────────────────────────────────────────────────────
+   15A     pseudo-Voigt + ROI + EMSC + derivatives →   atlas/band_features.py
+   15B     DWT + ROI-PCA + SAM templates           →   atlas/spectral_features.py
+   15C     MCR-ALS spectral unmixing (K=7 active)  →   atlas/unmix_features.py
+   15D     biology-grounded ratios (5 families)    →   atlas/band_features.py
+   15E     per-file spatial moment statistics      →   atlas/spatial_features.py
+                                                        │
+                                                        ▼
+                                                    data_cache/{band,spectral,unmix,spatial}_features.parquet
+                                                    (166 + 51 + 32 + 10 = 259 features)</code></pre>
+<h2
+id="stage-15a-pseudo-voigt-peak-fits-roi-moments-emsc-derivatives">5.1
+Stage 15A — pseudo-Voigt peak fits, ROI moments, EMSC, derivatives</h2>
+<p><strong>Pseudo-Voigt with linear baseline</strong> replaces
+Lorentzian for peak fitting. Fit-success rates on three empirical
+anchors jumped:</p>
+<table>
+<thead>
+<tr>
+<th>Band</th>
+<th style="text-align: right;">Lorentzian</th>
+<th style="text-align: right;">Pseudo-Voigt</th>
+<th style="text-align: right;">Δ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lps_1117</td>
+<td style="text-align: right;">4.0%</td>
+<td style="text-align: right;">71.1%</td>
+<td style="text-align: right;">+67.1 pp</td>
+</tr>
+<tr>
+<td>lps_1194</td>
+<td style="text-align: right;">0.2%</td>
+<td style="text-align: right;"><strong>62.7%</strong></td>
+<td style="text-align: right;">+62.5 pp</td>
+</tr>
+<tr>
+<td>lps_1050</td>
+<td style="text-align: right;">11.8%</td>
+<td style="text-align: right;">60.6%</td>
+<td style="text-align: right;">+48.8 pp</td>
+</tr>
+<tr>
+<td>na_1338</td>
+<td style="text-align: right;">8.7%</td>
+<td style="text-align: right;">60.6%</td>
+<td style="text-align: right;">+51.9 pp</td>
+</tr>
+<tr>
+<td>lipid_1454</td>
+<td style="text-align: right;">20.3%</td>
+<td style="text-align: right;"><strong>89.1%</strong></td>
+<td style="text-align: right;">+68.8 pp</td>
+</tr>
+<tr>
+<td>amide_i_1658</td>
+<td style="text-align: right;">14.0%</td>
+<td style="text-align: right;"><strong>85.5%</strong></td>
+<td style="text-align: right;">+71.5 pp</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Confirmed: amide-I shifts +1.1 cm⁻¹ between STEC (mean fit
+center ≈ 1661) and Non-STEC (≈ 1662.5)</strong> — Non-STEC’s amide-I
+sits further into α-helix territory. Direction agrees with Stage 15D’s
+<code>bio_alpha_helix_score</code> finding (§5.4).</p>
+<p>Additional families added by Stage 15A:</p>
+<ul>
+<li><strong>6-statistic ROI moments</strong>
+(<code>roi_&lt;region&gt;_{mean,std,skew,kurt,centroid,entropy}</code>)
+× 6 regions = 36 features.</li>
+<li><strong>EMSC scatter coefficients</strong> — 4 per spectrum (offset,
+ref scale, linear+quadratic baseline). EMSC b-coef E. coli ↔︎ Salm d =
+0.30 (weak in isolation; scale-invariant safety net for LOSO).</li>
+<li><strong>Savitzky-Golay 1st and 2nd derivative AUCs</strong> at the
+same 8 fit bands. <strong><code>d2_auc_lps_1194</code> d = −0.898 STEC ↔︎
+Non-STEC</strong> — curvature sharpness is an orthogonal axis to the raw
+AUC.</li>
+</ul>
+<p><strong>Headline:</strong> <code>d2_auc_lps_1194</code> d = −0.898 —
+new strong STEC-discrimination feature based on the <em>curvature</em>
+of the LPS_1194 peak, not its amplitude.</p>
+<h2 id="stage-15b-dwt-roi-pca-sam-templates">5.2 Stage 15B — DWT +
+ROI-PCA + SAM templates</h2>
+<h3 id="dwt-discrete-wavelet-transform">DWT (Discrete Wavelet
+Transform)</h3>
+<p>Daubechies-4 mother wavelet, 6 detail levels → energy + entropy per
+level = 12 features.</p>
+<table>
+<thead>
+<tr>
+<th>Detail level</th>
+<th style="text-align: right;">Energy d (E. coli ↔︎ Salm)</th>
+<th style="text-align: right;">Entropy d</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1 (highest freq)</td>
+<td style="text-align: right;">−0.235</td>
+<td style="text-align: right;">−0.425</td>
+</tr>
+<tr>
+<td>L2</td>
+<td style="text-align: right;">+0.038</td>
+<td style="text-align: right;">−0.235</td>
+</tr>
+<tr>
+<td>L3</td>
+<td style="text-align: right;">+0.006</td>
+<td style="text-align: right;">−0.224</td>
+</tr>
+<tr>
+<td>L4 (~30–80 cm⁻¹)</td>
+<td style="text-align: right;">+0.251</td>
+<td style="text-align: right;"><strong>−0.526</strong></td>
+</tr>
+<tr>
+<td>L5</td>
+<td style="text-align: right;">−0.032</td>
+<td style="text-align: right;">−0.006</td>
+</tr>
+<tr>
+<td>L6 (coarsest)</td>
+<td style="text-align: right;">−0.259</td>
+<td style="text-align: right;">−0.139</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>dwt_entropy_L4</code> d = −0.526</strong> — Salmonella
+has higher mid-scale spectral entropy than E. coli (more distributed
+peak structure at that scale).</p>
+<h3 id="roi-pca">ROI-PCA</h3>
+<p>PCA per region: LPS (5 PCs), amide (3 PCs), C-H stretch (3 PCs) = 11
+features. <strong>PC1 of every region is dominant-variance (file/scale),
+not class-variance.</strong> The discriminative axes sit in PC2 and
+PC3:</p>
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 40%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th>Feature</th>
+<th style="text-align: right;">d STEC ↔︎ Non-STEC</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>pca_lps_PC3</strong></td>
+<td style="text-align: right;"><strong>+1.032</strong></td>
+<td>Same chemistry as <code>auc_lps_1194</code> in a learned
+coordinate</td>
+</tr>
+<tr>
+<td><strong>pca_amide_PC3</strong></td>
+<td style="text-align: right;"><strong>+0.891</strong></td>
+<td><strong>New</strong> — amide region carries undertapped class
+signal</td>
+</tr>
+<tr>
+<td>pca_amide_PC2</td>
+<td style="text-align: right;">−0.666</td>
+<td>Second amide axis</td>
+</tr>
+<tr>
+<td>pca_lps_PC2</td>
+<td style="text-align: right;">+0.498</td>
+<td>Secondary LPS direction</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sam-spectral-angle-mapper">SAM (Spectral Angle Mapper)</h3>
+<p>Cosine-angle templates against class-mean and subclass-mean spectra,
+both full-spectrum and LPS-region-only — 28 features total.</p>
+<table>
+<thead>
+<tr>
+<th>Pair</th>
+<th style="text-align: right;">Best SAM AUROC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H₂O ↔︎ bacteria</td>
+<td style="text-align: right;"><strong>1.000</strong>
+(lps_class_H2O)</td>
+</tr>
+<tr>
+<td>STEC ↔︎ Non-STEC</td>
+<td style="text-align: right;">0.690</td>
+</tr>
+<tr>
+<td>E. coli ↔︎ Salm</td>
+<td style="text-align: right;">0.732</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Direction-only (cosine) features are weaker than amplitude on
+this dataset.</strong> SAM works exactly as designed for the easy split
+(H₂O) but under-performs on the hard pairs. Operational decision: keep
+SAM in the classifier as a scale-invariant LOSO safety net, but don’t
+promote it to headline.</p>
+<h2 id="stage-15c-mcr-als-spectral-unmixing-project-record">5.3 Stage
+15C — MCR-ALS spectral unmixing (project record)</h2>
+<p><strong>Multivariate Curve Resolution — Alternating Least
+Squares.</strong> Decomposes the (<code>N_pixels</code> ×
+<code>B</code>) data matrix into</p>
+<pre><code>D  ≈  C · Sᵀ
+(N × B)     (N × K) · (K × B)</code></pre>
+<p>under non-negativity constraints. The K rows of <code>Sᵀ</code> are
+pure-component spectra; the K columns of <code>C</code> are
+concentration maps. Components should map onto biology (protein, lipid,
+cytochromes, nucleic acid) and artifacts (substrate, fluorescence
+baseline residual).</p>
+<p><strong>Implementation note.</strong> SNV preprocessing produces
+negative values; MCR’s non-negativity requires <code>D ≥ 0</code>. We
+cropped to <code>wn ∈ [600, 1800] cm⁻¹</code> <strong>before</strong>
+shifting by <code>−X.min()</code> (Run-2 fix — Run-1 with full 400–3050
+range got 6 of 8 components dominated by SNV edge-bump artifacts at
+470–550 cm⁻¹). <strong>Fit globally on all 7,122 QC-passed
+spectra</strong> with SIMPLISMA initialization (Windig &amp; Guilment
+1991), K = 8 components,
+<code>pymcr.mcr.McrAR(c_regr=NNLS, st_regr=NNLS, c_constraints=[ConstraintNonneg], st_constraints=[ConstraintNonneg], max_iter=200)</code>.
+<strong>Component 8 collapsed to zero</strong>, giving effective K = 7
+for this corpus — a finding carried into Stage 15F’s per-fold MCR-ALS
+refit.</p>
+<p><strong>Component biology labels</strong> (DD2 manual curation
+against the band catalog):</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">k</th>
+<th style="text-align: center;">SIMPLISMA init (cm⁻¹)</th>
+<th>Dominant peaks</th>
+<th>Label</th>
+<th>Tier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">675</td>
+<td>broad, no narrow peaks</td>
+<td><strong>substrate / fluorescence baseline</strong></td>
+<td>artifact</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">1765</td>
+<td>1603 (Trp), 946</td>
+<td>aromatic AA / Trp protein</td>
+<td>biology</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">1004</td>
+<td>1093 (LPS phospholipid backbone)</td>
+<td>LPS phosphate / lipid_1080</td>
+<td>biology</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">1452</td>
+<td>792 (NA na_786), 1081 (lipid)</td>
+<td>NA + lipid mix</td>
+<td>biology</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">1193</td>
+<td>655, 1516 (NA), <strong>1193 (lps_1194)</strong>, 798, 840
+(Tyr)</td>
+<td>biology mix w/ LPS top-discriminator</td>
+<td>biology</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">1096</td>
+<td><strong>1451 (CH₂)</strong>, 1318 (NA wag), 1663 (amide-I α-helix),
+1004 (Phe)</td>
+<td><strong>bulk biology composite</strong></td>
+<td>biology</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">783</td>
+<td>783 (NA)</td>
+<td>nucleic acid (RNA/DNA ring)</td>
+<td>biology</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">1591</td>
+<td>(collapsed)</td>
+<td>dead</td>
+<td>dead</td>
+</tr>
+</tbody>
+</table>
+<p><strong>6 biology + 1 artifact + 1 collapsed.</strong> The substrate
+component (C1) isolates the file-acquisition signature memprobe-v2
+found, validating the substrate-leakage hypothesis (§3.4).</p>
+<p><strong>Per-class concentration table</strong> (file-level mean of
+<code>mcr_C{k}_mean</code>):</p>
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr>
+<th>Class</th>
+<th style="text-align: right;">C1</th>
+<th style="text-align: right;">C2</th>
+<th style="text-align: right;">C3</th>
+<th style="text-align: right;">C4</th>
+<th style="text-align: right;">C5</th>
+<th style="text-align: right;">C6</th>
+<th style="text-align: right;">C7</th>
+<th style="text-align: right;">C8</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H₂O</td>
+<td style="text-align: right;">1.43</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">8.91</td>
+<td style="text-align: right;">9.38</td>
+<td style="text-align: right;">3.47</td>
+<td style="text-align: right;"><strong>0.69</strong></td>
+<td style="text-align: right;">4.77</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr>
+<td>Non-STEC</td>
+<td style="text-align: right;">2.15</td>
+<td style="text-align: right;">1.81</td>
+<td style="text-align: right;">8.82</td>
+<td style="text-align: right;">8.12</td>
+<td style="text-align: right;">2.57</td>
+<td style="text-align: right;"><strong>1.43</strong></td>
+<td style="text-align: right;">5.12</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr>
+<td>STEC</td>
+<td style="text-align: right;">1.81</td>
+<td style="text-align: right;">1.67</td>
+<td style="text-align: right;">8.98</td>
+<td style="text-align: right;">8.41</td>
+<td style="text-align: right;">2.75</td>
+<td style="text-align: right;"><strong>1.24</strong></td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr>
+<td>Salmonella</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">1.76</td>
+<td style="text-align: right;">9.29</td>
+<td style="text-align: right;">8.00</td>
+<td style="text-align: right;">2.47</td>
+<td style="text-align: right;"><strong>1.35</strong></td>
+<td style="text-align: right;">5.28</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+</tbody>
+</table>
+<p>H₂O reads as expected for biology components (very low C2 Trp, very
+low C6 bulk biology). <strong>C6 is the only column where Non-STEC ≠
+STEC by &gt; 0.1 in mean</strong> — and that 1.43 vs 1.24 gap drives the
+headline d = −1.23.</p>
+<p><strong>Top file-level discriminators (8 MCR features clear |d| ≥ 0.5
+STEC ↔︎ Non-STEC):</strong></p>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 30%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Rank</th>
+<th>Feature</th>
+<th style="text-align: right;">d (STEC ↔︎ Non-STEC)</th>
+<th>Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td><strong>mcr_C6_mean</strong></td>
+<td style="text-align: right;"><strong>−1.231</strong></td>
+<td>bulk biology lower in STEC (new project record)</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td>mcr_C5_mean</td>
+<td style="text-align: right;">+0.844</td>
+<td>STEC higher in LPS_1194 + Tyr mix</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td>mcr_C2_p90</td>
+<td style="text-align: right;">−0.841</td>
+<td>Non-STEC peak Trp/aromatic AA higher</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td>mcr_C7_std</td>
+<td style="text-align: right;">−0.770</td>
+<td>Non-STEC NA heterogeneity within file</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td>mcr_C7_max</td>
+<td style="text-align: right;">−0.678</td>
+<td>Non-STEC peak NA intensity higher</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td>mcr_C6_p90</td>
+<td style="text-align: right;">−0.677</td>
+<td>C6 90th-percentile follows C6 mean</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td>mcr_C7_p90</td>
+<td style="text-align: right;">−0.626</td>
+<td>NA p90 reinforces NA mean direction</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td>mcr_C4_p90</td>
+<td style="text-align: right;">+0.608</td>
+<td>NA+lipid peak intensity higher in STEC</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Four orthogonal STEC ↔︎ Non-STEC axes recovered</strong> (C6
+bulk, C5 LPS-mix, C2 Trp, C7 NA). MCR provides four distinct
+discriminative directions the prior catalog only partially covered.</p>
+<p><strong>Substrate-component caveat (R7 mitigation).</strong>
+<code>mcr_C1_*</code> features have file-level d = −0.62 — they
+discriminate, but the discrimination <em>could</em> be the
+substrate-confound signature (the file-acquisition fingerprint, not
+biology). Stage 15F runs a <strong>shuffled-label permutation
+test</strong> specifically on the <code>mcr_C1_*</code> features and
+drops them if their importance under random labels exceeds 50% of
+importance under real labels.</p>
+<h2 id="stage-15d-biology-grounded-ratios">5.4 Stage 15D —
+biology-grounded ratios</h2>
+<p>Five feature families, ~13 features, each anchored to a published
+biological mechanism:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Family</th>
+<th>Features</th>
+<th>Biology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cytochromes (BIO1-4)</td>
+<td><code>bio_cyt_pyrrole_ratio</code>, <code>bio_cyt_ox_state</code>,
+<code>bio_cyt_total</code></td>
+<td>752/1127/1356/1372/1585 cyt-c heme bands; 785 nm excitation
+off-resonance (R5)</td>
+</tr>
+<tr>
+<td>Protein 2°-structure (BIO20-22)</td>
+<td><code>bio_alpha_helix_score</code>,
+<code>bio_beta_sheet_amide3</code></td>
+<td>1652/1670 amide-I α-helix; 1232/1270 amide-III β-sheet</td>
+</tr>
+<tr>
+<td>PHB accumulation (BIO24-25)</td>
+<td><code>bio_phb_carbonyl</code>, <code>bio_phb_score</code></td>
+<td>1730 carbonyl — <strong>K-12 falsifier</strong></td>
+</tr>
+<tr>
+<td>Aromatic AA (BIO26-29)</td>
+<td><code>bio_tyr_doublet_ratio</code>, <code>bio_trp_content</code>,
+<code>bio_trp_indole_env</code>, <code>bio_virulence_aa_sig</code></td>
+<td>850/830 Tyr Fermi; 759/1552 Trp; 1340/1360 indole env;
+(Trp+1552)/(1004 Phe)</td>
+</tr>
+<tr>
+<td>Nucleic conformation (BIO18-19)</td>
+<td><code>bio_na_a_form_fraction</code>,
+<code>bio_rna_dna_ratio</code></td>
+<td>815/(815+835); 813/788</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Per-feature signal (file-level Cohen’s d):</strong></p>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr>
+<th>Feature</th>
+<th style="text-align: right;">d STEC ↔︎ Non-STEC</th>
+<th style="text-align: right;">d E.coli ↔︎ Salm</th>
+<th style="text-align: right;">d K-12 ↔︎ other-STEC</th>
+<th style="text-align: right;">AUROC STEC ↔︎ Non-STEC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>bio_alpha_helix_score</strong></td>
+<td style="text-align: right;"><strong>−0.986</strong></td>
+<td style="text-align: right;">−0.190</td>
+<td style="text-align: right;"><strong>+0.537</strong></td>
+<td style="text-align: right;"><strong>0.794</strong></td>
+</tr>
+<tr>
+<td>bio_trp_indole_env</td>
+<td style="text-align: right;">+0.603</td>
+<td style="text-align: right;">+0.270</td>
+<td style="text-align: right;"><strong>−0.547</strong></td>
+<td style="text-align: right;">0.704</td>
+</tr>
+<tr>
+<td>bio_na_a_form_fraction*</td>
+<td style="text-align: right;">+0.568</td>
+<td style="text-align: right;">−0.095</td>
+<td style="text-align: right;">−0.206</td>
+<td style="text-align: right;">0.710</td>
+</tr>
+<tr>
+<td>bio_cyt_ox_state</td>
+<td style="text-align: right;">+0.477</td>
+<td style="text-align: right;">+0.286</td>
+<td style="text-align: right;">−0.344</td>
+<td style="text-align: right;">0.681</td>
+</tr>
+<tr>
+<td>bio_rna_dna_ratio</td>
+<td style="text-align: right;">+0.450</td>
+<td style="text-align: right;">−0.326</td>
+<td style="text-align: right;">−0.373</td>
+<td style="text-align: right;">0.741</td>
+</tr>
+<tr>
+<td>bio_cyt_pyrrole_ratio</td>
+<td style="text-align: right;">−0.353</td>
+<td style="text-align: right;"><strong>+0.485</strong></td>
+<td style="text-align: right;">−0.341</td>
+<td style="text-align: right;">0.567</td>
+</tr>
+<tr>
+<td>bio_phb_carbonyl</td>
+<td style="text-align: right;">+0.207</td>
+<td style="text-align: right;">+0.409</td>
+<td style="text-align: right;"><strong>+0.066 ❌</strong></td>
+<td style="text-align: right;">0.631</td>
+</tr>
+<tr>
+<td>bio_virulence_aa_sig</td>
+<td style="text-align: right;">−0.150</td>
+<td style="text-align: right;"><strong>−0.651</strong></td>
+<td style="text-align: right;">+0.535</td>
+<td style="text-align: right;">0.511</td>
+</tr>
+<tr>
+<td>bio_beta_sheet_amide3</td>
+<td style="text-align: right;">+0.150</td>
+<td style="text-align: right;">+0.379</td>
+<td style="text-align: right;"><strong>−0.591</strong></td>
+<td style="text-align: right;">0.538</td>
+</tr>
+</tbody>
+</table>
+<p>* Ratios with denominators near zero on SNV’d AUCs produce values
+outside their physical range. Treated as raw scores (R9), not
+clipped.</p>
+<h3 id="bio_alpha_helix_score-strongest-biology-grounded-ratio">5.4.1
+<code>bio_alpha_helix_score</code> — strongest biology-grounded
+ratio</h3>
+<p><strong>d = −0.986 STEC ↔︎ Non-STEC.</strong> Non-STEC commensal
+<em>E. coli</em> runs higher amide-I α-helix Raman signal (1652/1670
+ratio) than STEC. Mechanism: STEC virulence proteins (intimin, Stx
+subunits) contribute β-sheet-heavy folds; commensal strains lack those,
+so the bulk α-helix population is higher. <strong>AUROC = 0.794</strong>
+at the file level — among the strongest biology-grounded single features
+in the catalog.</p>
+<h3 id="phb-hypothesis-falsified">5.4.2 PHB hypothesis falsified</h3>
+<p>Pre-registered: laboratory K-12 should accumulate polyhydroxybutyrate
+anomalously vs clinical STEC strains. <strong>Result:
+<code>bio_phb_carbonyl</code> K-12 ↔︎ other-STEC d = +0.07.</strong> PHB
+hypothesis dead.</p>
+<h3 id="k-12-specific-2-structure-axis-unprompted-finding">5.4.3
+K-12-specific 2°-structure axis (unprompted finding)</h3>
+<p>Even though PHB doesn’t separate K-12, three biology features flag
+K-12 differently from clinical STEC:</p>
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 40%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th>Feature</th>
+<th style="text-align: right;">K-12 vs other-STEC d</th>
+<th>Direction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bio_beta_sheet_amide3</code></td>
+<td style="text-align: right;"><strong>−0.591</strong></td>
+<td>K-12 has less β-sheet</td>
+</tr>
+<tr>
+<td><code>bio_trp_indole_env</code></td>
+<td style="text-align: right;"><strong>−0.547</strong></td>
+<td>K-12 Trp environment more exposed</td>
+</tr>
+<tr>
+<td><code>bio_alpha_helix_score</code></td>
+<td style="text-align: right;"><strong>+0.537</strong></td>
+<td>K-12 higher α-helix</td>
+</tr>
+</tbody>
+</table>
+<p><strong>First K-12-specific feature axis in the project.</strong>
+Consistent with K-12’s reduced virulence-protein loading — clinical STEC
+strains carry β-sheet-heavy virulence proteins (intimin, Stx); K-12
+doesn’t. <strong>This unblocks Stage 6 reconsideration
+conditionally</strong> on Stage 15F K-12 LOSO recall lift.</p>
+<h3 id="trpphe-direction-reversed-at-e.-coli-salm">5.4.4 Trp/Phe
+direction reversed at E. coli ↔︎ Salm</h3>
+<p>The literature <code>virulence_aa_sig</code> (Trp/Phe) framing
+predicted STEC &gt; Non-STEC. On Atlas, <strong>STEC ↔︎ Non-STEC signal
+is weak (d = −0.15)</strong> but <strong>E. coli ↔︎ Salm d = −0.65 with
+Salmonella HIGHER</strong> — likely from Salmonella’s flagellar /
+outer-membrane protein composition rather than STEC virulence proteins.
+Document and redeploy as an E.coli ↔︎ Salm axis.</p>
+<h2 id="stage-15e-spatial-cross-pixel-features">5.5 Stage 15E — spatial
+/ cross-pixel features</h2>
+<p><strong>Pre-flight finding: R6 fires.</strong> The plan/15 spec
+required ≥200 pixels per file for Moran’s I (DD19) and
+GLCM-on-intensity-maps (DD20-23). <strong>Atlas pixel-per-file
+distribution is min = 70, median = 72, max = 180.</strong> Only 8 / 87
+files exceed 100 pixels; 0 / 87 clear 200. Moran’s I and GLCM are
+dropped from Stage 15E.</p>
+<p>What remains: <strong>per-file moment statistics</strong> (variance /
+CV / skew / kurtosis of per-pixel intensity AUCs), computed at any pixel
+count ≥ 50. Total: 10 features per file.</p>
+<table>
+<thead>
+<tr>
+<th>Feature family</th>
+<th style="text-align: right;">Count</th>
+<th>Region / band</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spat_var_*</code></td>
+<td style="text-align: right;">2</td>
+<td>LPS chain (800–1200), C-H stretch (2800–3000)</td>
+</tr>
+<tr>
+<td><code>spat_cv_*</code></td>
+<td style="text-align: right;">2</td>
+<td>scale-invariant variance</td>
+</tr>
+<tr>
+<td><code>spat_kurt_*</code></td>
+<td style="text-align: right;">3</td>
+<td>LPS anchors 1050 / 1117 / 1194</td>
+</tr>
+<tr>
+<td><code>spat_skew_*</code></td>
+<td style="text-align: right;">3</td>
+<td>LPS anchors 1050 / 1117 / 1194</td>
+</tr>
+</tbody>
+</table>
+<p><strong>STEC ↔︎ Non-STEC result: null</strong> (0 features clear |d| ≥
+0.5, best was 0.485). <strong>Spatial heterogeneity does not
+discriminate STEC vs Non-STEC on this corpus</strong> — the “clinical
+strains more uniform than commensals” hypothesis is falsified at the
+moment-statistic level.</p>
+<p><strong>But two side-findings:</strong></p>
+<ol type="1">
+<li><strong><code>spat_skew_lps_1117</code> d = +0.725 E. coli ↔︎
+Salmonella.</strong> Salmonella’s pixel-intensity distribution at 1117
+cm⁻¹ is more symmetric; <em>E. coli</em> is right-skewed. <strong>New
+strong directional finding for E. coli ↔︎ Salm.</strong></li>
+<li><strong>H₂O sanity passes 4/4</strong> — all variance and CV
+features show H₂O ≪ bacteria, as expected (water is spatially
+uniform).</li>
+</ol>
+<hr />
+<h1 id="stage-15f-production-classifier-this-paper">6. Stage 15F —
+production classifier (this paper)</h1>
+<p>This section consolidates Stages 15A–E into the production model.
+<strong>Source of truth:
+<code>artifacts/stage15f_metadata.json</code></strong> produced by
+<code>scripts/run_stage15f_final.py</code>; pre-registered in
+<code>plan/experiments/2026-05-18_stage15f_full_classifier.md</code>.</p>
+<blockquote>
+<p><strong>Note.</strong> Headline tables in §6.4–§6.7 are populated at
+run-time from the saved metadata JSON. If the placeholder text is still
+present in a copy of this paper, regenerate with
+<code>pandoc PAPER.md -o PAPER.pdf</code> after Stage 15F finishes.</p>
+</blockquote>
+<h2 id="design-rationale">6.1 Design rationale</h2>
+<p>After Stages 15A–E we have <strong>259 features per file</strong>
+across four caches:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Cache</th>
+<th>Shape</th>
+<th>Level</th>
+<th>Source stage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data_cache/band_features.parquet</code></td>
+<td>7,122 × 166</td>
+<td>per-pixel</td>
+<td>15A + 15D</td>
+</tr>
+<tr>
+<td><code>data_cache/spectral_features.parquet</code></td>
+<td>7,122 × 51</td>
+<td>per-pixel</td>
+<td>15B</td>
+</tr>
+<tr>
+<td><code>data_cache/unmix_features.parquet</code></td>
+<td>87 × 33</td>
+<td>per-file</td>
+<td>15C</td>
+</tr>
+<tr>
+<td><code>data_cache/spatial_features.parquet</code></td>
+<td>87 × 10</td>
+<td>per-file</td>
+<td>15E</td>
+</tr>
+</tbody>
+</table>
+<p>Three pre-registered risks shape the protocol:</p>
+<ul>
+<li><strong>R1 — capacity / data ratio.</strong> 259 ÷ 87 = 3.0
+features/file. Aggressive within-fold feature selection is required to
+avoid overfitting.</li>
+<li><strong>R2 — feature-leakage at LOSO.</strong> MCR-ALS / ROI-PCA /
+SAM are fit on data; if we fit them once globally and use those fits
+inside LOSO, the held-out fold’s pixels have already informed the
+projection. The per-fold refit protocol is essential.</li>
+<li><strong>R7 — substrate-confound on <code>mcr_C1_*</code>.</strong>
+MCR component 1 is the fluorescence/substrate baseline (§5.3) and has
+|d| ≈ 0.6 STEC ↔︎ Non-STEC on the global fit. If that signal survives a
+shuffled-label permutation test the features are leak-driven and should
+be dropped.</li>
+</ul>
+<h2 id="protocol">6.2 Protocol</h2>
+<pre><code>Step 1: Load 4 caches + qc_mask + preprocessed spectra (X_pp, wn).
+Step 2: Aggregate per-pixel features (band 166, spectral 51) to file
+        level by mean-pool. Join the 2 already-file-level caches.
+        Final design matrix: 87 files × 259 features.
+
+Step 3: LOSO folds — 10 total:
+          - 9 folds: one per bacterial subclass.
+          - 1 fold: H₂O (all 8 water files held out together).
+
+Step 4: PER FOLD, PER SEED:
+          (a) Refit MCR-ALS on TRAIN pixels (K=7, the effective K from §5.3).
+          (b) Refit ROI-PCA on TRAIN pixels (LPS 5 PCs + amide 3 PCs + CH 3 PCs).
+          (c) Refit SAM templates on TRAIN pixels&#39; labels.
+          (d) Re-aggregate the held-out file&#39;s per-pixel features through
+              these fold-specific fits; build (87 × 259) matrix.
+          (e) mutual_info_classif on TRAIN rows → keep top 35 features.
+          (f) Train each of {PLS-DA, LogReg-L2, XGBoost} in a
+              `StandardScaler → classifier` pipeline.
+          (g) Predict on held-out fold; record accuracy + per-strain recall.
+
+Step 5: Multi-seed: 5 seeds × 10 folds × 3 algos = 150 fits. Report
+        per-algorithm mean ± std LOSO accuracy.
+
+Step 6: R7 permutation test on best algorithm: refit with shuffled `y`
+        (10 shuffles), compare `mcr_C1_*` feature importance to real-y.
+        Drop any feature with shuffled/real ≥ 50%.
+
+Step 7: Production fit. Best algorithm gets refit on ALL 87 files using
+        the consensus MI feature set (majority vote across LOSO seeds).
+        Save: classifier.joblib + feature_columns.json + mcr_global.joblib
+              + roi_pca.joblib + sam_templates.joblib + metadata.json.</code></pre>
+<h2 id="hyperparameters">6.3 Hyperparameters</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Component</th>
+<th>Value</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LOSO folds</td>
+<td>10</td>
+<td>9 strains + 1 H₂O</td>
+</tr>
+<tr>
+<td>Seeds</td>
+<td>5 (0, 1, 2, 3, 4)</td>
+<td>for honest variance</td>
+</tr>
+<tr>
+<td>MCR-ALS K</td>
+<td>7</td>
+<td>effective K per §5.3</td>
+</tr>
+<tr>
+<td>MCR-ALS max_iter</td>
+<td>80</td>
+<td>(most folds converge before this)</td>
+</tr>
+<tr>
+<td>MCR-ALS SIMPLISMA offset</td>
+<td>5.0%</td>
+<td>Windig 1991 default</td>
+</tr>
+<tr>
+<td>ROI-PCA regions</td>
+<td>LPS (5 PCs) + amide (3) + CH-stretch (3)</td>
+<td>from §5.2</td>
+</tr>
+<tr>
+<td>SAM region</td>
+<td>LPS_REGION_FOR_SAM (800–1200)</td>
+<td>per §5.2</td>
+</tr>
+<tr>
+<td>MI feature selection target</td>
+<td>35</td>
+<td>inside 30–40 R1 band</td>
+</tr>
+<tr>
+<td>MI n_neighbors</td>
+<td>3</td>
+<td>sklearn default</td>
+</tr>
+<tr>
+<td>PLS-DA n_components</td>
+<td>min(5, n_train − 1)</td>
+<td>one-hot regression w/ argmax decoding</td>
+</tr>
+<tr>
+<td>LogReg</td>
+<td>L2, C = 1.0, lbfgs, max_iter 2000</td>
+<td>scikit default solver</td>
+</tr>
+<tr>
+<td>XGBoost</td>
+<td>n_estimators = 200, max_depth = 4, lr = 0.05, tree_method = hist,
+eval_metric = mlogloss</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="headline-filled-at-run-time">6.4 Headline (filled at
+run-time)</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Best algorithm</td>
+<td><em>&lt;auto-filled from metadata.json :: model_type&gt;</em></td>
+</tr>
+<tr>
+<td>LOSO mean parent-class accuracy (best algo)</td>
+<td><em><auto-filled></em></td>
+</tr>
+<tr>
+<td>LOSO std accuracy across 5 seeds</td>
+<td><em><auto-filled></em></td>
+</tr>
+<tr>
+<td>LOSO mean macro recall</td>
+<td><em><auto-filled></em></td>
+</tr>
+<tr>
+<td>Branch verdict (A / B / C)</td>
+<td><em><auto-filled></em></td>
+</tr>
+<tr>
+<td>Feature count post-MI + R7</td>
+<td><em><auto-filled></em></td>
+</tr>
+<tr>
+<td>K-12 LOSO recall (best algo)</td>
+<td><em><auto-filled></em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="per-strain-loso-breakdown-filled-at-run-time">6.5 Per-strain
+LOSO breakdown (filled at run-time)</h2>
+<p><em>&lt;auto-filled from
+<code>artifacts/stage15f_metadata.json :: per_strain_accuracy</code>&gt;</em></p>
+<h2 id="algorithm-comparison-filled-at-run-time">6.6 Algorithm
+comparison (filled at run-time)</h2>
+<p><em>&lt;auto-filled from
+<code>artifacts/stage15f_metadata.json :: algo_comparison</code>&gt;</em></p>
+<h2 id="r7-permutation-test-verdict-filled-at-run-time">6.7 R7
+permutation-test verdict (filled at run-time)</h2>
+<p><em>&lt;auto-filled from
+<code>artifacts/stage15f_metadata.json :: r7_perm_test</code>&gt;</em></p>
+<h2 id="branch-verdicts-pre-registered">6.8 Branch verdicts
+(pre-registered)</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Branch</th>
+<th>Bar</th>
+<th>Implication</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(A) Clear win</td>
+<td>LOSO ≥ 0.55 AND K-12 LOSO ≥ 0.75 on all 5 seeds</td>
+<td>unblock Stage 6 reconsideration; ship</td>
+</tr>
+<tr>
+<td>(B) Modest gain</td>
+<td>LOSO ≥ 0.50 OR K-12 lift but main 0.45–0.50</td>
+<td>ship classifier; document the gap</td>
+</tr>
+<tr>
+<td>(C) Plateau</td>
+<td>LOSO &lt; 0.45</td>
+<td>feature track has plateaued; pivot to SSL track (plan/13); ship
+best-available</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="discussion">7. Discussion</h1>
+<h2 id="what-the-project-established">7.1 What the project
+established</h2>
+<ol type="1">
+<li><strong>PLS-DA on the raw 987-bin spectrum is the project’s
+strongest LOSO baseline</strong> at 0.603 mean parent-class recall. Five
+ensemble schemes failed to clear it; calibration-mismatch between PLS-DA
+(T ≈ 6.43) and deep models (T ≈ 1.2–1.7) is the closed-form
+mechanism.</li>
+<li><strong>The published Cisek-2013 STEC triple (1338 / 1454 / 1658
+cm⁻¹) does not transfer to file level</strong> on this corpus. The 1454
+lipid band even shows a sign reversal. The actual signal lives in the
+<strong>800–1200 cm⁻¹ LPS-chain region</strong>, with
+<code>auc_lps_1194</code> (d = +1.03) as the cleanest single-band STEC ↔︎
+Non-STEC discriminator. <code>pca_lps_PC3</code> (d = +1.03) reproduces
+the same signal in a learned coordinate system.</li>
+<li><strong>MCR-ALS unmixing is the highest-yield engineering
+stage.</strong> <code>mcr_C6_mean</code> d = −1.23 (bulk biology lower
+in STEC) is the strongest single file-level feature in the catalog. Four
+orthogonal MCR axes discriminate STEC ↔︎ Non-STEC (C6 bulk, C5 LPS-mix,
+C2 Trp, C7 NA). MCR also explicitly isolates a <strong>substrate
+component (C1)</strong> that captures the file-acquisition signature
+memprobe-v2 was detecting at the CNN penultimate layer.</li>
+<li><strong>Biology-grounded features add a protein-2°-structure
+axis.</strong> <code>bio_alpha_helix_score</code> (d = −0.986) is the
+strongest biology-grounded ratio in the project. The same family
+produces three K-12-specific features (the first K-12 axis in the
+project) — α-helix ↑, β-sheet ↓, Trp indole env shifted — consistent
+with K-12’s reduced virulence-protein loading.</li>
+<li><strong>Different architectures own different held-out
+strains.</strong> No single model wins every LOSO cell. PLS-DA owns
+83972, Dublin, Heidelburg, Typhimurium. DANN λ = 0.3 (5-seed soft-vote)
+owns K-12 and O157:H7. The 2-channel CNN owns O121:H19. No ensemble
+scheme captures the union.</li>
+</ol>
+<h2 id="limitations">7.2 Limitations</h2>
+<ol type="1">
+<li><strong>87 files is small.</strong> LOSO mean is a 9-point statistic
+with 2 train strains per parent class per fold. No model on earth makes
+that look like a 90-point evaluation. Tang-2026’s 94% cross-strain
+ceiling used thousands of spectra and a WGAN-Transformer pipeline.</li>
+<li><strong>K-12 is biologically atypical</strong> (Soupene 2003). Most
+baselines hit 0.00 LOSO recall on K-12 except DANN λ = 0.3 (which gets
+0.75 on 3 of 5 seeds). Stage 15D surfaced a K-12 signature in the
+2°-structure axis; whether Stage 15F uses it to recover K-12 is reported
+in §6.</li>
+<li><strong>STEC ↔︎ Non-STEC is virulence-defined, not
+phylogenetic.</strong> The bulk Raman signal does not differ —
+Cisek-2013’s 95% intra-batch number was on controlled cell suspensions
+where the only varying axis was the strain. In our corpus, each strain
+is one file × one acquisition session; strain-specific batch effects
+(calibration date, substrate fluorescence) co-vary with virulence
+labels. Memprobe-v2 (14% file-id linear separability post-DANN, vs 1.15%
+chance) is the direct evidence.</li>
+<li><strong>Memprobe is decoupled from LOSO performance.</strong>
+Removing file-id linear separability (the original probe goal) did not
+improve LOSO. DANN reshapes feature <em>prominence</em>, not linear
+file-id separability. The clean interpretation: residual
+instrument/batch/substrate signal is present but doesn’t hurt
+cross-strain generalization in the direction the LOSO metric
+measures.</li>
+<li><strong>Cross-corpus evaluation is not done.</strong> Plan/13 lists
+the Bacteria-ID corpus (Ho-2019) as the natural cross-corpus transfer
+target. ATCC25922 is in both datasets, making it the highest-leverage
+external anchor. Deferred to future work.</li>
+<li><strong>R6 — spatial features are limited by pixel count.</strong>
+The dataset’s 72-pixel median per file rules out Moran’s I and GLCM on
+intensity maps. We can only do moment statistics, and those are null for
+STEC ↔︎ Non-STEC.</li>
+<li><strong>No open-set evaluation.</strong> All training and evaluation
+is on the 4-class closed-world problem (STEC / Non-STEC / Salmonella /
+H₂O). In deployment a sample could be a non-target bacterium,
+contaminated media, or measurement artifact. A Liu-2024 Raman-OSDL-style
+evaluation is future work.</li>
+</ol>
+<h2 id="future-work-ranked">7.3 Future work (ranked)</h2>
+<ol type="1">
+<li><strong>Cross-corpus eval on ATCC25922</strong> (highest leverage).
+Bacteria-ID (Ho 2019) and Zhu 2022 SCRS Persisters both include
+ATCC25922. Lets us put a single cross-lab generalization number in any
+external write-up.</li>
+<li><strong>SSL pretraining</strong> on the Bacteria-ID corpus or a
+synthetic WGAN-augmented Atlas, then fine-tune on the 87 files (plan/13
+§4).</li>
+<li><strong>Cross-instrument calibration transfer</strong> via LoRA-CT
+(Sun 2025) to test how much of LOSO degradation is genuinely
+strain-distribution shift vs instrument-batch effect.</li>
+<li><strong>Open-set probe via Liu-2024 Raman-OSDL</strong> — measure
+how confidently the model misclassifies truly out-of-distribution
+input.</li>
+<li><strong>Per-strain biology-pair modeling</strong> — train binary
+classifiers per difficult pair (K-12 vs O157, ATCC25922 vs O121) instead
+of a 4-class joint model. Stage 6 reconsideration if 15F K-12 lift
+confirms.</li>
+<li><strong>Active learning</strong> — if Atlas can produce more files,
+prioritize K-12 replicates and O157:H7 (the two LOSO-failure folds) over
+balanced collection.</li>
+</ol>
+<h2 id="whats-not-worth-doing-inside-this-take-home">7.4 What’s
+<em>not</em> worth doing inside this take-home</h2>
+<ul>
+<li>Difframan / WGAN generative augmentation: fixes Protocol A, can’t
+fix LOSO.</li>
+<li>DFT / MD physics-based simulation: out of scope, real cost.</li>
+<li>Hierarchical or binary-STEC submodels: small expected gain, long
+tail of effort.</li>
+</ul>
+<hr />
+<h1 id="references">8. References</h1>
+<p>Sourced from <code>plan/11_references.md</code> (project
+bibliography).</p>
+<ol type="1">
+<li><p><strong>Cisek et al. 2013</strong> — <em>Sensitive and specific
+discrimination of pathogenic and nonpathogenic E. coli using Raman
+spectroscopy</em>. <em>Analyst</em> 138(20):6051. <a
+href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3617710/">PMC3617710</a>.
+Published STEC discriminative triple (1338 / 1454 / 1658 cm⁻¹).
+Falsified at file level on this corpus (§4.1).</p></li>
+<li><p><strong>Tang et al. 2026</strong> — <em>Integrated Wasserstein
+GAN–Transformer for E. coli Strain Identification</em>. <em>Anal.
+Chem.</em> <a
+href="https://pubs.acs.org/doi/10.1021/acs.analchem.6c00429">doi:10.1021/acs.analchem.6c00429</a>.
+Cross-strain ceiling at ~94% with state-of-the-art deep learning + WGAN
+augmentation. Establishes the realistic Raman cross-strain performance
+ceiling.</p></li>
+<li><p><strong>Soupene et al. 2003</strong> — <em>Laboratory strains of
+E. coli K-12: things are seldom what they seem</em>. <em>J.
+Bacteriol.</em> 185(18):5611. <a
+href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9997739/">PMC9997739</a>.
+K-12 atypicality justification — large genomic deletions, missing
+surface-structure genes vs wild-type <em>E. coli</em>.</p></li>
+<li><p><strong>Marler-Clark / FSIS</strong> — <em>Non-O157 STEC
+overview</em>. <a
+href="https://marlerclark.com/foodborne-illnesses/e-coli/non-o157-stec"
+class="uri">https://marlerclark.com/foodborne-illnesses/e-coli/non-o157-stec</a>.
+Six non-O157 serogroups (O26, O111, O103, O121, O45, O145) account for
+~80% of US non-O157 STEC infections. <strong>No unique biochemistry vs
+commensal E. coli on standard media.</strong></p></li>
+<li><p><strong>Yuan et al. 2024</strong> — <em>Rapid discrimination of
+four Salmonella enterica serovars by SERS+SVM</em>. <em>J. Cell. Mol.
+Med.</em> <a
+href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11037414/">PMC11037414</a>.
+Salmonella Raman bands (616 COO⁻ wag, 925 C-C skeletal, 1486 G ring,
+1542 C=C). Inter-batch numbers; cross-strain not tested.</p></li>
+<li><p><strong>RSCDM 2026</strong> — <em>Raman Spectral Classification
+Discrepancy Model</em>. <em>Anal. Chem.</em> <a
+href="https://pubs.acs.org/doi/10.1021/acs.analchem.5c07113">doi:10.1021/acs.analchem.5c07113</a>.
+Domain-adaptation framework for instrument / batch / strain shift in
+bacterial Raman.</p></li>
+<li><p><strong>Sun et al. 2025</strong> — <em>Adversarial Contrastive
+Domain-Generative Learning for cross-domain bacterial Raman
+identification</em>. <em>Eng. Appl. Artif. Intell.</em> <a
+href="https://www.sciencedirect.com/science/article/abs/pii/S0952197625004269">S0952197625004269</a>.</p></li>
+<li><p><strong>Sun et al. 2025 (LoRA-CT)</strong> — <em>Calibration
+Transfer of Deep Learning Models across Raman Spectrometers</em>.
+<em>Anal. Chem.</em> <a
+href="https://pubs.acs.org/doi/10.1021/acs.analchem.5c01846">doi:10.1021/acs.analchem.5c01846</a>.
+Parameter-efficient inter-instrument fine-tuning.</p></li>
+<li><p><strong>STEC virulence overview</strong> — <em>Shiga
+toxin-producing E. coli</em>. <em>Virulence</em> 4(5):368, 2013. <a
+href="https://www.tandfonline.com/doi/full/10.4161/viru.24642">doi:10.4161/viru.24642</a>.
+Stx is chromosomally encoded as part of a lysogenic phage. STEC and
+Non-STEC differ by <strong>one phage-encoded protein</strong>.</p></li>
+<li><p><strong>Windig &amp; Guilment 1991</strong> — <em>Interactive
+Self-Modeling Mixture Analysis</em> (SIMPLISMA). <em>Anal. Chem.</em>
+63(14):1425. MCR-ALS pure-component initialization used in
+§5.3.</p></li>
+<li><p><strong>Almeida et al. 2010 / Aguiar et al. 2013</strong> —
+bacterial-Raman MCR-ALS precedents recovering 5–7 biology components
+from comparable data (cited in plan/13 §2.3).</p></li>
+<li><p><strong>Ho et al. 2019</strong> — <em>Rapid identification of
+pathogenic bacteria using Raman spectroscopy and deep learning</em>.
+<em>Nat. Commun.</em> 10:4927. The Bacteria-ID public corpus; contains
+ATCC25922 (cross-corpus eval target — future work).</p></li>
+</ol>
+<hr />
+<h1 id="appendix-a-reproducibility">Appendix A — Reproducibility</h1>
+<h2 id="a.1-environment">A.1 Environment</h2>
+<ul>
+<li>Python 3.12 (<code>.venv/bin/python</code>).</li>
+<li>Requirements: <code>requirements.txt</code> (deploy-time slim set)
+or <code>pyproject.toml</code> for full dev environment.</li>
+<li>All randomness seeded; every run dumps <code>config.json</code> +
+per-fold parquets under
+<code>outputs/&lt;DATE&gt;_&lt;NAME&gt;_&lt;HASH&gt;/</code>.</li>
+</ul>
+<h2 id="a.2-cache-artifact-files">A.2 Cache + artifact files</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Path</th>
+<th>Shape / type</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data_cache/spectra.parquet</code></td>
+<td>(7,999, 6)</td>
+<td><code>atlas/io.py::parse_dataset</code></td>
+</tr>
+<tr>
+<td><code>data_cache/spectra_array.npy</code></td>
+<td>float32 (7,999, 2048)</td>
+<td>raw stacked spectra on canonical wn</td>
+</tr>
+<tr>
+<td><code>data_cache/wavenumber_axis.npy</code></td>
+<td>float32 (2048,)</td>
+<td><code>linspace(76, 3499, 2048)</code></td>
+</tr>
+<tr>
+<td><code>data_cache/spectra_array_preprocessed.npy</code></td>
+<td>float32 (7,999, 987)</td>
+<td><code>atlas/preprocess.py::preprocess_matrix</code></td>
+</tr>
+<tr>
+<td><code>data_cache/wavenumber_axis_preprocessed.npy</code></td>
+<td>float32 (987,)</td>
+<td>crop</td>
+</tr>
+<tr>
+<td><code>data_cache/qc_mask.npy</code></td>
+<td>bool (7,999,)</td>
+<td><code>atlas/qc.py</code></td>
+</tr>
+<tr>
+<td><code>data_cache/metadata.parquet</code></td>
+<td>(87, 23)</td>
+<td>per-file header + provenance</td>
+</tr>
+<tr>
+<td><code>data_cache/band_features.parquet</code></td>
+<td>(7,122, 166)</td>
+<td><code>atlas/band_features.feature_frame</code></td>
+</tr>
+<tr>
+<td><code>data_cache/spectral_features.parquet</code></td>
+<td>(7,122, 51)</td>
+<td><code>atlas/spectral_features.feature_frame_spectral</code></td>
+</tr>
+<tr>
+<td><code>data_cache/unmix_features.parquet</code></td>
+<td>(87, 33)</td>
+<td><code>atlas/unmix_features.feature_frame_unmix</code> (global
+fit)</td>
+</tr>
+<tr>
+<td><code>data_cache/spatial_features.parquet</code></td>
+<td>(87, 10)</td>
+<td><code>atlas/spatial_features.feature_frame_spatial</code></td>
+</tr>
+<tr>
+<td><code>artifacts/stage15f_classifier.joblib</code></td>
+<td>fitted Pipeline</td>
+<td>production model</td>
+</tr>
+<tr>
+<td><code>artifacts/stage15f_feature_columns.json</code></td>
+<td>list[str]</td>
+<td>MI-selected features (in order)</td>
+</tr>
+<tr>
+<td><code>artifacts/stage15f_mcr_global.joblib</code></td>
+<td><code>MCRALSWrapper</code></td>
+<td>inference-time MCR fit on all spectra</td>
+</tr>
+<tr>
+<td><code>artifacts/stage15f_roi_pca.joblib</code></td>
+<td><code>dict[str, dict]</code></td>
+<td>fitted ROI-PCA per region</td>
+</tr>
+<tr>
+<td><code>artifacts/stage15f_sam_templates.joblib</code></td>
+<td><code>dict</code></td>
+<td>fitted SAM templates</td>
+</tr>
+<tr>
+<td><code>artifacts/stage15f_metadata.json</code></td>
+<td><code>dict</code></td>
+<td>LOSO summary + per-strain + R7 verdict</td>
+</tr>
+<tr>
+<td><code>artifacts/stage15f_loso_summary.csv</code></td>
+<td>(5 × 10 × 3, …)</td>
+<td>per-fold raw results</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a.3-public-api">A.3 Public API</h2>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> atlas.inference <span class="im">import</span> predict_from_xls, predict_from_array, model_metadata</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> predict_from_xls(<span class="st">&quot;Atlas Data/STEC/O157H7/R412_100_10000ms_260311.xls&quot;</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># {&#39;class&#39;: &#39;STEC&#39;,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  &#39;probabilities&#39;: {&#39;H2O&#39;: 0.01, &#39;Non-STEC&#39;: 0.18, &#39;STEC&#39;: 0.76, &#39;Salmonella&#39;: 0.05},</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  &#39;spectrum_mean&#39;: ndarray[987],</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  &#39;wn&#39;:            ndarray[987],</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  &#39;feature_values&#39;: {&#39;auc_lps_1194&#39;: ..., &#39;mcr_C6_mean&#39;: ..., ...}}</span></span></code></pre></div>
+<h2 id="a.4-streamlit-ui">A.4 Streamlit UI</h2>
+<p><code>streamlit_app.py</code> at repo root. Run locally:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">.venv/bin/streamlit</span> run streamlit_app.py</span></code></pre></div>
+<p>Loads all 5 artifacts via <code>@st.cache_resource</code>. Accepts
+<code>.xls</code> / <code>.txt</code> upload; renders predicted class,
+per-class probability bars, mean preprocessed spectrum, and the model’s
+selected feature values. Latency target &lt; 5 s per upload (parse +
+preprocess + features + predict).</p>
+<p>Cloud deployment instructions in <code>DEPLOY.md</code>.</p>
+<h2 id="a.5-how-to-retrain-stage-15f">A.5 How to retrain Stage 15F</h2>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">.venv/bin/python</span> scripts/run_stage15f_final.py</span></code></pre></div>
+<p>Produces all six <code>artifacts/stage15f_*</code> files. Wall-clock
+~90 min on a 2024 M-series Mac (CPU; LOSO refit is the bottleneck —
+MCR-ALS @ K = 7 on ~6,400 train pixels per fold takes ~100 s).</p>
+<h2 id="a.6-key-file-layout">A.6 Key file layout</h2>
+<pre><code>atlas/
+├── io.py                   Atlas .xls parser + canonical-axis interpolation
+├── preprocess.py           cosmic + arPLS + SG + crop + SNV
+├── qc.py                   per-pixel SNR + background filter
+├── band_features.py        Stage 15A + 15D — pseudo-Voigt + ROI + EMSC + derivatives + biology
+├── spectral_features.py    Stage 15B — DWT + ROI-PCA + SAM
+├── unmix_features.py       Stage 15C — MCR-ALS wrapper + SIMPLISMA
+├── spatial_features.py     Stage 15E — per-file moment stats
+├── inference.py            production prediction API (Stage 15F)
+├── models_classical.py     PLS-DA / LogReg / SVM / RF / XGB
+├── models_cnn.py           1D-CNN baseline + DANN variant
+├── models_transformer.py   1D-Transformer (patch_size sweep)
+├── ensemble.py             soft-vote
+├── stacking.py             meta-learner over base probas
+├── calibrated_ensemble.py  temperature-scaled soft-vote
+├── lambda_selector.py      per-strain DANN-λ routing
+├── memprobe.py             file-id memorization probe (v1)
+├── memprobe_v2.py          file-id memorization probe (v2 — penultimate)
+├── evaluate.py             per-spectrum → per-file aggregation + metrics
+├── train.py                training loop helpers
+└── splits.py               Protocol A (StratifiedGroupKFold) + B (LOSO)
+
+scripts/
+├── build_dataset.py                parse + cache
+├── preprocess_dataset.py           run preprocess_matrix end-to-end
+├── build_band_features_cache.py    Stage 15A + 15D
+├── build_spectral_features_cache.py Stage 15B
+├── build_unmix_feat.py             Stage 15C
+├── build_spatial_features_cache.py Stage 15E
+├── run_stage15f_final.py           Stage 15F (this paper)
+├── run_classical.py / run_cnn.py / run_transformer.py / run_dann.py
+├── run_ensemble.py / run_calibrated_ensemble.py / run_stacking.py / run_lambda_selector.py
+└── run_stage1_band_stats.py / run_stage7_mixed_sample_sim.py
+
+plan/                        all design + research docs (mostly stable)
+plan/experiments/             one shard per experiment (15A–F, etc.)
+data_cache/                   parser + preprocess + feature caches
+artifacts/                    Stage 15F production artifacts (this paper)
+outputs/                      per-run experiment outputs (70+ dated dirs)</code></pre>
+<h2 id="a.7-pre-registered-risks-tracker">A.7 Pre-registered risks
+tracker</h2>
+<p>(From plan/15 §7.)</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1</td>
+<td>Capacity / data ratio (259 ÷ 87 = 3.0) — must MI-select per
+fold</td>
+<td>Live in §6 protocol</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Feature leakage (MCR/ROI-PCA/SAM fit on data) — per-fold refit</td>
+<td>Live in §6 protocol</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>Guided-NMF fallback if MCR-ALS components don’t separate
+biology</td>
+<td>Not triggered — MCR worked (§5.3)</td>
+</tr>
+<tr>
+<td>R5</td>
+<td>Off-resonance cytochromes at 785 nm laser</td>
+<td>Confirmed weak (§5.4)</td>
+</tr>
+<tr>
+<td>R6</td>
+<td>Pixel count too low for Moran’s I / GLCM</td>
+<td>Fired — those features dropped (§5.5)</td>
+</tr>
+<tr>
+<td>R7</td>
+<td><code>mcr_C1_*</code> substrate leakage</td>
+<td>Permutation test in §6.2; verdict in §6.7</td>
+</tr>
+<tr>
+<td>R8</td>
+<td>Ratio breakdown on SNV’d AUCs (negative AUC denominators)</td>
+<td>Logged in §5.4.4 — treat as scores</td>
+</tr>
+<tr>
+<td>R9</td>
+<td><code>bio_*</code> fractions outside [0,1]</td>
+<td>Treat as raw scores (Stage 15F protocol)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="appendix-b-per-file-strain-table">Appendix B — Per-file strain
+table</h1>
+<table>
+<thead>
+<tr>
+<th>Subclass</th>
+<th>Class</th>
+<th style="text-align: right;">Files</th>
+<th style="text-align: right;">Median pixels (post-QC)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>83972</td>
+<td>Non-STEC</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">82</td>
+</tr>
+<tr>
+<td>ATCC25922</td>
+<td>Non-STEC</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">88</td>
+</tr>
+<tr>
+<td>K-12</td>
+<td>Non-STEC</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">84</td>
+</tr>
+<tr>
+<td>O103:H2</td>
+<td>STEC</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">88</td>
+</tr>
+<tr>
+<td>O121:H19</td>
+<td>STEC</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">89</td>
+</tr>
+<tr>
+<td>O157:H7</td>
+<td>STEC</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">90</td>
+</tr>
+<tr>
+<td>Dublin</td>
+<td>Salmonella</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">84</td>
+</tr>
+<tr>
+<td>Heidelburg</td>
+<td>Salmonella</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">87</td>
+</tr>
+<tr>
+<td>Typhimurium</td>
+<td>Salmonella</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">81</td>
+</tr>
+<tr>
+<td>(H₂O)</td>
+<td>H2O</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">95</td>
+</tr>
+</tbody>
+</table>
+<p>87 files total / 7,122 QC-passed spectra / 9 bacterial subclasses +
+H₂O.</p>
+</body>
+</html>

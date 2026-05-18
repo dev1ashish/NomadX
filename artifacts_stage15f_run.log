@@ -1,0 +1,152 @@
+[load] reading caches...
+[load] pixels (QC-passed): 7122, files: 87, band cols: 166, spectral cols: 51, unmix file-level cols: 33, spatial cols: 10
+[folds] 10: 83972, ATCC25922, Dublin, H2O, Heidelburg, K-12, O103H2, O121H19, O157H7, Typhimurium
+[loso] running 5 seeds × 10 folds × 3 algos
+Max iterations reached (80).
+  seed=0 fold=83972         plsda=0.12 logreg=0.25 xgb=0.00  (114.2s)
+Max iterations reached (80).
+  seed=0 fold=ATCC25922     plsda=0.56 logreg=0.89 xgb=0.67  (224.3s)
+Max iterations reached (80).
+  seed=0 fold=Dublin        plsda=0.00 logreg=0.11 xgb=0.00  (334.6s)
+Max iterations reached (80).
+  seed=0 fold=H2O           plsda=0.00 logreg=0.00 xgb=0.00  (449.5s)
+Max iterations reached (80).
+  seed=0 fold=Heidelburg    plsda=0.22 logreg=0.33 xgb=0.56  (565.2s)
+Max iterations reached (80).
+  seed=0 fold=K-12          plsda=0.00 logreg=0.00 xgb=0.25  (676.1s)
+Change in err below tol_err_change (9.7694e-08). Exiting.
+  seed=0 fold=O103H2        plsda=0.44 logreg=0.56 xgb=0.56  (776.3s)
+Max iterations reached (80).
+  seed=0 fold=O121H19       plsda=0.89 logreg=0.89 xgb=0.11  (887.2s)
+Change in err below tol_err_change (9.9481e-08). Exiting.
+  seed=0 fold=O157H7        plsda=0.33 logreg=0.56 xgb=0.00  (995.7s)
+Max iterations reached (80).
+  seed=0 fold=Typhimurium   plsda=0.67 logreg=0.78 xgb=0.33  (1106.6s)
+Max iterations reached (80).
+  seed=1 fold=83972         plsda=0.12 logreg=0.25 xgb=0.00  (1219.7s)
+Max iterations reached (80).
+  seed=1 fold=ATCC25922     plsda=0.56 logreg=0.89 xgb=0.67  (1332.9s)
+Max iterations reached (80).
+  seed=1 fold=Dublin        plsda=0.00 logreg=0.11 xgb=0.00  (1459.5s)
+Max iterations reached (80).
+  seed=1 fold=H2O           plsda=0.00 logreg=0.00 xgb=0.00  (1566.2s)
+Max iterations reached (80).
+  seed=1 fold=Heidelburg    plsda=0.22 logreg=0.33 xgb=0.56  (1671.8s)
+Max iterations reached (80).
+  seed=1 fold=K-12          plsda=0.00 logreg=0.00 xgb=0.25  (1778.9s)
+Change in err below tol_err_change (9.7694e-08). Exiting.
+  seed=1 fold=O103H2        plsda=0.44 logreg=0.56 xgb=0.56  (1873.0s)
+Max iterations reached (80).
+  seed=1 fold=O121H19       plsda=0.89 logreg=0.89 xgb=0.11  (1979.0s)
+Change in err below tol_err_change (9.9481e-08). Exiting.
+  seed=1 fold=O157H7        plsda=0.33 logreg=0.56 xgb=0.00  (2078.7s)
+Max iterations reached (80).
+  seed=1 fold=Typhimurium   plsda=0.67 logreg=0.78 xgb=0.33  (2182.8s)
+Max iterations reached (80).
+  seed=2 fold=83972         plsda=0.12 logreg=0.25 xgb=0.00  (2290.1s)
+Max iterations reached (80).
+  seed=2 fold=ATCC25922     plsda=0.56 logreg=0.89 xgb=0.67  (2396.7s)
+Max iterations reached (80).
+  seed=2 fold=Dublin        plsda=0.00 logreg=0.11 xgb=0.00  (2504.5s)
+Max iterations reached (80).
+  seed=2 fold=H2O           plsda=0.00 logreg=0.00 xgb=0.00  (2614.2s)
+Max iterations reached (80).
+  seed=2 fold=Heidelburg    plsda=0.22 logreg=0.33 xgb=0.56  (3982.4s)
+Max iterations reached (80).
+  seed=2 fold=K-12          plsda=0.00 logreg=0.00 xgb=0.25  (4088.1s)
+Change in err below tol_err_change (9.7694e-08). Exiting.
+  seed=2 fold=O103H2        plsda=0.44 logreg=0.56 xgb=0.56  (4183.3s)
+Max iterations reached (80).
+  seed=2 fold=O121H19       plsda=0.89 logreg=0.89 xgb=0.11  (4290.3s)
+Change in err below tol_err_change (9.9481e-08). Exiting.
+  seed=2 fold=O157H7        plsda=0.33 logreg=0.56 xgb=0.00  (4389.1s)
+Max iterations reached (80).
+  seed=2 fold=Typhimurium   plsda=0.67 logreg=0.78 xgb=0.33  (4498.7s)
+Max iterations reached (80).
+  seed=3 fold=83972         plsda=0.12 logreg=0.25 xgb=0.00  (4610.0s)
+Max iterations reached (80).
+  seed=3 fold=ATCC25922     plsda=0.56 logreg=0.89 xgb=0.67  (4719.8s)
+Max iterations reached (80).
+  seed=3 fold=Dublin        plsda=0.00 logreg=0.11 xgb=0.00  (4864.2s)
+Max iterations reached (80).
+  seed=3 fold=H2O           plsda=0.00 logreg=0.00 xgb=0.00  (4975.2s)
+Max iterations reached (80).
+  seed=3 fold=Heidelburg    plsda=0.22 logreg=0.33 xgb=0.56  (5136.1s)
+Max iterations reached (80).
+  seed=3 fold=K-12          plsda=0.00 logreg=0.00 xgb=0.25  (5250.3s)
+Change in err below tol_err_change (9.7694e-08). Exiting.
+  seed=3 fold=O103H2        plsda=0.44 logreg=0.56 xgb=0.56  (5395.8s)
+Max iterations reached (80).
+  seed=3 fold=O121H19       plsda=0.89 logreg=0.89 xgb=0.11  (5508.0s)
+Change in err below tol_err_change (9.9481e-08). Exiting.
+  seed=3 fold=O157H7        plsda=0.33 logreg=0.56 xgb=0.00  (5635.1s)
+Max iterations reached (80).
+  seed=3 fold=Typhimurium   plsda=0.67 logreg=0.78 xgb=0.33  (5752.8s)
+Max iterations reached (80).
+  seed=4 fold=83972         plsda=0.12 logreg=0.25 xgb=0.00  (5876.9s)
+Max iterations reached (80).
+  seed=4 fold=ATCC25922     plsda=0.56 logreg=0.89 xgb=0.67  (5999.6s)
+Max iterations reached (80).
+  seed=4 fold=Dublin        plsda=0.00 logreg=0.11 xgb=0.00  (6121.0s)
+Max iterations reached (80).
+  seed=4 fold=H2O           plsda=0.00 logreg=0.00 xgb=0.00  (6245.3s)
+Max iterations reached (80).
+  seed=4 fold=Heidelburg    plsda=0.22 logreg=0.33 xgb=0.56  (6368.5s)
+Max iterations reached (80).
+  seed=4 fold=K-12          plsda=0.00 logreg=0.00 xgb=0.25  (6491.1s)
+Change in err below tol_err_change (9.7694e-08). Exiting.
+  seed=4 fold=O103H2        plsda=0.44 logreg=0.56 xgb=0.56  (6601.0s)
+Max iterations reached (80).
+  seed=4 fold=O121H19       plsda=0.89 logreg=0.89 xgb=0.11  (6721.8s)
+Change in err below tol_err_change (9.9481e-08). Exiting.
+  seed=4 fold=O157H7        plsda=0.33 logreg=0.56 xgb=0.00  (6835.8s)
+Max iterations reached (80).
+  seed=4 fold=Typhimurium   plsda=0.67 logreg=0.78 xgb=0.33  (6958.3s)
+[loso] done in 6958.3s
+
+[loso-summary]
+  plsda   mean_loso_acc=0.324 ± 0.000  macro_recall=0.081
+      83972         0.125
+      ATCC25922     0.556
+      Dublin        0.000
+      H2O           0.000
+      Heidelburg    0.222
+      K-12          0.000
+      O103H2        0.444
+      O121H19       0.889
+      O157H7        0.333
+      Typhimurium   0.667
+  logreg  mean_loso_acc=0.436 ± 0.000  macro_recall=0.109
+      83972         0.250
+      ATCC25922     0.889
+      Dublin        0.111
+      H2O           0.000
+      Heidelburg    0.333
+      K-12          0.000
+      O103H2        0.556
+      O121H19       0.889
+      O157H7        0.556
+      Typhimurium   0.778
+  xgb     mean_loso_acc=0.247 ± 0.000  macro_recall=0.062
+      83972         0.000
+      ATCC25922     0.667
+      Dublin        0.000
+      H2O           0.000
+      Heidelburg    0.556
+      K-12          0.250
+      O103H2        0.556
+      O121H19       0.111
+      O157H7        0.000
+      Typhimurium   0.333
+
+[best] logreg
+[consensus] 35 features. first 10: ['roi_ch_stretch_std', 'fit_amide_iii_1242_area', 'roi_silent_kurt', 'fit_amide_iii_1242_height', 'd1_auc_lps_1117', 'd1_auc_lipid_1454', 'd1_auc_amide_i_1658', 'fit_lipid_1454_height', 'fit_amide_iii_1242_rmse', 'fit_lipid_1454_area']
+[R7] permutation test on mcr_C1_* features
+Max iterations reached (80).
+Traceback (most recent call last):
+  File "/Users/devashishthapliyal/Documents/NomadX/scripts/run_stage15f_final.py", line 662, in <module>
+    main()
+  File "/Users/devashishthapliyal/Documents/NomadX/scripts/run_stage15f_final.py", line 609, in main
+    if r7["drop"]:
+       ~~^^^^^^^^
+KeyError: 'drop'

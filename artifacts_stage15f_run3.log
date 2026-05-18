@@ -1,0 +1,72 @@
+[load] reading caches...
+[load] pixels (QC-passed): 7122, files: 87, band cols: 166, spectral cols: 51, unmix file-level cols: 33, spatial cols: 10
+[folds] 10: 83972, ATCC25922, Dublin, H2O, Heidelburg, K-12, O103H2, O121H19, O157H7, Typhimurium
+[loso] running 1 seeds × 10 folds × 3 algos
+Max iterations reached (80).
+  seed=0 fold=83972         plsda=0.12 logreg=0.25 xgb=0.00  (121.9s)
+Max iterations reached (80).
+  seed=0 fold=ATCC25922     plsda=0.56 logreg=0.89 xgb=0.67  (244.5s)
+Max iterations reached (80).
+  seed=0 fold=Dublin        plsda=0.00 logreg=0.11 xgb=0.00  (361.3s)
+Max iterations reached (80).
+  seed=0 fold=H2O           plsda=0.00 logreg=0.00 xgb=0.00  (469.9s)
+Max iterations reached (80).
+  seed=0 fold=Heidelburg    plsda=0.22 logreg=0.33 xgb=0.56  (578.5s)
+Max iterations reached (80).
+  seed=0 fold=K-12          plsda=0.00 logreg=0.00 xgb=0.25  (689.9s)
+Change in err below tol_err_change (9.7694e-08). Exiting.
+  seed=0 fold=O103H2        plsda=0.44 logreg=0.56 xgb=0.56  (788.3s)
+Max iterations reached (80).
+  seed=0 fold=O121H19       plsda=0.89 logreg=0.89 xgb=0.11  (902.9s)
+Change in err below tol_err_change (9.9481e-08). Exiting.
+  seed=0 fold=O157H7        plsda=0.33 logreg=0.56 xgb=0.00  (1011.2s)
+Max iterations reached (80).
+  seed=0 fold=Typhimurium   plsda=0.67 logreg=0.78 xgb=0.33  (1121.8s)
+[loso] done in 1121.8s
+
+[loso-summary]
+  plsda   mean_loso_acc=0.324 ± nan  macro_recall=0.081
+      83972         0.125
+      ATCC25922     0.556
+      Dublin        0.000
+      H2O           0.000
+      Heidelburg    0.222
+      K-12          0.000
+      O103H2        0.444
+      O121H19       0.889
+      O157H7        0.333
+      Typhimurium   0.667
+  logreg  mean_loso_acc=0.436 ± nan  macro_recall=0.109
+      83972         0.250
+      ATCC25922     0.889
+      Dublin        0.111
+      H2O           0.000
+      Heidelburg    0.333
+      K-12          0.000
+      O103H2        0.556
+      O121H19       0.889
+      O157H7        0.556
+      Typhimurium   0.778
+  xgb     mean_loso_acc=0.247 ± nan  macro_recall=0.062
+      83972         0.000
+      ATCC25922     0.667
+      Dublin        0.000
+      H2O           0.000
+      Heidelburg    0.556
+      K-12          0.250
+      O103H2        0.556
+      O121H19       0.111
+      O157H7        0.000
+      Typhimurium   0.333
+
+[best] logreg
+[consensus] 35 features. first 10: ['roi_ch_stretch_std', 'fit_amide_iii_1242_area', 'roi_silent_kurt', 'fit_amide_iii_1242_height', 'd1_auc_lps_1117', 'd1_auc_lipid_1454', 'd1_auc_amide_i_1658', 'fit_lipid_1454_height', 'fit_amide_iii_1242_rmse', 'fit_lipid_1454_area']
+[R7] permutation test on mcr_C1_* features
+Max iterations reached (80).
+[prod] fitting production logreg on all 87 files
+Max iterations reached (80).
+[done] 261 per-fold predictions → stage15f_loso_predictions.parquet
+
+[done] artifacts → /Users/devashishthapliyal/Documents/NomadX/artifacts
+[done] branch_hit = (C)
+[done] mean_loso_macro_recall = 0.109
