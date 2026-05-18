@@ -1,0 +1,15 @@
+[project]
+name = "atlas-inference-modal"
+version = "0.1.0"
+description = "Modal-deployed inference endpoint wrapping atlas.inference"
+requires-python = ">=3.11"
+dependencies = [
+    "modal>=0.64",
+    # Needed at module-load time for the `File(...)` default in modal_app.py.
+    # Modal's image bakes a heavier fastapi install for runtime; this slim
+    # install just gives us the import for local `modal deploy`.
+    "fastapi>=0.110",
+]
+
+[tool.uv]
+managed = true

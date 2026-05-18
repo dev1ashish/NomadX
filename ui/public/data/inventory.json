@@ -1,0 +1,620 @@
+{
+  "totals": {
+    "n_files": 87,
+    "n_spectra": 7122,
+    "n_bins": 987,
+    "plsda_loso": 0.603,
+    "logreg_fw": 0.448
+  },
+  "files": [
+    {
+      "file_id": "R357_100_10000ms_260226",
+      "primary_class": "Non-STEC",
+      "subclass": "ATCC25922",
+      "n_pixels": 200,
+      "qc_pass_rate": 0.9
+    },
+    {
+      "file_id": "R358_100_10000ms_260226",
+      "primary_class": "STEC",
+      "subclass": "O121H19",
+      "n_pixels": 200,
+      "qc_pass_rate": 0.9
+    },
+    {
+      "file_id": "R359_100_10000ms_260226",
+      "primary_class": "STEC",
+      "subclass": "O103H2",
+      "n_pixels": 200,
+      "qc_pass_rate": 0.9
+    },
+    {
+      "file_id": "R364_100_10000ms_260305",
+      "primary_class": "STEC",
+      "subclass": "O157H7",
+      "n_pixels": 200,
+      "qc_pass_rate": 0.9
+    },
+    {
+      "file_id": "R365_100_10000ms_260227",
+      "primary_class": "Salmonella",
+      "subclass": "Heidelburg",
+      "n_pixels": 200,
+      "qc_pass_rate": 0.895
+    },
+    {
+      "file_id": "R370_100_10000ms_260305",
+      "primary_class": "Salmonella",
+      "subclass": "Dublin",
+      "n_pixels": 200,
+      "qc_pass_rate": 0.9
+    },
+    {
+      "file_id": "R371_100_10000ms_260303",
+      "primary_class": "Salmonella",
+      "subclass": "Typhimurium",
+      "n_pixels": 200,
+      "qc_pass_rate": 0.9
+    },
+    {
+      "file_id": "R372_100_10000ms_260306",
+      "primary_class": "H2O",
+      "subclass": null,
+      "n_pixels": 200,
+      "qc_pass_rate": 0.9
+    },
+    {
+      "file_id": "R385_100_10000ms_260309",
+      "primary_class": "Non-STEC",
+      "subclass": "ATCC25922",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R386_100_10000ms_260309",
+      "primary_class": "Non-STEC",
+      "subclass": "ATCC25922",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R387_100_10000ms_260309",
+      "primary_class": "Non-STEC",
+      "subclass": "ATCC25922",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R388_100_10000ms_260309",
+      "primary_class": "Non-STEC",
+      "subclass": "ATCC25922",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R389_100_10000ms_260309",
+      "primary_class": "Non-STEC",
+      "subclass": "ATCC25922",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R390_100_10000ms_260309",
+      "primary_class": "Non-STEC",
+      "subclass": "ATCC25922",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R391_100_10000ms_260309",
+      "primary_class": "Non-STEC",
+      "subclass": "ATCC25922",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R392_100_10000ms_260309",
+      "primary_class": "Non-STEC",
+      "subclass": "ATCC25922",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R393_100_10000ms_260310",
+      "primary_class": "STEC",
+      "subclass": "O121H19",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R394_100_10000ms_260310",
+      "primary_class": "STEC",
+      "subclass": "O121H19",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R395_100_10000ms_260310",
+      "primary_class": "STEC",
+      "subclass": "O121H19",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R396_100_10000ms_260310",
+      "primary_class": "STEC",
+      "subclass": "O121H19",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R397_100_10000ms_260310",
+      "primary_class": "STEC",
+      "subclass": "O121H19",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R398_100_10000ms_260310",
+      "primary_class": "STEC",
+      "subclass": "O121H19",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8765
+    },
+    {
+      "file_id": "R399_100_10000ms_260310",
+      "primary_class": "STEC",
+      "subclass": "O121H19",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R400_100_10000ms_260310",
+      "primary_class": "STEC",
+      "subclass": "O121H19",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R404_100_10000ms_260311",
+      "primary_class": "STEC",
+      "subclass": "O103H2",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R405_100_10000ms_260311",
+      "primary_class": "STEC",
+      "subclass": "O103H2",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R406_100_10000ms_260311",
+      "primary_class": "STEC",
+      "subclass": "O103H2",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R407_100_10000ms_260311",
+      "primary_class": "STEC",
+      "subclass": "O103H2",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R408_100_10000ms_260311",
+      "primary_class": "STEC",
+      "subclass": "O103H2",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R409_100_10000ms_260311",
+      "primary_class": "STEC",
+      "subclass": "O103H2",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R410_100_10000ms_260311",
+      "primary_class": "STEC",
+      "subclass": "O103H2",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R411_100_10000ms_260311",
+      "primary_class": "STEC",
+      "subclass": "O103H2",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R412_100_10000ms_260311",
+      "primary_class": "STEC",
+      "subclass": "O157H7",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R413_100_10000ms_260311",
+      "primary_class": "STEC",
+      "subclass": "O157H7",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R414_100_10000ms_260312",
+      "primary_class": "STEC",
+      "subclass": "O157H7",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R415_100_10000ms_260312",
+      "primary_class": "STEC",
+      "subclass": "O157H7",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R416_100_10000ms_260312",
+      "primary_class": "STEC",
+      "subclass": "O157H7",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8765
+    },
+    {
+      "file_id": "R417_100_10000ms_260312",
+      "primary_class": "STEC",
+      "subclass": "O157H7",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8765
+    },
+    {
+      "file_id": "R418_100_10000ms_260312",
+      "primary_class": "STEC",
+      "subclass": "O157H7",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R419_100_10000ms_260312",
+      "primary_class": "STEC",
+      "subclass": "O157H7",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8642
+    },
+    {
+      "file_id": "R427_100_10000ms_260312",
+      "primary_class": "Salmonella",
+      "subclass": "Heidelburg",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R428_100_10000ms_260312",
+      "primary_class": "Salmonella",
+      "subclass": "Heidelburg",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R430_100_10000ms_260312",
+      "primary_class": "Salmonella",
+      "subclass": "Heidelburg",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R431_100_10000ms_260312",
+      "primary_class": "Salmonella",
+      "subclass": "Heidelburg",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R432_100_10000ms_260312",
+      "primary_class": "Salmonella",
+      "subclass": "Heidelburg",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R433_100_10000ms_260313",
+      "primary_class": "Salmonella",
+      "subclass": "Heidelburg",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R434_100_10000ms_260313",
+      "primary_class": "Salmonella",
+      "subclass": "Heidelburg",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R435_100_10000ms_260313",
+      "primary_class": "H2O",
+      "subclass": null,
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R436_100_10000ms_260313",
+      "primary_class": "H2O",
+      "subclass": null,
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R437_100_10000ms_260313",
+      "primary_class": "H2O",
+      "subclass": null,
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R438_100_10000ms_260313",
+      "primary_class": "H2O",
+      "subclass": null,
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R439_100_10000ms_260313",
+      "primary_class": "H2O",
+      "subclass": null,
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R440_100_10000ms_260313",
+      "primary_class": "H2O",
+      "subclass": null,
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R441_100_10000ms_260313",
+      "primary_class": "H2O",
+      "subclass": null,
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R443_100_10000ms_260313",
+      "primary_class": "Salmonella",
+      "subclass": "Heidelburg",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R450_100_10000ms_260313",
+      "primary_class": "Salmonella",
+      "subclass": "Dublin",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R451_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Dublin",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R452_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Dublin",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R453_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Dublin",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R456_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Dublin",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R457_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Dublin",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R458_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Dublin",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R459_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Dublin",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R460_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Typhimurium",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R461_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Typhimurium",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R462_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Typhimurium",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R463_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Typhimurium",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R464_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Typhimurium",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R465_100_10000ms_260316",
+      "primary_class": "Salmonella",
+      "subclass": "Typhimurium",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R466_100_10000ms_260317",
+      "primary_class": "Salmonella",
+      "subclass": "Typhimurium",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R467_100_10000ms_260317",
+      "primary_class": "Salmonella",
+      "subclass": "Typhimurium",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R475_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "83972",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R476_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "83972",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R477_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "83972",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R478_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "83972",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R480_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "83972",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R481_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "83972",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R482_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "83972",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R483_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "83972",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R484_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "K-12",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R486_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "K-12",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R487_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "K-12",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R488_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "K-12",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R489_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "K-12",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R490_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "K-12",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R491_100_10000ms_260317",
+      "primary_class": "Non-STEC",
+      "subclass": "K-12",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    },
+    {
+      "file_id": "R492_100_10000ms_260318",
+      "primary_class": "Non-STEC",
+      "subclass": "K-12",
+      "n_pixels": 81,
+      "qc_pass_rate": 0.8889
+    }
+  ]
+}

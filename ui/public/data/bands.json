@@ -1,0 +1,300 @@
+{
+  "groups": [
+    {
+      "key": "aromatic_aa",
+      "label": "Aromatic AA",
+      "biology": "total-protein anchors (Phe / Tyr / Trp side chains)",
+      "bands": [
+        {
+          "name": "aa_762",
+          "center": 762.0,
+          "fwhm": 12.0,
+          "chemistry": "Tryptophan (Trp) ring breathing — aromatic AA",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "aa_831",
+          "center": 831.0,
+          "fwhm": 12.0,
+          "chemistry": "Tyrosine (Tyr) Fermi doublet — aromatic AA",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "aa_855",
+          "center": 855.0,
+          "fwhm": 12.0,
+          "chemistry": "Tyrosine (Tyr) ring — aromatic AA",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "aa_1004",
+          "center": 1004.0,
+          "fwhm": 12.0,
+          "chemistry": "Phenylalanine (Phe) ring breathing — total-protein anchor (sharp, file-stable)",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "aa_1014",
+          "center": 1014.0,
+          "fwhm": 12.0,
+          "chemistry": "Phe / Trp ring mode — aromatic AA",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "aa_1176",
+          "center": 1176.0,
+          "fwhm": 12.0,
+          "chemistry": "Tyr / Phe in-plane bending — aromatic AA",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "aa_1212",
+          "center": 1212.0,
+          "fwhm": 12.0,
+          "chemistry": "Tyr / Phe C-C stretch — aromatic AA",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "aa_1617",
+          "center": 1617.0,
+          "fwhm": 12.0,
+          "chemistry": "Tryptophan (Trp) C=C aromatic stretch",
+          "d_stec_nonstec": null
+        }
+      ]
+    },
+    {
+      "key": "protein_amide",
+      "label": "Protein amide",
+      "biology": "secondary structure (amide-III β-sheet, amide-I α-helix / β / random)",
+      "bands": [
+        {
+          "name": "amide_iii_1242",
+          "center": 1242.0,
+          "fwhm": 12.0,
+          "chemistry": "Amide III β-sheet — protein backbone (C-N stretch + N-H bend)",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "amide_i_1658",
+          "center": 1658.0,
+          "fwhm": 12.0,
+          "chemistry": "Amide I β-sheet / random coil — Cisek-2013 PRIMARY (falsified Stage 1)",
+          "d_stec_nonstec": 0.16
+        },
+        {
+          "name": "amide_i_1662",
+          "center": 1662.0,
+          "fwhm": 12.0,
+          "chemistry": "Amide I α-helix — protein secondary structure",
+          "d_stec_nonstec": null
+        }
+      ]
+    },
+    {
+      "key": "nucleic_acid",
+      "label": "Nucleic acid",
+      "biology": "DNA / RNA ring breathing + base modes",
+      "bands": [
+        {
+          "name": "na_720",
+          "center": 720.0,
+          "fwhm": 12.0,
+          "chemistry": "Adenine / Guanine / Thymine ring breathing — DNA/RNA",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "na_786",
+          "center": 786.0,
+          "fwhm": 12.0,
+          "chemistry": "U, C, T ring breathing — DNA/RNA (overlaps Tyr / aa region)",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "na_1335",
+          "center": 1335.0,
+          "fwhm": 12.0,
+          "chemistry": "CH₂ / CH₃ wag — nucleic-acid backbone",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "na_1338",
+          "center": 1338.0,
+          "fwhm": 12.0,
+          "chemistry": "CH₂ wag / adenine ring — Cisek-2013 PRIMARY (falsified Stage 1)",
+          "d_stec_nonstec": 0.13
+        },
+        {
+          "name": "na_1362",
+          "center": 1362.0,
+          "fwhm": 12.0,
+          "chemistry": "Guanine ring mode — DNA/RNA",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "na_1485",
+          "center": 1485.0,
+          "fwhm": 12.0,
+          "chemistry": "Guanine ring mode — DNA/RNA",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "salm_1486",
+          "center": 1486.0,
+          "fwhm": 12.0,
+          "chemistry": "Guanine ring — Salmonella nucleic-acid signature (per Yuan-2024)",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "na_1530",
+          "center": 1530.0,
+          "fwhm": 12.0,
+          "chemistry": "Nucleic-acid base modes",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "na_1575",
+          "center": 1575.0,
+          "fwhm": 12.0,
+          "chemistry": "Purine bases (A, G) — DNA/RNA",
+          "d_stec_nonstec": null
+        }
+      ]
+    },
+    {
+      "key": "lipid_carb",
+      "label": "Lipid + carbohydrate",
+      "biology": "membrane composition + LPS chain (per Stage-1 empirical anchor)",
+      "bands": [
+        {
+          "name": "lps_1050",
+          "center": 1050.0,
+          "fwhm": 12.0,
+          "chemistry": "Top E. coli vs Salmonella discriminator (3-class ANOVA) — LPS chain region",
+          "d_stec_nonstec": 0.42
+        },
+        {
+          "name": "lipid_1080",
+          "center": 1080.0,
+          "fwhm": 12.0,
+          "chemistry": "Phospholipid backbone (PO₂⁻ symmetric stretch)",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "lps_1117",
+          "center": 1117.0,
+          "fwhm": 12.0,
+          "chemistry": "Top E. coli STEC↔Non-STEC empirical discriminator — LPS chain",
+          "d_stec_nonstec": 0.77
+        },
+        {
+          "name": "lps_1194",
+          "center": 1194.0,
+          "fwhm": 12.0,
+          "chemistry": "Top E. coli STEC↔Non-STEC empirical discriminator — LPS chain, d=+1.03",
+          "d_stec_nonstec": 1.03
+        },
+        {
+          "name": "lipid_1451",
+          "center": 1451.0,
+          "fwhm": 12.0,
+          "chemistry": "CH₂ scissoring / deformation — membrane lipid",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "lipid_1454",
+          "center": 1454.0,
+          "fwhm": 12.0,
+          "chemistry": "CH₂ deformation — Cisek-2013 PRIMARY (falsified Stage 1, d=−0.47 SIGN REVERSED)",
+          "d_stec_nonstec": -0.47
+        },
+        {
+          "name": "lipid_1585",
+          "center": 1585.0,
+          "fwhm": 12.0,
+          "chemistry": "Lipid / carbohydrate / NA overlap region",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "lipid_2850",
+          "center": 2850.0,
+          "fwhm": 12.0,
+          "chemistry": "Symmetric CH₂ stretch — lipid (C-H stretch region)",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "lipid_2930",
+          "center": 2930.0,
+          "fwhm": 12.0,
+          "chemistry": "Asymmetric CH₂ stretch — lipid (C-H stretch region)",
+          "d_stec_nonstec": null
+        }
+      ]
+    },
+    {
+      "key": "metabolite",
+      "label": "Metabolite (Salmonella)",
+      "biology": "Salmonella-specific markers per Yuan-2024",
+      "bands": [
+        {
+          "name": "salm_616",
+          "center": 616.0,
+          "fwhm": 12.0,
+          "chemistry": "Carboxylate (COO⁻) wag — Salmonella metabolite marker",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "salm_925",
+          "center": 925.0,
+          "fwhm": 12.0,
+          "chemistry": "C-C skeletal stretch — Salmonella metabolite marker",
+          "d_stec_nonstec": null
+        },
+        {
+          "name": "salm_1542",
+          "center": 1542.0,
+          "fwhm": 12.0,
+          "chemistry": "C=C stretch — Salmonella metabolite marker",
+          "d_stec_nonstec": null
+        }
+      ]
+    }
+  ],
+  "cisek_falsification": {
+    "headline": "Cisek-2013 STEC triple — NULL at file level on this corpus",
+    "bands": [
+      {
+        "center": 1338,
+        "label": "na_1338",
+        "literature_claim": "STEC > Non-STEC (CH₂ wag / adenine)",
+        "atlas_d": 0.13,
+        "verdict": "null"
+      },
+      {
+        "center": 1454,
+        "label": "lipid_1454",
+        "literature_claim": "STEC > Non-STEC (CH₂ deformation)",
+        "atlas_d": -0.47,
+        "verdict": "sign-reversed"
+      },
+      {
+        "center": 1658,
+        "label": "amide_i_1658",
+        "literature_claim": "STEC > Non-STEC (amide-I)",
+        "atlas_d": 0.16,
+        "verdict": "null"
+      }
+    ]
+  },
+  "anchors": {
+    "lps_chain": {
+      "region": [
+        800,
+        1200
+      ],
+      "label": "LPS chain region — empirical anchor (Stage 1 winner)",
+      "top_band": "auc_lps_1194",
+      "top_d": 1.03
+    }
+  }
+}

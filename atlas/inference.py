@@ -181,6 +181,84 @@ def predict_from_array(intensities: np.ndarray, wn: np.ndarray,
     return _predict_row(file_row, wn_pp, spectrum_mean)
 
 
+@lru_cache(maxsize=1)
+def _load_plsda_raw() -> dict[str, Any]:
+    """Load the PLS-DA-on-raw-spectrum project-headline classifier.
+
+    Separate from `_load_artifacts()` because PLS-DA-raw doesn't need the
+    Stage 15F feature engineering chain (MCR / SAM / PCA / etc.).
+    """
+    d = _artifacts_dir()
+    classifier = joblib.load(d / "plsda_raw_classifier.joblib")
+    metadata = json.loads((d / "plsda_raw_metadata.json").read_text())
+    return dict(classifier=classifier, metadata=metadata)
+
+
+def predict_from_array_plsda(intensities: np.ndarray, wn: np.ndarray,
+                             *, preprocess: bool = True) -> dict[str, Any]:
+    """Run the PLS-DA-on-raw-spectrum model and aggregate to a file-level prob.
+
+    Pipeline: (optional preprocess) -> per-pixel predict_proba -> mean across
+    pixels -> argmax. Matches the file-level scoring used during the LOSO
+    bake-off (atlas.evaluate.file_aggregate_softvote, 2026-05-14 run).
+
+    Returns the same shape as predict_from_array() so callers can switch
+    between models with one keyword.
+    """
+    X = np.asarray(intensities, dtype=np.float32)
+    wn_arr = np.asarray(wn, dtype=np.float32)
+    if X.ndim == 1:
+        X = X[None, :]
+    if preprocess:
+        X_pp, wn_pp, _ = preprocess_matrix(X, wn_arr, progress=False)
+    else:
+        X_pp, wn_pp = X, wn_arr
+    spectrum_mean = X_pp.mean(axis=0)
+
+    clf = _load_plsda_raw()["classifier"]
+    scaler = clf.named_steps["scaler"]
+    plsda = clf.named_steps["clf"]
+    classes = list(plsda.classes_)
+    proba_per_pixel = clf.predict_proba(X_pp)        # (N_pix, K)
+    file_proba = proba_per_pixel.mean(axis=0)        # soft-vote across pixels
+    top_idx = int(np.argmax(file_proba))
+
+    # ---- Spectral loadings (interpretability surface for the UI) -----------
+    # The full PLS-DA chain is linear in the standardized input space:
+    #   log_odds_k = (x_std - pls.x_mean_) @ (pls.x_rotations_ @ logreg.coef_[k])
+    # So `w_k = pls.x_rotations_ @ logreg.coef_[k]` is the per-wavenumber
+    # sensitivity for class k — "how much each bin pushes the prediction
+    # toward class k". Same for every input (global).
+    #
+    # Per-file per-bin contribution to the predicted class log-odds:
+    #   contrib[b] = (x_std_mean[b] - pls.x_mean_[b]) * w_pred[b]
+    # — this is what made the model say what it said for THIS file.
+    rotations = np.asarray(plsda.x_rotations_)                # (B, n_components)
+    coef = np.asarray(plsda.logreg_.coef_)                    # (K, n_components)
+    loadings = rotations @ coef.T                             # (B, K)
+    X_std = scaler.transform(X_pp)                            # (N_pix, B)
+    x_std_mean = X_std.mean(axis=0)                           # (B,)
+    pls_x_mean = np.asarray(getattr(plsda, "x_mean_", np.zeros_like(x_std_mean)))
+    centered = x_std_mean - pls_x_mean                        # (B,)
+    contribution_predicted = centered * loadings[:, top_idx]  # (B,)
+    loadings_per_class = {
+        str(c): loadings[:, i].astype(np.float32).tolist()
+        for i, c in enumerate(classes)
+    }
+
+    return {
+        "class": str(classes[top_idx]),
+        "probabilities": {str(c): float(file_proba[i]) for i, c in enumerate(classes)},
+        "spectrum_mean": spectrum_mean.astype(np.float32),
+        "wn": wn_pp.astype(np.float32),
+        # PLS-DA-raw has no engineered features; keep the key for shape parity.
+        "feature_values": {},
+        # Interpretability surfaces (PLS-DA-only — empty/absent on /predict).
+        "loadings_per_class": loadings_per_class,
+        "contribution_for_predicted": contribution_predicted.astype(np.float32).tolist(),
+    }
+
+
 def predict_from_xls(path: str | Path) -> dict[str, Any]:
     """Parse a raw Atlas .xls/.txt file → preprocess → predict.
 

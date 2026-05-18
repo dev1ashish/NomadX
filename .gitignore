@@ -6,3 +6,4 @@ data_cache/
 outputs/
 .DS_Store
 Atlas Data/
+.playwright-mcp/

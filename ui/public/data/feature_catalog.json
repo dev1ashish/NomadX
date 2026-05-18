@@ -1,0 +1,7689 @@
+{
+  "features": [
+    {
+      "name": "auc_aromatic_aa",
+      "family": "band",
+      "d_stec_nonstec": 0.1677,
+      "d_ecoli_salm": -0.507,
+      "mi_rank_stage15f": null,
+      "region": "aromatic_aa"
+    },
+    {
+      "name": "auc_protein_amide",
+      "family": "band",
+      "d_stec_nonstec": -0.1294,
+      "d_ecoli_salm": 0.2457,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_nucleic_acid",
+      "family": "band",
+      "d_stec_nonstec": 0.2241,
+      "d_ecoli_salm": 0.6943,
+      "mi_rank_stage15f": null,
+      "region": "nucleic_acid"
+    },
+    {
+      "name": "auc_lipid_carbohydrate",
+      "family": "band",
+      "d_stec_nonstec": 0.2532,
+      "d_ecoli_salm": -0.0372,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_metabolite",
+      "family": "band",
+      "d_stec_nonstec": -0.4068,
+      "d_ecoli_salm": -0.2018,
+      "mi_rank_stage15f": null,
+      "region": "metabolite"
+    },
+    {
+      "name": "auc_lps_o_antigen_full",
+      "family": "band",
+      "d_stec_nonstec": -0.2754,
+      "d_ecoli_salm": -0.2104,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "auc_lps_chain_discrim",
+      "family": "band",
+      "d_stec_nonstec": 0.2782,
+      "d_ecoli_salm": -0.6338,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "auc_lps_1050",
+      "family": "band",
+      "d_stec_nonstec": 0.2172,
+      "d_ecoli_salm": -1.1472,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "auc_lps_1117",
+      "family": "band",
+      "d_stec_nonstec": 0.7657,
+      "d_ecoli_salm": -0.5852,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "auc_lps_1194",
+      "family": "band",
+      "d_stec_nonstec": 1.0323,
+      "d_ecoli_salm": -0.0052,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "auc_aa_762",
+      "family": "band",
+      "d_stec_nonstec": -0.1315,
+      "d_ecoli_salm": -0.2488,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_aa_831",
+      "family": "band",
+      "d_stec_nonstec": 0.1723,
+      "d_ecoli_salm": -0.3563,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_aa_855",
+      "family": "band",
+      "d_stec_nonstec": 0.0621,
+      "d_ecoli_salm": -0.3998,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_aa_1004",
+      "family": "band",
+      "d_stec_nonstec": -0.1801,
+      "d_ecoli_salm": -0.698,
+      "mi_rank_stage15f": null,
+      "region": "aromatic_aa"
+    },
+    {
+      "name": "auc_aa_1014",
+      "family": "band",
+      "d_stec_nonstec": -0.0389,
+      "d_ecoli_salm": -0.8129,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_aa_1176",
+      "family": "band",
+      "d_stec_nonstec": 0.79,
+      "d_ecoli_salm": -0.1572,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_aa_1212",
+      "family": "band",
+      "d_stec_nonstec": 0.463,
+      "d_ecoli_salm": -0.1711,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_aa_1617",
+      "family": "band",
+      "d_stec_nonstec": 0.3069,
+      "d_ecoli_salm": 0.4598,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_na_720",
+      "family": "band",
+      "d_stec_nonstec": -0.2553,
+      "d_ecoli_salm": -0.1718,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_na_786",
+      "family": "band",
+      "d_stec_nonstec": -0.0077,
+      "d_ecoli_salm": -0.2616,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_na_1335",
+      "family": "band",
+      "d_stec_nonstec": 0.0964,
+      "d_ecoli_salm": 0.0211,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_na_1338",
+      "family": "band",
+      "d_stec_nonstec": 0.1287,
+      "d_ecoli_salm": 0.0471,
+      "mi_rank_stage15f": null,
+      "region": "nucleic_acid"
+    },
+    {
+      "name": "auc_na_1362",
+      "family": "band",
+      "d_stec_nonstec": 0.4885,
+      "d_ecoli_salm": 0.2242,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_na_1485",
+      "family": "band",
+      "d_stec_nonstec": 0.0275,
+      "d_ecoli_salm": 0.3929,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_na_1530",
+      "family": "band",
+      "d_stec_nonstec": 0.1939,
+      "d_ecoli_salm": 0.4108,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_na_1575",
+      "family": "band",
+      "d_stec_nonstec": 0.2088,
+      "d_ecoli_salm": 0.4499,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_amide_iii_1242",
+      "family": "band",
+      "d_stec_nonstec": -0.1927,
+      "d_ecoli_salm": -0.2151,
+      "mi_rank_stage15f": null,
+      "region": "amide_iii"
+    },
+    {
+      "name": "auc_amide_i_1658",
+      "family": "band",
+      "d_stec_nonstec": -0.0739,
+      "d_ecoli_salm": 0.332,
+      "mi_rank_stage15f": null,
+      "region": "amide_i"
+    },
+    {
+      "name": "auc_amide_i_1662",
+      "family": "band",
+      "d_stec_nonstec": -0.1142,
+      "d_ecoli_salm": 0.3209,
+      "mi_rank_stage15f": null,
+      "region": "amide_i"
+    },
+    {
+      "name": "auc_lipid_1080",
+      "family": "band",
+      "d_stec_nonstec": 0.4794,
+      "d_ecoli_salm": -0.8797,
+      "mi_rank_stage15f": null,
+      "region": "lipid"
+    },
+    {
+      "name": "auc_lipid_1451",
+      "family": "band",
+      "d_stec_nonstec": -0.486,
+      "d_ecoli_salm": 0.0535,
+      "mi_rank_stage15f": null,
+      "region": "lipid"
+    },
+    {
+      "name": "auc_lipid_1454",
+      "family": "band",
+      "d_stec_nonstec": -0.4705,
+      "d_ecoli_salm": 0.0752,
+      "mi_rank_stage15f": null,
+      "region": "lipid"
+    },
+    {
+      "name": "auc_lipid_1585",
+      "family": "band",
+      "d_stec_nonstec": 0.2457,
+      "d_ecoli_salm": 0.4427,
+      "mi_rank_stage15f": null,
+      "region": "lipid"
+    },
+    {
+      "name": "auc_lipid_2850",
+      "family": "band",
+      "d_stec_nonstec": 0.1578,
+      "d_ecoli_salm": 0.3792,
+      "mi_rank_stage15f": null,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "auc_lipid_2930",
+      "family": "band",
+      "d_stec_nonstec": 0.0852,
+      "d_ecoli_salm": 0.2723,
+      "mi_rank_stage15f": null,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "auc_salm_616",
+      "family": "band",
+      "d_stec_nonstec": -0.4633,
+      "d_ecoli_salm": -0.1498,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_salm_925",
+      "family": "band",
+      "d_stec_nonstec": 0.0151,
+      "d_ecoli_salm": -0.573,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_salm_1486",
+      "family": "band",
+      "d_stec_nonstec": 0.0465,
+      "d_ecoli_salm": 0.3952,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "auc_salm_1542",
+      "family": "band",
+      "d_stec_nonstec": 0.1195,
+      "d_ecoli_salm": 0.4466,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "ratio_amide_over_na",
+      "family": "band",
+      "d_stec_nonstec": 0.2632,
+      "d_ecoli_salm": 0.0056,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "ratio_aa_over_amide",
+      "family": "band",
+      "d_stec_nonstec": -0.4582,
+      "d_ecoli_salm": 0.352,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "ratio_lipid_over_protein",
+      "family": "band",
+      "d_stec_nonstec": -0.9205,
+      "d_ecoli_salm": 0.6166,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "ratio_na_over_lipid",
+      "family": "band",
+      "d_stec_nonstec": 0.028,
+      "d_ecoli_salm": -0.573,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "ratio_lps_chain_over_protein",
+      "family": "band",
+      "d_stec_nonstec": -0.5325,
+      "d_ecoli_salm": 0.476,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "ratio_lps_1117_over_1050",
+      "family": "band",
+      "d_stec_nonstec": -0.1557,
+      "d_ecoli_salm": 0.1141,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "ratio_lps_1194_over_1050",
+      "family": "band",
+      "d_stec_nonstec": -0.132,
+      "d_ecoli_salm": 0.1252,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "ratio_amide_1658_over_na_1338",
+      "family": "band",
+      "d_stec_nonstec": -0.0578,
+      "d_ecoli_salm": -0.342,
+      "mi_rank_stage15f": null,
+      "region": "nucleic_acid"
+    },
+    {
+      "name": "ratio_phe_1004_over_amide_1658",
+      "family": "band",
+      "d_stec_nonstec": 0.173,
+      "d_ecoli_salm": 0.5729,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "ratio_na_786_over_phe_1004",
+      "family": "band",
+      "d_stec_nonstec": -0.3134,
+      "d_ecoli_salm": 0.5418,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "fit_lps_1050_center",
+      "family": "band",
+      "d_stec_nonstec": 0.4896,
+      "d_ecoli_salm": 0.5545,
+      "mi_rank_stage15f": 33,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1050_height",
+      "family": "band",
+      "d_stec_nonstec": 0.218,
+      "d_ecoli_salm": -0.5703,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1050_fwhm",
+      "family": "band",
+      "d_stec_nonstec": 0.5742,
+      "d_ecoli_salm": 0.0336,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1050_eta",
+      "family": "band",
+      "d_stec_nonstec": -0.3188,
+      "d_ecoli_salm": -0.4135,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1050_area",
+      "family": "band",
+      "d_stec_nonstec": 0.3797,
+      "d_ecoli_salm": -0.3088,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1050_rmse",
+      "family": "band",
+      "d_stec_nonstec": -0.8865,
+      "d_ecoli_salm": -0.433,
+      "mi_rank_stage15f": 23,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1117_center",
+      "family": "band",
+      "d_stec_nonstec": -0.5882,
+      "d_ecoli_salm": 0.6099,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1117_height",
+      "family": "band",
+      "d_stec_nonstec": -0.285,
+      "d_ecoli_salm": -0.0542,
+      "mi_rank_stage15f": 11,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1117_fwhm",
+      "family": "band",
+      "d_stec_nonstec": 1.1441,
+      "d_ecoli_salm": 0.3282,
+      "mi_rank_stage15f": 13,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1117_eta",
+      "family": "band",
+      "d_stec_nonstec": -0.4007,
+      "d_ecoli_salm": 0.729,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1117_area",
+      "family": "band",
+      "d_stec_nonstec": -0.8403,
+      "d_ecoli_salm": -0.111,
+      "mi_rank_stage15f": 12,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1117_rmse",
+      "family": "band",
+      "d_stec_nonstec": 0.0846,
+      "d_ecoli_salm": -0.1771,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1194_center",
+      "family": "band",
+      "d_stec_nonstec": -0.0742,
+      "d_ecoli_salm": 0.1036,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1194_height",
+      "family": "band",
+      "d_stec_nonstec": 1.0557,
+      "d_ecoli_salm": 0.4236,
+      "mi_rank_stage15f": 17,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1194_fwhm",
+      "family": "band",
+      "d_stec_nonstec": 0.3971,
+      "d_ecoli_salm": 0.2995,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1194_eta",
+      "family": "band",
+      "d_stec_nonstec": -1.4796,
+      "d_ecoli_salm": 0.1116,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1194_area",
+      "family": "band",
+      "d_stec_nonstec": 1.0029,
+      "d_ecoli_salm": 0.3452,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_lps_1194_rmse",
+      "family": "band",
+      "d_stec_nonstec": -0.4512,
+      "d_ecoli_salm": -0.1834,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "fit_na_1338_center",
+      "family": "band",
+      "d_stec_nonstec": -0.7973,
+      "d_ecoli_salm": 0.004,
+      "mi_rank_stage15f": null,
+      "region": "nucleic_acid"
+    },
+    {
+      "name": "fit_na_1338_height",
+      "family": "band",
+      "d_stec_nonstec": -0.5008,
+      "d_ecoli_salm": -0.2853,
+      "mi_rank_stage15f": null,
+      "region": "nucleic_acid"
+    },
+    {
+      "name": "fit_na_1338_fwhm",
+      "family": "band",
+      "d_stec_nonstec": -0.7646,
+      "d_ecoli_salm": 0.1231,
+      "mi_rank_stage15f": null,
+      "region": "nucleic_acid"
+    },
+    {
+      "name": "fit_na_1338_eta",
+      "family": "band",
+      "d_stec_nonstec": -0.9373,
+      "d_ecoli_salm": -0.0939,
+      "mi_rank_stage15f": null,
+      "region": "nucleic_acid"
+    },
+    {
+      "name": "fit_na_1338_area",
+      "family": "band",
+      "d_stec_nonstec": -0.6256,
+      "d_ecoli_salm": -0.2469,
+      "mi_rank_stage15f": null,
+      "region": "nucleic_acid"
+    },
+    {
+      "name": "fit_na_1338_rmse",
+      "family": "band",
+      "d_stec_nonstec": -1.0078,
+      "d_ecoli_salm": -0.2878,
+      "mi_rank_stage15f": null,
+      "region": "nucleic_acid"
+    },
+    {
+      "name": "fit_lipid_1454_center",
+      "family": "band",
+      "d_stec_nonstec": 1.194,
+      "d_ecoli_salm": 0.4543,
+      "mi_rank_stage15f": null,
+      "region": "lipid"
+    },
+    {
+      "name": "fit_lipid_1454_height",
+      "family": "band",
+      "d_stec_nonstec": -1.2742,
+      "d_ecoli_salm": -0.5071,
+      "mi_rank_stage15f": 8,
+      "region": "lipid"
+    },
+    {
+      "name": "fit_lipid_1454_fwhm",
+      "family": "band",
+      "d_stec_nonstec": -1.1859,
+      "d_ecoli_salm": -0.7324,
+      "mi_rank_stage15f": 34,
+      "region": "lipid"
+    },
+    {
+      "name": "fit_lipid_1454_eta",
+      "family": "band",
+      "d_stec_nonstec": -0.4395,
+      "d_ecoli_salm": 0.6041,
+      "mi_rank_stage15f": null,
+      "region": "lipid"
+    },
+    {
+      "name": "fit_lipid_1454_area",
+      "family": "band",
+      "d_stec_nonstec": -1.665,
+      "d_ecoli_salm": -0.5352,
+      "mi_rank_stage15f": 10,
+      "region": "lipid"
+    },
+    {
+      "name": "fit_lipid_1454_rmse",
+      "family": "band",
+      "d_stec_nonstec": -1.1446,
+      "d_ecoli_salm": -0.5221,
+      "mi_rank_stage15f": 21,
+      "region": "lipid"
+    },
+    {
+      "name": "fit_amide_i_1658_center",
+      "family": "band",
+      "d_stec_nonstec": -0.7682,
+      "d_ecoli_salm": 0.1281,
+      "mi_rank_stage15f": null,
+      "region": "amide_i"
+    },
+    {
+      "name": "fit_amide_i_1658_height",
+      "family": "band",
+      "d_stec_nonstec": -1.0758,
+      "d_ecoli_salm": -0.1419,
+      "mi_rank_stage15f": null,
+      "region": "amide_i"
+    },
+    {
+      "name": "fit_amide_i_1658_fwhm",
+      "family": "band",
+      "d_stec_nonstec": -0.5217,
+      "d_ecoli_salm": -0.0931,
+      "mi_rank_stage15f": null,
+      "region": "amide_i"
+    },
+    {
+      "name": "fit_amide_i_1658_eta",
+      "family": "band",
+      "d_stec_nonstec": -0.3163,
+      "d_ecoli_salm": 0.0367,
+      "mi_rank_stage15f": null,
+      "region": "amide_i"
+    },
+    {
+      "name": "fit_amide_i_1658_area",
+      "family": "band",
+      "d_stec_nonstec": -1.0343,
+      "d_ecoli_salm": -0.0278,
+      "mi_rank_stage15f": null,
+      "region": "amide_i"
+    },
+    {
+      "name": "fit_amide_i_1658_rmse",
+      "family": "band",
+      "d_stec_nonstec": -1.264,
+      "d_ecoli_salm": -0.822,
+      "mi_rank_stage15f": 31,
+      "region": "amide_i"
+    },
+    {
+      "name": "fit_aa_1004_center",
+      "family": "band",
+      "d_stec_nonstec": 0.6508,
+      "d_ecoli_salm": -0.026,
+      "mi_rank_stage15f": null,
+      "region": "aromatic_aa"
+    },
+    {
+      "name": "fit_aa_1004_height",
+      "family": "band",
+      "d_stec_nonstec": -1.1844,
+      "d_ecoli_salm": -0.3956,
+      "mi_rank_stage15f": 20,
+      "region": "aromatic_aa"
+    },
+    {
+      "name": "fit_aa_1004_fwhm",
+      "family": "band",
+      "d_stec_nonstec": 0.5932,
+      "d_ecoli_salm": 0.0486,
+      "mi_rank_stage15f": null,
+      "region": "aromatic_aa"
+    },
+    {
+      "name": "fit_aa_1004_eta",
+      "family": "band",
+      "d_stec_nonstec": -0.4653,
+      "d_ecoli_salm": -0.4145,
+      "mi_rank_stage15f": null,
+      "region": "aromatic_aa"
+    },
+    {
+      "name": "fit_aa_1004_area",
+      "family": "band",
+      "d_stec_nonstec": -1.0534,
+      "d_ecoli_salm": -0.4016,
+      "mi_rank_stage15f": null,
+      "region": "aromatic_aa"
+    },
+    {
+      "name": "fit_aa_1004_rmse",
+      "family": "band",
+      "d_stec_nonstec": 0.4061,
+      "d_ecoli_salm": 0.2907,
+      "mi_rank_stage15f": null,
+      "region": "aromatic_aa"
+    },
+    {
+      "name": "fit_amide_iii_1242_center",
+      "family": "band",
+      "d_stec_nonstec": -0.3794,
+      "d_ecoli_salm": -0.1815,
+      "mi_rank_stage15f": null,
+      "region": "amide_iii"
+    },
+    {
+      "name": "fit_amide_iii_1242_height",
+      "family": "band",
+      "d_stec_nonstec": -1.496,
+      "d_ecoli_salm": 0.1939,
+      "mi_rank_stage15f": 4,
+      "region": "amide_iii"
+    },
+    {
+      "name": "fit_amide_iii_1242_fwhm",
+      "family": "band",
+      "d_stec_nonstec": -0.5802,
+      "d_ecoli_salm": 0.9664,
+      "mi_rank_stage15f": null,
+      "region": "amide_iii"
+    },
+    {
+      "name": "fit_amide_iii_1242_eta",
+      "family": "band",
+      "d_stec_nonstec": 0.3707,
+      "d_ecoli_salm": 0.0112,
+      "mi_rank_stage15f": null,
+      "region": "amide_iii"
+    },
+    {
+      "name": "fit_amide_iii_1242_area",
+      "family": "band",
+      "d_stec_nonstec": -1.4874,
+      "d_ecoli_salm": 0.3963,
+      "mi_rank_stage15f": 2,
+      "region": "amide_iii"
+    },
+    {
+      "name": "fit_amide_iii_1242_rmse",
+      "family": "band",
+      "d_stec_nonstec": -1.5106,
+      "d_ecoli_salm": -0.3914,
+      "mi_rank_stage15f": 9,
+      "region": "amide_iii"
+    },
+    {
+      "name": "roi_fingerprint_low_mean",
+      "family": "band",
+      "d_stec_nonstec": -0.3664,
+      "d_ecoli_salm": -0.1593,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_fingerprint_low_std",
+      "family": "band",
+      "d_stec_nonstec": 0.3402,
+      "d_ecoli_salm": 0.2431,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_fingerprint_low_skew",
+      "family": "band",
+      "d_stec_nonstec": 0.3052,
+      "d_ecoli_salm": 0.1931,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_fingerprint_low_kurt",
+      "family": "band",
+      "d_stec_nonstec": -0.0278,
+      "d_ecoli_salm": 0.2978,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_fingerprint_low_centroid",
+      "family": "band",
+      "d_stec_nonstec": -0.2255,
+      "d_ecoli_salm": -0.168,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_fingerprint_low_entropy",
+      "family": "band",
+      "d_stec_nonstec": -0.6893,
+      "d_ecoli_salm": -0.6089,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_lps_chain_mean",
+      "family": "band",
+      "d_stec_nonstec": 0.2793,
+      "d_ecoli_salm": -0.6326,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "roi_lps_chain_std",
+      "family": "band",
+      "d_stec_nonstec": -0.1477,
+      "d_ecoli_salm": -0.1914,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "roi_lps_chain_skew",
+      "family": "band",
+      "d_stec_nonstec": 0.4914,
+      "d_ecoli_salm": 0.8503,
+      "mi_rank_stage15f": 28,
+      "region": "lps_chain"
+    },
+    {
+      "name": "roi_lps_chain_kurt",
+      "family": "band",
+      "d_stec_nonstec": 0.5864,
+      "d_ecoli_salm": 0.9425,
+      "mi_rank_stage15f": 27,
+      "region": "lps_chain"
+    },
+    {
+      "name": "roi_lps_chain_centroid",
+      "family": "band",
+      "d_stec_nonstec": 0.2303,
+      "d_ecoli_salm": -0.1645,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "roi_lps_chain_entropy",
+      "family": "band",
+      "d_stec_nonstec": 0.0553,
+      "d_ecoli_salm": 0.806,
+      "mi_rank_stage15f": 16,
+      "region": "lps_chain"
+    },
+    {
+      "name": "roi_protein_amide_extended_mean",
+      "family": "band",
+      "d_stec_nonstec": 0.0829,
+      "d_ecoli_salm": 0.1432,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_protein_amide_extended_std",
+      "family": "band",
+      "d_stec_nonstec": -0.3301,
+      "d_ecoli_salm": -0.497,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_protein_amide_extended_skew",
+      "family": "band",
+      "d_stec_nonstec": 0.7822,
+      "d_ecoli_salm": 0.1682,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_protein_amide_extended_kurt",
+      "family": "band",
+      "d_stec_nonstec": 0.3297,
+      "d_ecoli_salm": 0.0365,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_protein_amide_extended_centroid",
+      "family": "band",
+      "d_stec_nonstec": -0.1457,
+      "d_ecoli_salm": -0.5236,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_protein_amide_extended_entropy",
+      "family": "band",
+      "d_stec_nonstec": -0.1796,
+      "d_ecoli_salm": 0.039,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_amide_aromatic_mean",
+      "family": "band",
+      "d_stec_nonstec": 0.1399,
+      "d_ecoli_salm": 0.4198,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_amide_aromatic_std",
+      "family": "band",
+      "d_stec_nonstec": -0.7676,
+      "d_ecoli_salm": -0.345,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_amide_aromatic_skew",
+      "family": "band",
+      "d_stec_nonstec": 0.3562,
+      "d_ecoli_salm": 0.0626,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_amide_aromatic_kurt",
+      "family": "band",
+      "d_stec_nonstec": 0.6347,
+      "d_ecoli_salm": 0.1866,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_amide_aromatic_centroid",
+      "family": "band",
+      "d_stec_nonstec": -0.1527,
+      "d_ecoli_salm": -0.1334,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_amide_aromatic_entropy",
+      "family": "band",
+      "d_stec_nonstec": -0.1494,
+      "d_ecoli_salm": -0.1806,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "roi_silent_mean",
+      "family": "band",
+      "d_stec_nonstec": 0.1857,
+      "d_ecoli_salm": 0.4018,
+      "mi_rank_stage15f": null,
+      "region": "silent"
+    },
+    {
+      "name": "roi_silent_std",
+      "family": "band",
+      "d_stec_nonstec": -0.5558,
+      "d_ecoli_salm": -0.3903,
+      "mi_rank_stage15f": null,
+      "region": "silent"
+    },
+    {
+      "name": "roi_silent_skew",
+      "family": "band",
+      "d_stec_nonstec": -0.1,
+      "d_ecoli_salm": 0.1873,
+      "mi_rank_stage15f": 18,
+      "region": "silent"
+    },
+    {
+      "name": "roi_silent_kurt",
+      "family": "band",
+      "d_stec_nonstec": -0.4015,
+      "d_ecoli_salm": 0.0556,
+      "mi_rank_stage15f": 3,
+      "region": "silent"
+    },
+    {
+      "name": "roi_silent_centroid",
+      "family": "band",
+      "d_stec_nonstec": -0.2656,
+      "d_ecoli_salm": -0.1503,
+      "mi_rank_stage15f": null,
+      "region": "silent"
+    },
+    {
+      "name": "roi_silent_entropy",
+      "family": "band",
+      "d_stec_nonstec": -0.2872,
+      "d_ecoli_salm": -0.1868,
+      "mi_rank_stage15f": null,
+      "region": "silent"
+    },
+    {
+      "name": "roi_ch_stretch_mean",
+      "family": "band",
+      "d_stec_nonstec": 0.1528,
+      "d_ecoli_salm": 0.3809,
+      "mi_rank_stage15f": null,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "roi_ch_stretch_std",
+      "family": "band",
+      "d_stec_nonstec": -0.128,
+      "d_ecoli_salm": -0.3536,
+      "mi_rank_stage15f": 1,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "roi_ch_stretch_skew",
+      "family": "band",
+      "d_stec_nonstec": -0.3421,
+      "d_ecoli_salm": -0.077,
+      "mi_rank_stage15f": null,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "roi_ch_stretch_kurt",
+      "family": "band",
+      "d_stec_nonstec": 0.2259,
+      "d_ecoli_salm": 0.1149,
+      "mi_rank_stage15f": null,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "roi_ch_stretch_centroid",
+      "family": "band",
+      "d_stec_nonstec": -0.1858,
+      "d_ecoli_salm": -0.1292,
+      "mi_rank_stage15f": null,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "roi_ch_stretch_entropy",
+      "family": "band",
+      "d_stec_nonstec": -0.2467,
+      "d_ecoli_salm": -0.1043,
+      "mi_rank_stage15f": null,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "emsc_a",
+      "family": "band",
+      "d_stec_nonstec": 0.311,
+      "d_ecoli_salm": 0.2616,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "emsc_b",
+      "family": "band",
+      "d_stec_nonstec": 0.2806,
+      "d_ecoli_salm": 0.3019,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "emsc_c1",
+      "family": "band",
+      "d_stec_nonstec": 0.2747,
+      "d_ecoli_salm": 0.2948,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "emsc_c2",
+      "family": "band",
+      "d_stec_nonstec": -0.311,
+      "d_ecoli_salm": -0.2616,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "d1_auc_lps_1050",
+      "family": "band",
+      "d_stec_nonstec": -0.4775,
+      "d_ecoli_salm": -0.4077,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "d1_auc_lps_1117",
+      "family": "band",
+      "d_stec_nonstec": -1.1953,
+      "d_ecoli_salm": -0.4458,
+      "mi_rank_stage15f": 5,
+      "region": "lps_chain"
+    },
+    {
+      "name": "d1_auc_lps_1194",
+      "family": "band",
+      "d_stec_nonstec": -0.8919,
+      "d_ecoli_salm": -0.417,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "d1_auc_na_1338",
+      "family": "band",
+      "d_stec_nonstec": -0.6636,
+      "d_ecoli_salm": -0.4286,
+      "mi_rank_stage15f": 25,
+      "region": "nucleic_acid"
+    },
+    {
+      "name": "d1_auc_lipid_1454",
+      "family": "band",
+      "d_stec_nonstec": -0.876,
+      "d_ecoli_salm": -0.3692,
+      "mi_rank_stage15f": 6,
+      "region": "lipid"
+    },
+    {
+      "name": "d1_auc_amide_i_1658",
+      "family": "band",
+      "d_stec_nonstec": -1.2188,
+      "d_ecoli_salm": -0.4005,
+      "mi_rank_stage15f": 7,
+      "region": "amide_i"
+    },
+    {
+      "name": "d1_auc_aa_1004",
+      "family": "band",
+      "d_stec_nonstec": -0.8734,
+      "d_ecoli_salm": -0.2499,
+      "mi_rank_stage15f": null,
+      "region": "aromatic_aa"
+    },
+    {
+      "name": "d1_auc_amide_iii_1242",
+      "family": "band",
+      "d_stec_nonstec": -0.2784,
+      "d_ecoli_salm": -0.4015,
+      "mi_rank_stage15f": null,
+      "region": "amide_iii"
+    },
+    {
+      "name": "d2_auc_lps_1050",
+      "family": "band",
+      "d_stec_nonstec": -0.8641,
+      "d_ecoli_salm": -0.5755,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "d2_auc_lps_1117",
+      "family": "band",
+      "d_stec_nonstec": -0.5311,
+      "d_ecoli_salm": -0.1517,
+      "mi_rank_stage15f": 15,
+      "region": "lps_chain"
+    },
+    {
+      "name": "d2_auc_lps_1194",
+      "family": "band",
+      "d_stec_nonstec": -0.8979,
+      "d_ecoli_salm": -0.4402,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "d2_auc_na_1338",
+      "family": "band",
+      "d_stec_nonstec": -0.7158,
+      "d_ecoli_salm": -0.2674,
+      "mi_rank_stage15f": null,
+      "region": "nucleic_acid"
+    },
+    {
+      "name": "d2_auc_lipid_1454",
+      "family": "band",
+      "d_stec_nonstec": -0.8312,
+      "d_ecoli_salm": -0.3432,
+      "mi_rank_stage15f": 14,
+      "region": "lipid"
+    },
+    {
+      "name": "d2_auc_amide_i_1658",
+      "family": "band",
+      "d_stec_nonstec": -0.794,
+      "d_ecoli_salm": -0.7363,
+      "mi_rank_stage15f": 24,
+      "region": "amide_i"
+    },
+    {
+      "name": "d2_auc_aa_1004",
+      "family": "band",
+      "d_stec_nonstec": -0.8483,
+      "d_ecoli_salm": -0.1987,
+      "mi_rank_stage15f": 19,
+      "region": "aromatic_aa"
+    },
+    {
+      "name": "d2_auc_amide_iii_1242",
+      "family": "band",
+      "d_stec_nonstec": -1.1984,
+      "d_ecoli_salm": -0.4766,
+      "mi_rank_stage15f": null,
+      "region": "amide_iii"
+    },
+    {
+      "name": "bio_cyt_pyrrole_ratio",
+      "family": "bio",
+      "d_stec_nonstec": -0.3534,
+      "d_ecoli_salm": 0.4853,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "bio_cyt_ox_state",
+      "family": "bio",
+      "d_stec_nonstec": 0.4774,
+      "d_ecoli_salm": 0.2865,
+      "mi_rank_stage15f": 26
+    },
+    {
+      "name": "bio_cyt_total",
+      "family": "bio",
+      "d_stec_nonstec": 0.2393,
+      "d_ecoli_salm": -0.1772,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "bio_alpha_helix_score",
+      "family": "bio",
+      "d_stec_nonstec": -0.986,
+      "d_ecoli_salm": -0.1905,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "bio_beta_sheet_amide3",
+      "family": "bio",
+      "d_stec_nonstec": 0.1501,
+      "d_ecoli_salm": 0.3794,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "bio_phb_carbonyl",
+      "family": "bio",
+      "d_stec_nonstec": 0.2068,
+      "d_ecoli_salm": 0.4087,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "bio_phb_score",
+      "family": "bio",
+      "d_stec_nonstec": 0.1318,
+      "d_ecoli_salm": 0.2263,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "bio_tyr_doublet_ratio",
+      "family": "bio",
+      "d_stec_nonstec": 0.3421,
+      "d_ecoli_salm": -0.1134,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "bio_trp_content",
+      "family": "bio",
+      "d_stec_nonstec": -0.2089,
+      "d_ecoli_salm": 0.0539,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "bio_trp_indole_env",
+      "family": "bio",
+      "d_stec_nonstec": 0.6029,
+      "d_ecoli_salm": 0.2696,
+      "mi_rank_stage15f": 22
+    },
+    {
+      "name": "bio_virulence_aa_sig",
+      "family": "bio",
+      "d_stec_nonstec": -0.1504,
+      "d_ecoli_salm": -0.6506,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "bio_na_a_form_fraction",
+      "family": "bio",
+      "d_stec_nonstec": 0.5676,
+      "d_ecoli_salm": -0.0946,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "bio_rna_dna_ratio",
+      "family": "bio",
+      "d_stec_nonstec": 0.4495,
+      "d_ecoli_salm": -0.3261,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "dwt_energy_L1",
+      "family": "spectral",
+      "d_stec_nonstec": 0.205,
+      "d_ecoli_salm": -0.2353,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "dwt_entropy_L1",
+      "family": "spectral",
+      "d_stec_nonstec": -1.8262,
+      "d_ecoli_salm": -0.4252,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "dwt_energy_L2",
+      "family": "spectral",
+      "d_stec_nonstec": 0.7301,
+      "d_ecoli_salm": 0.0377,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "dwt_entropy_L2",
+      "family": "spectral",
+      "d_stec_nonstec": -1.2064,
+      "d_ecoli_salm": -0.2351,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "dwt_energy_L3",
+      "family": "spectral",
+      "d_stec_nonstec": 0.6611,
+      "d_ecoli_salm": 0.0058,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "dwt_entropy_L3",
+      "family": "spectral",
+      "d_stec_nonstec": -1.3259,
+      "d_ecoli_salm": -0.2237,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "dwt_energy_L4",
+      "family": "spectral",
+      "d_stec_nonstec": 1.039,
+      "d_ecoli_salm": 0.2511,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "dwt_entropy_L4",
+      "family": "spectral",
+      "d_stec_nonstec": -0.9066,
+      "d_ecoli_salm": -0.5256,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "dwt_energy_L5",
+      "family": "spectral",
+      "d_stec_nonstec": 1.1061,
+      "d_ecoli_salm": -0.0322,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "dwt_entropy_L5",
+      "family": "spectral",
+      "d_stec_nonstec": -0.7759,
+      "d_ecoli_salm": -0.0063,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "dwt_energy_L6",
+      "family": "spectral",
+      "d_stec_nonstec": 1.0064,
+      "d_ecoli_salm": -0.2586,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "dwt_entropy_L6",
+      "family": "spectral",
+      "d_stec_nonstec": -0.8526,
+      "d_ecoli_salm": -0.1392,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "pca_lps_PC1",
+      "family": "spectral",
+      "d_stec_nonstec": 0.1044,
+      "d_ecoli_salm": -0.5183,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "pca_lps_PC2",
+      "family": "spectral",
+      "d_stec_nonstec": 0.4978,
+      "d_ecoli_salm": -0.3927,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "pca_lps_PC3",
+      "family": "spectral",
+      "d_stec_nonstec": 1.0319,
+      "d_ecoli_salm": 0.3578,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "pca_lps_PC4",
+      "family": "spectral",
+      "d_stec_nonstec": -0.0048,
+      "d_ecoli_salm": -0.0839,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "pca_lps_PC5",
+      "family": "spectral",
+      "d_stec_nonstec": -0.5207,
+      "d_ecoli_salm": -0.6662,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "pca_amide_PC1",
+      "family": "spectral",
+      "d_stec_nonstec": 0.146,
+      "d_ecoli_salm": 0.4218,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "pca_amide_PC2",
+      "family": "spectral",
+      "d_stec_nonstec": -0.666,
+      "d_ecoli_salm": -0.2962,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "pca_amide_PC3",
+      "family": "spectral",
+      "d_stec_nonstec": 0.891,
+      "d_ecoli_salm": 0.1164,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "pca_chstretch_PC1",
+      "family": "spectral",
+      "d_stec_nonstec": 0.1555,
+      "d_ecoli_salm": 0.3848,
+      "mi_rank_stage15f": null,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "pca_chstretch_PC2",
+      "family": "spectral",
+      "d_stec_nonstec": -0.0808,
+      "d_ecoli_salm": -0.2742,
+      "mi_rank_stage15f": 29,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "pca_chstretch_PC3",
+      "family": "spectral",
+      "d_stec_nonstec": -0.1401,
+      "d_ecoli_salm": -0.054,
+      "mi_rank_stage15f": 30,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "sam_class_H2O",
+      "family": "spectral",
+      "d_stec_nonstec": -0.4933,
+      "d_ecoli_salm": -0.5678,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_class_Non-STEC",
+      "family": "spectral",
+      "d_stec_nonstec": -0.3593,
+      "d_ecoli_salm": -0.6084,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_class_STEC",
+      "family": "spectral",
+      "d_stec_nonstec": -0.404,
+      "d_ecoli_salm": -0.5916,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_class_Salmonella",
+      "family": "spectral",
+      "d_stec_nonstec": -0.3503,
+      "d_ecoli_salm": -0.5546,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_sub_83972",
+      "family": "spectral",
+      "d_stec_nonstec": -0.2161,
+      "d_ecoli_salm": -0.5201,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_sub_ATCC25922",
+      "family": "spectral",
+      "d_stec_nonstec": -0.3868,
+      "d_ecoli_salm": -0.6234,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_sub_Dublin",
+      "family": "spectral",
+      "d_stec_nonstec": -0.4433,
+      "d_ecoli_salm": -0.5568,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_sub_H2O",
+      "family": "spectral",
+      "d_stec_nonstec": -0.4933,
+      "d_ecoli_salm": -0.5678,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_sub_Heidelburg",
+      "family": "spectral",
+      "d_stec_nonstec": -0.3169,
+      "d_ecoli_salm": -0.5372,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_sub_K-12",
+      "family": "spectral",
+      "d_stec_nonstec": -0.4442,
+      "d_ecoli_salm": -0.6152,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_sub_O103H2",
+      "family": "spectral",
+      "d_stec_nonstec": -0.4665,
+      "d_ecoli_salm": -0.5977,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_sub_O121H19",
+      "family": "spectral",
+      "d_stec_nonstec": -0.3836,
+      "d_ecoli_salm": -0.5803,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_sub_O157H7",
+      "family": "spectral",
+      "d_stec_nonstec": -0.3016,
+      "d_ecoli_salm": -0.5068,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_sub_Typhimurium",
+      "family": "spectral",
+      "d_stec_nonstec": -0.1755,
+      "d_ecoli_salm": -0.3013,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_class_H2O",
+      "family": "spectral",
+      "d_stec_nonstec": -0.3495,
+      "d_ecoli_salm": -0.7402,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_class_Non-STEC",
+      "family": "spectral",
+      "d_stec_nonstec": -0.2547,
+      "d_ecoli_salm": -0.7429,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_class_STEC",
+      "family": "spectral",
+      "d_stec_nonstec": -0.2917,
+      "d_ecoli_salm": -0.7494,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_class_Salmonella",
+      "family": "spectral",
+      "d_stec_nonstec": -0.2655,
+      "d_ecoli_salm": -0.7359,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_sub_83972",
+      "family": "spectral",
+      "d_stec_nonstec": -0.2296,
+      "d_ecoli_salm": -0.746,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_sub_ATCC25922",
+      "family": "spectral",
+      "d_stec_nonstec": -0.2368,
+      "d_ecoli_salm": -0.7355,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_sub_Dublin",
+      "family": "spectral",
+      "d_stec_nonstec": -0.2076,
+      "d_ecoli_salm": -0.6573,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_sub_H2O",
+      "family": "spectral",
+      "d_stec_nonstec": -0.3495,
+      "d_ecoli_salm": -0.7402,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_sub_Heidelburg",
+      "family": "spectral",
+      "d_stec_nonstec": -0.251,
+      "d_ecoli_salm": -0.7413,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_sub_K-12",
+      "family": "spectral",
+      "d_stec_nonstec": -0.279,
+      "d_ecoli_salm": -0.7324,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_sub_O103H2",
+      "family": "spectral",
+      "d_stec_nonstec": -0.253,
+      "d_ecoli_salm": -0.7153,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_sub_O121H19",
+      "family": "spectral",
+      "d_stec_nonstec": -0.2842,
+      "d_ecoli_salm": -0.744,
+      "mi_rank_stage15f": 32
+    },
+    {
+      "name": "sam_lps_sub_O157H7",
+      "family": "spectral",
+      "d_stec_nonstec": -0.2685,
+      "d_ecoli_salm": -0.7237,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "sam_lps_sub_Typhimurium",
+      "family": "spectral",
+      "d_stec_nonstec": -0.1744,
+      "d_ecoli_salm": -0.5547,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C1_mean",
+      "family": "mcr",
+      "d_stec_nonstec": -0.6234,
+      "d_ecoli_salm": -0.0317,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C1_std",
+      "family": "mcr",
+      "d_stec_nonstec": -0.5444,
+      "d_ecoli_salm": -0.0949,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C1_max",
+      "family": "mcr",
+      "d_stec_nonstec": -0.3319,
+      "d_ecoli_salm": -0.4749,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C1_p90",
+      "family": "mcr",
+      "d_stec_nonstec": -0.5632,
+      "d_ecoli_salm": 0.1438,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C2_mean",
+      "family": "mcr",
+      "d_stec_nonstec": -0.5934,
+      "d_ecoli_salm": -0.0861,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C2_std",
+      "family": "mcr",
+      "d_stec_nonstec": -0.2385,
+      "d_ecoli_salm": -0.3462,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C2_max",
+      "family": "mcr",
+      "d_stec_nonstec": -0.0058,
+      "d_ecoli_salm": -0.2345,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C2_p90",
+      "family": "mcr",
+      "d_stec_nonstec": -0.8409,
+      "d_ecoli_salm": -0.0902,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C3_mean",
+      "family": "mcr",
+      "d_stec_nonstec": 0.3772,
+      "d_ecoli_salm": -0.8742,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C3_std",
+      "family": "mcr",
+      "d_stec_nonstec": -0.1793,
+      "d_ecoli_salm": -0.2527,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C3_max",
+      "family": "mcr",
+      "d_stec_nonstec": 0.2523,
+      "d_ecoli_salm": 0.2488,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C3_p90",
+      "family": "mcr",
+      "d_stec_nonstec": 0.1575,
+      "d_ecoli_salm": -0.4563,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C4_mean",
+      "family": "mcr",
+      "d_stec_nonstec": 0.5377,
+      "d_ecoli_salm": 0.4071,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C4_std",
+      "family": "mcr",
+      "d_stec_nonstec": -0.1908,
+      "d_ecoli_salm": -0.0638,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C4_max",
+      "family": "mcr",
+      "d_stec_nonstec": 0.2782,
+      "d_ecoli_salm": -0.3324,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C4_p90",
+      "family": "mcr",
+      "d_stec_nonstec": 0.6083,
+      "d_ecoli_salm": 0.3139,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C5_mean",
+      "family": "mcr",
+      "d_stec_nonstec": 0.8438,
+      "d_ecoli_salm": 0.6086,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C5_std",
+      "family": "mcr",
+      "d_stec_nonstec": -0.2241,
+      "d_ecoli_salm": 0.0056,
+      "mi_rank_stage15f": 35
+    },
+    {
+      "name": "mcr_C5_max",
+      "family": "mcr",
+      "d_stec_nonstec": 0.1827,
+      "d_ecoli_salm": -0.2482,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C5_p90",
+      "family": "mcr",
+      "d_stec_nonstec": 0.5813,
+      "d_ecoli_salm": 0.5295,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C6_mean",
+      "family": "mcr",
+      "d_stec_nonstec": -1.2312,
+      "d_ecoli_salm": -0.0838,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C6_std",
+      "family": "mcr",
+      "d_stec_nonstec": -0.3829,
+      "d_ecoli_salm": 0.0577,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C6_max",
+      "family": "mcr",
+      "d_stec_nonstec": -0.326,
+      "d_ecoli_salm": 0.0151,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C6_p90",
+      "family": "mcr",
+      "d_stec_nonstec": -0.6773,
+      "d_ecoli_salm": 0.071,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C7_mean",
+      "family": "mcr",
+      "d_stec_nonstec": -0.2031,
+      "d_ecoli_salm": -0.2765,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C7_std",
+      "family": "mcr",
+      "d_stec_nonstec": -0.7699,
+      "d_ecoli_salm": -0.2195,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C7_max",
+      "family": "mcr",
+      "d_stec_nonstec": -0.6779,
+      "d_ecoli_salm": -0.2925,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C7_p90",
+      "family": "mcr",
+      "d_stec_nonstec": -0.6263,
+      "d_ecoli_salm": -0.0786,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C8_mean",
+      "family": "mcr",
+      "d_stec_nonstec": null,
+      "d_ecoli_salm": null,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C8_std",
+      "family": "mcr",
+      "d_stec_nonstec": null,
+      "d_ecoli_salm": null,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C8_max",
+      "family": "mcr",
+      "d_stec_nonstec": null,
+      "d_ecoli_salm": null,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "mcr_C8_p90",
+      "family": "mcr",
+      "d_stec_nonstec": null,
+      "d_ecoli_salm": null,
+      "mi_rank_stage15f": null
+    },
+    {
+      "name": "spat_var_lps_chain",
+      "family": "spatial",
+      "d_stec_nonstec": -0.0668,
+      "d_ecoli_salm": -0.1529,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "spat_var_ch_stretch",
+      "family": "spatial",
+      "d_stec_nonstec": -0.1308,
+      "d_ecoli_salm": -0.2114,
+      "mi_rank_stage15f": null,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "spat_cv_lps_chain",
+      "family": "spatial",
+      "d_stec_nonstec": -0.0214,
+      "d_ecoli_salm": -0.2769,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "spat_cv_ch_stretch",
+      "family": "spatial",
+      "d_stec_nonstec": -0.3391,
+      "d_ecoli_salm": -0.1837,
+      "mi_rank_stage15f": null,
+      "region": "ch_stretch"
+    },
+    {
+      "name": "spat_kurt_lps_1050",
+      "family": "spatial",
+      "d_stec_nonstec": 0.1698,
+      "d_ecoli_salm": 0.2115,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "spat_kurt_lps_1117",
+      "family": "spatial",
+      "d_stec_nonstec": 0.3601,
+      "d_ecoli_salm": 0.1324,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "spat_kurt_lps_1194",
+      "family": "spatial",
+      "d_stec_nonstec": 0.3475,
+      "d_ecoli_salm": -0.4167,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "spat_skew_lps_1050",
+      "family": "spatial",
+      "d_stec_nonstec": 0.1315,
+      "d_ecoli_salm": 0.4943,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "spat_skew_lps_1117",
+      "family": "spatial",
+      "d_stec_nonstec": 0.4852,
+      "d_ecoli_salm": 0.7248,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    },
+    {
+      "name": "spat_skew_lps_1194",
+      "family": "spatial",
+      "d_stec_nonstec": 0.3367,
+      "d_ecoli_salm": -0.022,
+      "mi_rank_stage15f": null,
+      "region": "lps_chain"
+    }
+  ],
+  "per_class_stats": {
+    "auc_aromatic_aa": {
+      "STEC": {
+        "mean": -35.59362,
+        "std": 4.003991,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -36.122501,
+        "std": 1.834386,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -33.804876,
+        "std": 5.36759,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -34.443652,
+        "std": 0.737447,
+        "n": 8
+      }
+    },
+    "auc_protein_amide": {
+      "STEC": {
+        "mean": -20.617489,
+        "std": 1.59174,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -20.435966,
+        "std": 1.162851,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -20.929164,
+        "std": 2.002019,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -21.919893,
+        "std": 0.499416,
+        "n": 8
+      }
+    },
+    "auc_nucleic_acid": {
+      "STEC": {
+        "mean": -50.526805,
+        "std": 0.931604,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -50.707342,
+        "std": 0.641362,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -51.465418,
+        "std": 1.787319,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -50.735979,
+        "std": 0.528561,
+        "n": 8
+      }
+    },
+    "auc_lipid_carbohydrate": {
+      "STEC": {
+        "mean": -59.291469,
+        "std": 2.985137,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -60.021923,
+        "std": 2.771846,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -59.520086,
+        "std": 3.975592,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -60.288134,
+        "std": 0.98013,
+        "n": 8
+      }
+    },
+    "auc_metabolite": {
+      "STEC": {
+        "mean": -8.806206,
+        "std": 1.78805,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -8.120718,
+        "std": 1.5659,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -8.092586,
+        "std": 2.242124,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -9.216879,
+        "std": 0.415333,
+        "n": 8
+      }
+    },
+    "auc_lps_o_antigen_full": {
+      "STEC": {
+        "mean": 446.32936,
+        "std": 23.58945,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 452.183591,
+        "std": 18.408136,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 454.958779,
+        "std": 37.091123,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 444.231464,
+        "std": 8.649616,
+        "n": 8
+      }
+    },
+    "auc_lps_chain_discrim": {
+      "STEC": {
+        "mean": -105.545162,
+        "std": 12.342794,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -108.24613,
+        "std": 5.602741,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -99.058265,
+        "std": 16.183829,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -102.715159,
+        "std": 2.079309,
+        "n": 8
+      }
+    },
+    "auc_lps_1050": {
+      "STEC": {
+        "mean": -4.462121,
+        "std": 0.496318,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -4.555211,
+        "std": 0.340553,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -4.002879,
+        "std": 0.462431,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -4.41026,
+        "std": 0.093781,
+        "n": 8
+      }
+    },
+    "auc_lps_1117": {
+      "STEC": {
+        "mean": -6.917664,
+        "std": 0.426784,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.203924,
+        "std": 0.306376,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -6.836573,
+        "std": 0.322526,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -6.857367,
+        "std": 0.047945,
+        "n": 8
+      }
+    },
+    "auc_lps_1194": {
+      "STEC": {
+        "mean": -6.807143,
+        "std": 0.300727,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.141162,
+        "std": 0.346632,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -6.965646,
+        "std": 0.462644,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -5.978524,
+        "std": 0.072964,
+        "n": 8
+      }
+    },
+    "auc_aa_762": {
+      "STEC": {
+        "mean": -1.168015,
+        "std": 1.511271,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.995644,
+        "std": 1.051014,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.665824,
+        "std": 2.257537,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -1.146125,
+        "std": 0.327431,
+        "n": 8
+      }
+    },
+    "auc_aa_831": {
+      "STEC": {
+        "mean": 1.862517,
+        "std": 1.093355,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.708011,
+        "std": 0.617066,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2.219619,
+        "std": 1.668276,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 2.376649,
+        "std": 0.446807,
+        "n": 8
+      }
+    },
+    "auc_aa_855": {
+      "STEC": {
+        "mean": -2.456619,
+        "std": 1.114626,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -2.513695,
+        "std": 0.644399,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -1.987239,
+        "std": 1.716372,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -2.46906,
+        "std": 0.247033,
+        "n": 8
+      }
+    },
+    "auc_aa_1004": {
+      "STEC": {
+        "mean": -6.422915,
+        "std": 0.676353,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -6.322128,
+        "std": 0.396474,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -5.886769,
+        "std": 0.915498,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -6.867427,
+        "std": 0.085814,
+        "n": 8
+      }
+    },
+    "auc_aa_1014": {
+      "STEC": {
+        "mean": -6.448648,
+        "std": 0.60517,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -6.429161,
+        "std": 0.35349,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -5.965782,
+        "std": 0.723282,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -6.599049,
+        "std": 0.060424,
+        "n": 8
+      }
+    },
+    "auc_aa_1176": {
+      "STEC": {
+        "mean": -6.729533,
+        "std": 0.323499,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -6.992342,
+        "std": 0.342318,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -6.794403,
+        "std": 0.453757,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -6.057212,
+        "std": 0.059583,
+        "n": 8
+      }
+    },
+    "auc_aa_1212": {
+      "STEC": {
+        "mean": -6.524839,
+        "std": 0.339598,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -6.680016,
+        "std": 0.33027,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -6.539441,
+        "std": 0.369225,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -6.076439,
+        "std": 0.08433,
+        "n": 8
+      }
+    },
+    "auc_aa_1617": {
+      "STEC": {
+        "mean": -7.705567,
+        "std": 0.738723,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.897525,
+        "std": 0.473172,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -8.185039,
+        "std": 1.15309,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.604988,
+        "std": 0.190706,
+        "n": 8
+      }
+    },
+    "auc_na_720": {
+      "STEC": {
+        "mean": -2.237312,
+        "std": 1.765767,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -1.835087,
+        "std": 1.338903,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -1.70562,
+        "std": 2.574354,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -2.538342,
+        "std": 0.305784,
+        "n": 8
+      }
+    },
+    "auc_na_786": {
+      "STEC": {
+        "mean": 4.908659,
+        "std": 1.221473,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 4.916635,
+        "std": 0.781867,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 5.277638,
+        "std": 1.926989,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 5.398261,
+        "std": 0.5986,
+        "n": 8
+      }
+    },
+    "auc_na_1335": {
+      "STEC": {
+        "mean": -7.142537,
+        "std": 0.418316,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.180341,
+        "std": 0.361634,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -7.168968,
+        "std": 0.395185,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.658027,
+        "std": 0.198156,
+        "n": 8
+      }
+    },
+    "auc_na_1338": {
+      "STEC": {
+        "mean": -7.163113,
+        "std": 0.419496,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.213693,
+        "std": 0.362273,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -7.206091,
+        "std": 0.407144,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.660822,
+        "std": 0.198885,
+        "n": 8
+      }
+    },
+    "auc_na_1362": {
+      "STEC": {
+        "mean": -7.710447,
+        "std": 0.445119,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.915479,
+        "std": 0.390426,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -7.930532,
+        "std": 0.71402,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.671683,
+        "std": 0.202014,
+        "n": 8
+      }
+    },
+    "auc_na_1485": {
+      "STEC": {
+        "mean": -7.645598,
+        "std": 0.667581,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.660862,
+        "std": 0.397314,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -7.955388,
+        "std": 1.078672,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.664501,
+        "std": 0.201697,
+        "n": 8
+      }
+    },
+    "auc_na_1530": {
+      "STEC": {
+        "mean": -8.06798,
+        "std": 0.786085,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -8.194188,
+        "std": 0.461888,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -8.528961,
+        "std": 1.410326,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.665986,
+        "std": 0.199052,
+        "n": 8
+      }
+    },
+    "auc_na_1575": {
+      "STEC": {
+        "mean": -7.777567,
+        "std": 0.751747,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.907229,
+        "std": 0.437197,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -8.232575,
+        "std": 1.22704,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.611325,
+        "std": 0.190323,
+        "n": 8
+      }
+    },
+    "auc_amide_iii_1242": {
+      "STEC": {
+        "mean": -6.476666,
+        "std": 0.36235,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -6.408305,
+        "std": 0.346335,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -6.370955,
+        "std": 0.308592,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -6.648196,
+        "std": 0.116144,
+        "n": 8
+      }
+    },
+    "auc_amide_i_1658": {
+      "STEC": {
+        "mean": -7.087905,
+        "std": 0.709748,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.043712,
+        "std": 0.445735,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -7.305422,
+        "std": 0.918271,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.635117,
+        "std": 0.191559,
+        "n": 8
+      }
+    },
+    "auc_amide_i_1662": {
+      "STEC": {
+        "mean": -7.052918,
+        "std": 0.714722,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -6.983949,
+        "std": 0.453896,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -7.252787,
+        "std": 0.926628,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.63658,
+        "std": 0.191946,
+        "n": 8
+      }
+    },
+    "auc_lipid_1080": {
+      "STEC": {
+        "mean": -4.832955,
+        "std": 0.423772,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -5.017554,
+        "std": 0.338108,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -4.564474,
+        "std": 0.431522,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -4.771812,
+        "std": 0.069194,
+        "n": 8
+      }
+    },
+    "auc_lipid_1451": {
+      "STEC": {
+        "mean": -6.720284,
+        "std": 0.554586,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -6.479926,
+        "std": 0.420012,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -6.633977,
+        "std": 0.621804,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.664153,
+        "std": 0.203779,
+        "n": 8
+      }
+    },
+    "auc_lipid_1454": {
+      "STEC": {
+        "mean": -6.718403,
+        "std": 0.558928,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -6.484712,
+        "std": 0.418996,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -6.647425,
+        "std": 0.627499,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.664979,
+        "std": 0.203639,
+        "n": 8
+      }
+    },
+    "auc_lipid_1585": {
+      "STEC": {
+        "mean": -7.815448,
+        "std": 0.759371,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.970958,
+        "std": 0.457892,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -8.280266,
+        "std": 1.231742,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.607549,
+        "std": 0.188559,
+        "n": 8
+      }
+    },
+    "auc_lipid_2850": {
+      "STEC": {
+        "mean": -7.847515,
+        "std": 0.768739,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.948289,
+        "std": 0.457648,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -8.216575,
+        "std": 1.152281,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.668472,
+        "std": 0.203975,
+        "n": 8
+      }
+    },
+    "auc_lipid_2930": {
+      "STEC": {
+        "mean": -7.169936,
+        "std": 0.698783,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.220186,
+        "std": 0.443271,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -7.372271,
+        "std": 0.772761,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.665019,
+        "std": 0.203216,
+        "n": 8
+      }
+    },
+    "auc_salm_616": {
+      "STEC": {
+        "mean": 4.921503,
+        "std": 1.810093,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 5.695166,
+        "std": 1.503014,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 5.589753,
+        "std": 2.432776,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 4.369521,
+        "std": 0.53381,
+        "n": 8
+      }
+    },
+    "auc_salm_925": {
+      "STEC": {
+        "mean": -5.844276,
+        "std": 0.859937,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -5.855045,
+        "std": 0.504185,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -5.330781,
+        "std": 1.205152,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -6.075491,
+        "std": 0.118447,
+        "n": 8
+      }
+    },
+    "auc_salm_1486": {
+      "STEC": {
+        "mean": -7.69091,
+        "std": 0.677809,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.717097,
+        "std": 0.402676,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -8.014922,
+        "std": 1.108657,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.663554,
+        "std": 0.20196,
+        "n": 8
+      }
+    },
+    "auc_salm_1542": {
+      "STEC": {
+        "mean": -7.883434,
+        "std": 0.792895,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -7.960838,
+        "std": 0.439954,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -8.351557,
+        "std": 1.395126,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.510909,
+        "std": 0.199819,
+        "n": 8
+      }
+    },
+    "ratio_amide_over_na": {
+      "STEC": {
+        "mean": 0.407156,
+        "std": 0.024735,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.401248,
+        "std": 0.019671,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.404178,
+        "std": 0.028249,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.431758,
+        "std": 0.005307,
+        "n": 8
+      }
+    },
+    "ratio_aa_over_amide": {
+      "STEC": {
+        "mean": 1.813444,
+        "std": 0.257178,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.918851,
+        "std": 0.196506,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.764193,
+        "std": 0.362417,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.580875,
+        "std": 0.067203,
+        "n": 8
+      }
+    },
+    "ratio_lipid_over_protein": {
+      "STEC": {
+        "mean": 2.905372,
+        "std": 0.075604,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 2.983525,
+        "std": 0.093946,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2.882317,
+        "std": 0.108256,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 2.753431,
+        "std": 0.017797,
+        "n": 8
+      }
+    },
+    "ratio_na_over_lipid": {
+      "STEC": {
+        "mean": 0.859612,
+        "std": 0.034703,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.858666,
+        "std": 0.032626,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.879648,
+        "std": 0.040001,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.841718,
+        "std": 0.004944,
+        "n": 8
+      }
+    },
+    "ratio_lps_chain_over_protein": {
+      "STEC": {
+        "mean": 5.379794,
+        "std": 0.725341,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 5.715834,
+        "std": 0.509734,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 5.162607,
+        "std": 1.025917,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 4.716919,
+        "std": 0.193513,
+        "n": 8
+      }
+    },
+    "ratio_lps_1117_over_1050": {
+      "STEC": {
+        "mean": 1.611575,
+        "std": 0.227158,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.747237,
+        "std": 1.23529,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.546382,
+        "std": 1.548213,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.561806,
+        "std": 0.044841,
+        "n": 8
+      }
+    },
+    "ratio_lps_1194_over_1050": {
+      "STEC": {
+        "mean": 1.643158,
+        "std": 0.494375,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.850694,
+        "std": 2.210105,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.497125,
+        "std": 2.577098,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.365389,
+        "std": 0.044414,
+        "n": 8
+      }
+    },
+    "ratio_amide_1658_over_na_1338": {
+      "STEC": {
+        "mean": 0.959735,
+        "std": 0.206044,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.968385,
+        "std": 0.024447,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.008164,
+        "std": 0.081214,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.996534,
+        "std": 0.001567,
+        "n": 8
+      }
+    },
+    "ratio_phe_1004_over_amide_1658": {
+      "STEC": {
+        "mean": 0.980304,
+        "std": 0.186286,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.955935,
+        "std": 0.061328,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.884912,
+        "std": 0.157205,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.905355,
+        "std": 0.026971,
+        "n": 8
+      }
+    },
+    "ratio_na_786_over_phe_1004": {
+      "STEC": {
+        "mean": -0.624698,
+        "std": 0.570124,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.39357,
+        "std": 0.883753,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -1.326695,
+        "std": 2.365893,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.797443,
+        "std": 0.090673,
+        "n": 8
+      }
+    },
+    "fit_lps_1050_center": {
+      "STEC": {
+        "mean": 1052.261919,
+        "std": 1.11173,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1051.656015,
+        "std": 1.3606,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1051.072244,
+        "std": 2.155529,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1057.990359,
+        "std": 0.399958,
+        "n": 8
+      }
+    },
+    "fit_lps_1050_height": {
+      "STEC": {
+        "mean": 0.126796,
+        "std": 0.01941,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.122475,
+        "std": 0.020253,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.138485,
+        "std": 0.031002,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.141872,
+        "std": 0.009955,
+        "n": 8
+      }
+    },
+    "fit_lps_1050_fwhm": {
+      "STEC": {
+        "mean": 50.595769,
+        "std": 7.542344,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 46.260213,
+        "std": 7.560187,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 48.214402,
+        "std": 10.586419,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 58.344433,
+        "std": 3.200018,
+        "n": 8
+      }
+    },
+    "fit_lps_1050_eta": {
+      "STEC": {
+        "mean": 0.084473,
+        "std": 0.060343,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.104146,
+        "std": 0.063143,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.127288,
+        "std": 0.108424,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.019708,
+        "std": 0.009273,
+        "n": 8
+      }
+    },
+    "fit_lps_1050_area": {
+      "STEC": {
+        "mean": 7.448919,
+        "std": 1.983919,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 6.697715,
+        "std": 1.972551,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 7.793904,
+        "std": 2.770825,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 9.117365,
+        "std": 1.021331,
+        "n": 8
+      }
+    },
+    "fit_lps_1050_rmse": {
+      "STEC": {
+        "mean": 0.003001,
+        "std": 0.001248,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.004377,
+        "std": 0.001827,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.004492,
+        "std": 0.002297,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.001383,
+        "std": 9.1e-05,
+        "n": 8
+      }
+    },
+    "fit_lps_1117_center": {
+      "STEC": {
+        "mean": 1114.950259,
+        "std": 0.539013,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1115.236985,
+        "std": 0.424666,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1114.78139,
+        "std": 0.501035,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1116.441795,
+        "std": 0.178979,
+        "n": 8
+      }
+    },
+    "fit_lps_1117_height": {
+      "STEC": {
+        "mean": -0.084284,
+        "std": 0.014272,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.080859,
+        "std": 0.00895,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.081749,
+        "std": 0.022633,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.11984,
+        "std": 0.004641,
+        "n": 8
+      }
+    },
+    "fit_lps_1117_fwhm": {
+      "STEC": {
+        "mean": 50.682276,
+        "std": 5.748787,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 44.177659,
+        "std": 5.615627,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 44.42812,
+        "std": 13.618951,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 61.387328,
+        "std": 0.567172,
+        "n": 8
+      }
+    },
+    "fit_lps_1117_eta": {
+      "STEC": {
+        "mean": 0.186408,
+        "std": 0.05303,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.209009,
+        "std": 0.059851,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.152235,
+        "std": 0.070208,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.059279,
+        "std": 0.011299,
+        "n": 8
+      }
+    },
+    "fit_lps_1117_area": {
+      "STEC": {
+        "mean": -5.434534,
+        "std": 0.924397,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -4.694298,
+        "std": 0.831166,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -4.919541,
+        "std": 2.077334,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -8.141618,
+        "std": 0.360947,
+        "n": 8
+      }
+    },
+    "fit_lps_1117_rmse": {
+      "STEC": {
+        "mean": 0.003132,
+        "std": 0.002034,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.003003,
+        "std": 0.000544,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.003313,
+        "std": 0.001074,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.000971,
+        "std": 5.7e-05,
+        "n": 8
+      }
+    },
+    "fit_lps_1194_center": {
+      "STEC": {
+        "mean": 1193.683042,
+        "std": 0.592456,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1193.732896,
+        "std": 0.747985,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1193.63742,
+        "std": 0.683876,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1193.205731,
+        "std": 0.91527,
+        "n": 8
+      }
+    },
+    "fit_lps_1194_height": {
+      "STEC": {
+        "mean": -0.010517,
+        "std": 0.01175,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.025451,
+        "std": 0.01635,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.024599,
+        "std": 0.017038,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.033768,
+        "std": 0.001627,
+        "n": 8
+      }
+    },
+    "fit_lps_1194_fwhm": {
+      "STEC": {
+        "mean": 27.637792,
+        "std": 7.896966,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 24.885763,
+        "std": 5.702296,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 24.269538,
+        "std": 6.475331,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 66.331384,
+        "std": 1.201558,
+        "n": 8
+      }
+    },
+    "fit_lps_1194_eta": {
+      "STEC": {
+        "mean": 0.057097,
+        "std": 0.029089,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.121128,
+        "std": 0.054633,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.082407,
+        "std": 0.038449,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.054428,
+        "std": 0.007374,
+        "n": 8
+      }
+    },
+    "fit_lps_1194_area": {
+      "STEC": {
+        "mean": 0.238671,
+        "std": 0.481628,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.301567,
+        "std": 0.594294,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.226807,
+        "std": 0.590026,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 2.427482,
+        "std": 0.107388,
+        "n": 8
+      }
+    },
+    "fit_lps_1194_rmse": {
+      "STEC": {
+        "mean": 0.002478,
+        "std": 0.00045,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.002702,
+        "std": 0.000544,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.002669,
+        "std": 0.000323,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.001126,
+        "std": 9.6e-05,
+        "n": 8
+      }
+    },
+    "fit_na_1338_center": {
+      "STEC": {
+        "mean": 1337.397054,
+        "std": 1.000658,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1338.13829,
+        "std": 0.846054,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1337.749763,
+        "std": 0.743856,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1336.713198,
+        "std": 0.561849,
+        "n": 8
+      }
+    },
+    "fit_na_1338_height": {
+      "STEC": {
+        "mean": 0.029828,
+        "std": 0.014048,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.036384,
+        "std": 0.011969,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.037345,
+        "std": 0.018491,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.002317,
+        "std": 0.000812,
+        "n": 8
+      }
+    },
+    "fit_na_1338_fwhm": {
+      "STEC": {
+        "mean": 34.568886,
+        "std": 2.969486,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 37.17995,
+        "std": 3.839894,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 35.407853,
+        "std": 2.836899,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 22.641275,
+        "std": 2.509589,
+        "n": 8
+      }
+    },
+    "fit_na_1338_eta": {
+      "STEC": {
+        "mean": 0.232876,
+        "std": 0.039087,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.266905,
+        "std": 0.033027,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.253054,
+        "std": 0.042225,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.17859,
+        "std": 0.017166,
+        "n": 8
+      }
+    },
+    "fit_na_1338_area": {
+      "STEC": {
+        "mean": 1.467249,
+        "std": 0.767794,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.935233,
+        "std": 0.726052,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.909623,
+        "std": 1.053623,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.117926,
+        "std": 0.049474,
+        "n": 8
+      }
+    },
+    "fit_na_1338_rmse": {
+      "STEC": {
+        "mean": 0.002058,
+        "std": 0.00051,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.002774,
+        "std": 0.000878,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.002635,
+        "std": 0.000843,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.000721,
+        "std": 4e-05,
+        "n": 8
+      }
+    },
+    "fit_lipid_1454_center": {
+      "STEC": {
+        "mean": 1452.971316,
+        "std": 0.799782,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1451.957391,
+        "std": 0.899636,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1452.04067,
+        "std": 0.958509,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1454.347823,
+        "std": 0.503751,
+        "n": 8
+      }
+    },
+    "fit_lipid_1454_height": {
+      "STEC": {
+        "mean": 0.07103,
+        "std": 0.023925,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.100678,
+        "std": 0.022536,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.103937,
+        "std": 0.05027,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.000426,
+        "std": 0.00065,
+        "n": 8
+      }
+    },
+    "fit_lipid_1454_fwhm": {
+      "STEC": {
+        "mean": 35.591787,
+        "std": 3.031843,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 38.66456,
+        "std": 2.00704,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 39.219878,
+        "std": 2.81343,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 20.570317,
+        "std": 2.52573,
+        "n": 8
+      }
+    },
+    "fit_lipid_1454_eta": {
+      "STEC": {
+        "mean": 0.128104,
+        "std": 0.036188,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.14565,
+        "std": 0.0436,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.111756,
+        "std": 0.042026,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.166873,
+        "std": 0.022362,
+        "n": 8
+      }
+    },
+    "fit_lipid_1454_area": {
+      "STEC": {
+        "mean": 3.218517,
+        "std": 0.965495,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 4.946806,
+        "std": 1.111294,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 4.962783,
+        "std": 2.250051,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.021473,
+        "std": 0.044904,
+        "n": 8
+      }
+    },
+    "fit_lipid_1454_rmse": {
+      "STEC": {
+        "mean": 0.001907,
+        "std": 0.000345,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.002503,
+        "std": 0.000661,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.002531,
+        "std": 0.000731,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.000719,
+        "std": 6.1e-05,
+        "n": 8
+      }
+    },
+    "fit_amide_i_1658_center": {
+      "STEC": {
+        "mean": 1663.698486,
+        "std": 1.925562,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1665.083863,
+        "std": 1.6607,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1664.110925,
+        "std": 2.095183,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1657.96133,
+        "std": 1.180066,
+        "n": 8
+      }
+    },
+    "fit_amide_i_1658_height": {
+      "STEC": {
+        "mean": 0.04539,
+        "std": 0.015737,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.064276,
+        "std": 0.019333,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.057876,
+        "std": 0.030588,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.000173,
+        "std": 0.001246,
+        "n": 8
+      }
+    },
+    "fit_amide_i_1658_fwhm": {
+      "STEC": {
+        "mean": 38.346891,
+        "std": 4.770965,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 40.4181,
+        "std": 2.858926,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 39.730922,
+        "std": 4.365788,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 19.302457,
+        "std": 2.12165,
+        "n": 8
+      }
+    },
+    "fit_amide_i_1658_eta": {
+      "STEC": {
+        "mean": 0.115314,
+        "std": 0.033388,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.127332,
+        "std": 0.042432,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.119472,
+        "std": 0.05409,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.166656,
+        "std": 0.020753,
+        "n": 8
+      }
+    },
+    "fit_amide_i_1658_area": {
+      "STEC": {
+        "mean": 2.304563,
+        "std": 0.904264,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 3.340358,
+        "std": 1.097009,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2.837058,
+        "std": 1.447455,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.005506,
+        "std": 0.071373,
+        "n": 8
+      }
+    },
+    "fit_amide_i_1658_rmse": {
+      "STEC": {
+        "mean": 0.00137,
+        "std": 0.000245,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.001797,
+        "std": 0.000416,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.001981,
+        "std": 0.000641,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.000647,
+        "std": 4.4e-05,
+        "n": 8
+      }
+    },
+    "fit_aa_1004_center": {
+      "STEC": {
+        "mean": 1006.269642,
+        "std": 1.331393,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1005.517967,
+        "std": 0.92694,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1005.940808,
+        "std": 1.345153,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1006.53269,
+        "std": 1.330124,
+        "n": 8
+      }
+    },
+    "fit_aa_1004_height": {
+      "STEC": {
+        "mean": -0.015346,
+        "std": 0.023151,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.014364,
+        "std": 0.027022,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.011462,
+        "std": 0.036295,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.120464,
+        "std": 0.009597,
+        "n": 8
+      }
+    },
+    "fit_aa_1004_fwhm": {
+      "STEC": {
+        "mean": 32.064163,
+        "std": 8.270454,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 27.281578,
+        "std": 7.83158,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 29.333167,
+        "std": 9.864715,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 68.330021,
+        "std": 0.827102,
+        "n": 8
+      }
+    },
+    "fit_aa_1004_eta": {
+      "STEC": {
+        "mean": 0.016646,
+        "std": 0.011257,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.031419,
+        "std": 0.044308,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.043242,
+        "std": 0.0671,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.015697,
+        "std": 0.006737,
+        "n": 8
+      }
+    },
+    "fit_aa_1004_area": {
+      "STEC": {
+        "mean": -2.7248,
+        "std": 1.188241,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -1.387211,
+        "std": 1.352632,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -1.504834,
+        "std": 1.454991,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -8.862702,
+        "std": 0.756472,
+        "n": 8
+      }
+    },
+    "fit_aa_1004_rmse": {
+      "STEC": {
+        "mean": 0.007388,
+        "std": 0.001501,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.0067,
+        "std": 0.00188,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.006536,
+        "std": 0.001941,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.001406,
+        "std": 0.000458,
+        "n": 8
+      }
+    },
+    "fit_amide_iii_1242_center": {
+      "STEC": {
+        "mean": 1240.42661,
+        "std": 1.455873,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1241.047954,
+        "std": 1.814094,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1241.019287,
+        "std": 1.554269,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1233.036918,
+        "std": 1.013422,
+        "n": 8
+      }
+    },
+    "fit_amide_iii_1242_height": {
+      "STEC": {
+        "mean": 0.044026,
+        "std": 0.006466,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.06129,
+        "std": 0.015237,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.049142,
+        "std": 0.019842,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.015281,
+        "std": 0.00153,
+        "n": 8
+      }
+    },
+    "fit_amide_iii_1242_fwhm": {
+      "STEC": {
+        "mean": 44.94104,
+        "std": 2.738989,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 46.917679,
+        "std": 4.006988,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 42.658936,
+        "std": 2.97599,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 41.735872,
+        "std": 3.034091,
+        "n": 8
+      }
+    },
+    "fit_amide_iii_1242_eta": {
+      "STEC": {
+        "mean": 0.145857,
+        "std": 0.040536,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.131551,
+        "std": 0.036364,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.1385,
+        "std": 0.049365,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.213556,
+        "std": 0.028907,
+        "n": 8
+      }
+    },
+    "fit_amide_iii_1242_area": {
+      "STEC": {
+        "mean": 2.393705,
+        "std": 0.357297,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 3.506758,
+        "std": 1.014094,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2.547946,
+        "std": 1.019823,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.883263,
+        "std": 0.128321,
+        "n": 8
+      }
+    },
+    "fit_amide_iii_1242_rmse": {
+      "STEC": {
+        "mean": 0.001663,
+        "std": 0.000187,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.002178,
+        "std": 0.000452,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.002068,
+        "std": 0.000354,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.001012,
+        "std": 4.5e-05,
+        "n": 8
+      }
+    },
+    "roi_fingerprint_low_mean": {
+      "STEC": {
+        "mean": 1.137001,
+        "std": 0.045391,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.152436,
+        "std": 0.038269,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.152987,
+        "std": 0.070951,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.128468,
+        "std": 0.017165,
+        "n": 8
+      }
+    },
+    "roi_fingerprint_low_std": {
+      "STEC": {
+        "mean": 1.522916,
+        "std": 0.072767,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.500383,
+        "std": 0.058347,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.492845,
+        "std": 0.099239,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.548635,
+        "std": 0.018925,
+        "n": 8
+      }
+    },
+    "roi_fingerprint_low_skew": {
+      "STEC": {
+        "mean": 0.909588,
+        "std": 0.04051,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.896607,
+        "std": 0.044631,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.895336,
+        "std": 0.039135,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.9342,
+        "std": 0.032334,
+        "n": 8
+      }
+    },
+    "roi_fingerprint_low_kurt": {
+      "STEC": {
+        "mean": -0.919477,
+        "std": 0.040771,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.918297,
+        "std": 0.044065,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.934509,
+        "std": 0.068358,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.917635,
+        "std": 0.07229,
+        "n": 8
+      }
+    },
+    "roi_fingerprint_low_centroid": {
+      "STEC": {
+        "mean": 463.302202,
+        "std": 10.379064,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 465.372876,
+        "std": 7.676407,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 466.254485,
+        "std": 15.413488,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 463.466885,
+        "std": 3.577729,
+        "n": 8
+      }
+    },
+    "roi_fingerprint_low_entropy": {
+      "STEC": {
+        "mean": 4.800556,
+        "std": 0.049679,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 4.836237,
+        "std": 0.053925,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 4.852984,
+        "std": 0.064428,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 4.751257,
+        "std": 0.012571,
+        "n": 8
+      }
+    },
+    "roi_lps_chain_mean": {
+      "STEC": {
+        "mean": -0.263174,
+        "std": 0.030866,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.269955,
+        "std": 0.013995,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.247001,
+        "std": 0.040476,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.255943,
+        "std": 0.005235,
+        "n": 8
+      }
+    },
+    "roi_lps_chain_std": {
+      "STEC": {
+        "mean": 0.171035,
+        "std": 0.01796,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.173385,
+        "std": 0.013339,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.176078,
+        "std": 0.027359,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.172843,
+        "std": 0.008886,
+        "n": 8
+      }
+    },
+    "roi_lps_chain_skew": {
+      "STEC": {
+        "mean": 1.88845,
+        "std": 0.147372,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.825682,
+        "std": 0.10228,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.712975,
+        "std": 0.230527,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 2.10662,
+        "std": 0.011574,
+        "n": 8
+      }
+    },
+    "roi_lps_chain_kurt": {
+      "STEC": {
+        "mean": 2.832718,
+        "std": 0.357498,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 2.646807,
+        "std": 0.266313,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2.339093,
+        "std": 0.578204,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 3.43138,
+        "std": 0.040612,
+        "n": 8
+      }
+    },
+    "roi_lps_chain_centroid": {
+      "STEC": {
+        "mean": 1054.980261,
+        "std": 50.810565,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1045.856755,
+        "std": 21.719745,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1079.609459,
+        "std": 298.44108,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1049.278946,
+        "std": 4.492555,
+        "n": 8
+      }
+    },
+    "roi_lps_chain_entropy": {
+      "STEC": {
+        "mean": 5.406726,
+        "std": 0.022919,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 5.405698,
+        "std": 0.012225,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 5.384533,
+        "std": 0.038508,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 5.433599,
+        "std": 0.001419,
+        "n": 8
+      }
+    },
+    "roi_protein_amide_extended_mean": {
+      "STEC": {
+        "mean": -0.393264,
+        "std": 0.021606,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.394935,
+        "std": 0.018449,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.397439,
+        "std": 0.029307,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.401406,
+        "std": 0.009608,
+        "n": 8
+      }
+    },
+    "roi_protein_amide_extended_std": {
+      "STEC": {
+        "mean": 0.032832,
+        "std": 0.011593,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.036157,
+        "std": 0.00811,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.041001,
+        "std": 0.017804,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.027706,
+        "std": 0.002207,
+        "n": 8
+      }
+    },
+    "roi_protein_amide_extended_skew": {
+      "STEC": {
+        "mean": 0.819131,
+        "std": 0.135828,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.678026,
+        "std": 0.218664,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.71358,
+        "std": 0.276183,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.724835,
+        "std": 0.022029,
+        "n": 8
+      }
+    },
+    "roi_protein_amide_extended_kurt": {
+      "STEC": {
+        "mean": -0.079867,
+        "std": 0.298358,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.190951,
+        "std": 0.374221,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.144811,
+        "std": 0.266817,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.48294,
+        "std": 0.065426,
+        "n": 8
+      }
+    },
+    "roi_protein_amide_extended_centroid": {
+      "STEC": {
+        "mean": 1352.558684,
+        "std": 4.304672,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1353.01981,
+        "std": 0.886277,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1354.35215,
+        "std": 2.706281,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1354.665146,
+        "std": 0.281962,
+        "n": 8
+      }
+    },
+    "roi_protein_amide_extended_entropy": {
+      "STEC": {
+        "mean": 5.179201,
+        "std": 0.014379,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 5.181115,
+        "std": 0.003546,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 5.179764,
+        "std": 0.005296,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 5.18489,
+        "std": 0.000289,
+        "n": 8
+      }
+    },
+    "roi_amide_aromatic_mean": {
+      "STEC": {
+        "mean": -0.413507,
+        "std": 0.041017,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.418255,
+        "std": 0.024008,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.435459,
+        "std": 0.06538,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.410757,
+        "std": 0.010601,
+        "n": 8
+      }
+    },
+    "roi_amide_aromatic_std": {
+      "STEC": {
+        "mean": 0.024555,
+        "std": 0.005186,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.028564,
+        "std": 0.005261,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.028816,
+        "std": 0.008664,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.01467,
+        "std": 0.000769,
+        "n": 8
+      }
+    },
+    "roi_amide_aromatic_skew": {
+      "STEC": {
+        "mean": 1.616813,
+        "std": 0.36432,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.492075,
+        "std": 0.334226,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.532763,
+        "std": 0.440945,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 3.642464,
+        "std": 0.048069,
+        "n": 8
+      }
+    },
+    "roi_amide_aromatic_kurt": {
+      "STEC": {
+        "mean": 4.068454,
+        "std": 1.561962,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 3.099642,
+        "std": 1.48703,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 3.282467,
+        "std": 1.942795,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 12.903925,
+        "std": 0.245519,
+        "n": 8
+      }
+    },
+    "roi_amide_aromatic_centroid": {
+      "STEC": {
+        "mean": 1597.669614,
+        "std": 4.244179,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1598.146157,
+        "std": 0.883016,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1598.258753,
+        "std": 1.649362,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1600.639771,
+        "std": 0.044903,
+        "n": 8
+      }
+    },
+    "roi_amide_aromatic_entropy": {
+      "STEC": {
+        "mean": 4.782164,
+        "std": 0.013188,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 4.783607,
+        "std": 0.002498,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 4.784281,
+        "std": 0.001759,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 4.786812,
+        "std": 8.9e-05,
+        "n": 8
+      }
+    },
+    "roi_silent_mean": {
+      "STEC": {
+        "mean": -0.437107,
+        "std": 0.045737,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.4442,
+        "std": 0.027831,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.462131,
+        "std": 0.075747,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.417104,
+        "std": 0.01103,
+        "n": 8
+      }
+    },
+    "roi_silent_std": {
+      "STEC": {
+        "mean": 0.005047,
+        "std": 0.001619,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.005916,
+        "std": 0.001503,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.006158,
+        "std": 0.002061,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.001083,
+        "std": 8.8e-05,
+        "n": 8
+      }
+    },
+    "roi_silent_skew": {
+      "STEC": {
+        "mean": 1.055163,
+        "std": 0.24572,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.079116,
+        "std": 0.23276,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.000416,
+        "std": 0.509903,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.004757,
+        "std": 0.075671,
+        "n": 8
+      }
+    },
+    "roi_silent_kurt": {
+      "STEC": {
+        "mean": 1.75677,
+        "std": 0.495644,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.954564,
+        "std": 0.489233,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.810571,
+        "std": 1.070125,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.284047,
+        "std": 0.0806,
+        "n": 8
+      }
+    },
+    "roi_silent_centroid": {
+      "STEC": {
+        "mean": 1749.192139,
+        "std": 4.694167,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1750.091343,
+        "std": 0.086106,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1750.038579,
+        "std": 0.187673,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1749.83876,
+        "std": 0.006997,
+        "n": 8
+      }
+    },
+    "roi_silent_entropy": {
+      "STEC": {
+        "mean": 4.074959,
+        "std": 0.011011,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 4.077244,
+        "std": 0.0008,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 4.07727,
+        "std": 0.000575,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 4.077534,
+        "std": 1e-06,
+        "n": 8
+      }
+    },
+    "roi_ch_stretch_mean": {
+      "STEC": {
+        "mean": -0.418514,
+        "std": 0.040407,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.423676,
+        "std": 0.024636,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.437476,
+        "std": 0.057774,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.416839,
+        "std": 0.011057,
+        "n": 8
+      }
+    },
+    "roi_ch_stretch_std": {
+      "STEC": {
+        "mean": 0.01915,
+        "std": 0.01128,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.020299,
+        "std": 0.005495,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.023984,
+        "std": 0.016686,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.000536,
+        "std": 3.6e-05,
+        "n": 8
+      }
+    },
+    "roi_ch_stretch_skew": {
+      "STEC": {
+        "mean": 0.237227,
+        "std": 0.057524,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.257518,
+        "std": 0.061202,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.25235,
+        "std": 0.086181,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.065394,
+        "std": 0.052659,
+        "n": 8
+      }
+    },
+    "roi_ch_stretch_kurt": {
+      "STEC": {
+        "mean": -0.990972,
+        "std": 0.217668,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -1.03966,
+        "std": 0.213239,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -1.041624,
+        "std": 0.275839,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.021957,
+        "std": 0.124593,
+        "n": 8
+      }
+    },
+    "roi_ch_stretch_centroid": {
+      "STEC": {
+        "mean": 2923.657787,
+        "std": 8.316966,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 2924.77249,
+        "std": 0.224103,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2924.821009,
+        "std": 0.13328,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 2924.604767,
+        "std": 0.001568,
+        "n": 8
+      }
+    },
+    "roi_ch_stretch_entropy": {
+      "STEC": {
+        "mean": 5.005564,
+        "std": 0.013698,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 5.008016,
+        "std": 0.0016,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 5.007606,
+        "std": 0.003061,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 5.010634,
+        "std": 0.0,
+        "n": 8
+      }
+    },
+    "emsc_a": {
+      "STEC": {
+        "mean": 0.013192,
+        "std": 0.045736,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.000326,
+        "std": 0.036028,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.006665,
+        "std": 0.06869,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.026955,
+        "std": 0.014374,
+        "n": 8
+      }
+    },
+    "emsc_b": {
+      "STEC": {
+        "mean": 1.018675,
+        "std": 0.063799,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.002631,
+        "std": 0.049018,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.990048,
+        "std": 0.088304,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.039835,
+        "std": 0.016947,
+        "n": 8
+      }
+    },
+    "emsc_c1": {
+      "STEC": {
+        "mean": 0.030589,
+        "std": 0.103654,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.005297,
+        "std": 0.077565,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.01595,
+        "std": 0.153859,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.056702,
+        "std": 0.031219,
+        "n": 8
+      }
+    },
+    "emsc_c2": {
+      "STEC": {
+        "mean": -0.013192,
+        "std": 0.045736,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.000326,
+        "std": 0.036028,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.006665,
+        "std": 0.06869,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.026955,
+        "std": 0.014374,
+        "n": 8
+      }
+    },
+    "d1_auc_lps_1050": {
+      "STEC": {
+        "mean": 0.038208,
+        "std": 0.005793,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.041214,
+        "std": 0.006795,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.045356,
+        "std": 0.022332,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.039873,
+        "std": 0.002542,
+        "n": 8
+      }
+    },
+    "d1_auc_lps_1117": {
+      "STEC": {
+        "mean": 0.031633,
+        "std": 0.004411,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.036667,
+        "std": 0.003985,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.036982,
+        "std": 0.009,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.023635,
+        "std": 0.001478,
+        "n": 8
+      }
+    },
+    "d1_auc_lps_1194": {
+      "STEC": {
+        "mean": 0.028822,
+        "std": 0.011835,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.041691,
+        "std": 0.016793,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.041712,
+        "std": 0.016801,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.005352,
+        "std": 0.000377,
+        "n": 8
+      }
+    },
+    "d1_auc_na_1338": {
+      "STEC": {
+        "mean": 0.016923,
+        "std": 0.005589,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.020857,
+        "std": 0.006274,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.022114,
+        "std": 0.010014,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.003593,
+        "std": 0.000298,
+        "n": 8
+      }
+    },
+    "d1_auc_lipid_1454": {
+      "STEC": {
+        "mean": 0.020584,
+        "std": 0.006641,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.026391,
+        "std": 0.006617,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.026922,
+        "std": 0.013106,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.003402,
+        "std": 0.000272,
+        "n": 8
+      }
+    },
+    "d1_auc_amide_i_1658": {
+      "STEC": {
+        "mean": 0.01614,
+        "std": 0.004358,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.023845,
+        "std": 0.007917,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.022798,
+        "std": 0.007386,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.003228,
+        "std": 0.000206,
+        "n": 8
+      }
+    },
+    "d1_auc_aa_1004": {
+      "STEC": {
+        "mean": 0.059999,
+        "std": 0.018951,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.077234,
+        "std": 0.020546,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.075132,
+        "std": 0.036411,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.017669,
+        "std": 0.000726,
+        "n": 8
+      }
+    },
+    "d1_auc_amide_iii_1242": {
+      "STEC": {
+        "mean": 0.019073,
+        "std": 0.00267,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.019905,
+        "std": 0.003298,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.020586,
+        "std": 0.002295,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.024942,
+        "std": 0.001669,
+        "n": 8
+      }
+    },
+    "d2_auc_lps_1050": {
+      "STEC": {
+        "mean": 0.004772,
+        "std": 0.001095,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.00589,
+        "std": 0.001479,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.006602,
+        "std": 0.00333,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.003395,
+        "std": 0.00027,
+        "n": 8
+      }
+    },
+    "d2_auc_lps_1117": {
+      "STEC": {
+        "mean": 0.004325,
+        "std": 0.001392,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.004901,
+        "std": 0.000593,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.004775,
+        "std": 0.001198,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.003071,
+        "std": 0.000136,
+        "n": 8
+      }
+    },
+    "d2_auc_lps_1194": {
+      "STEC": {
+        "mean": 0.003858,
+        "std": 0.001514,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.005527,
+        "std": 0.002171,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.005573,
+        "std": 0.002167,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.000924,
+        "std": 6.4e-05,
+        "n": 8
+      }
+    },
+    "d2_auc_na_1338": {
+      "STEC": {
+        "mean": 0.002504,
+        "std": 0.000819,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.003092,
+        "std": 0.000823,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.003049,
+        "std": 0.001176,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.000577,
+        "std": 3.7e-05,
+        "n": 8
+      }
+    },
+    "d2_auc_lipid_1454": {
+      "STEC": {
+        "mean": 0.003966,
+        "std": 0.0013,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.004996,
+        "std": 0.00117,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.005093,
+        "std": 0.00256,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.000568,
+        "std": 4.2e-05,
+        "n": 8
+      }
+    },
+    "d2_auc_amide_i_1658": {
+      "STEC": {
+        "mean": 0.002003,
+        "std": 0.000537,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.002427,
+        "std": 0.000532,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.002805,
+        "std": 0.001147,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.000528,
+        "std": 3.5e-05,
+        "n": 8
+      }
+    },
+    "d2_auc_aa_1004": {
+      "STEC": {
+        "mean": 0.008192,
+        "std": 0.002437,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.010403,
+        "std": 0.002779,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.00998,
+        "std": 0.004893,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.002182,
+        "std": 0.000172,
+        "n": 8
+      }
+    },
+    "d2_auc_amide_iii_1242": {
+      "STEC": {
+        "mean": 0.002078,
+        "std": 0.000373,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.002624,
+        "std": 0.00053,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.00262,
+        "std": 0.000685,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.000858,
+        "std": 5.1e-05,
+        "n": 8
+      }
+    },
+    "bio_cyt_pyrrole_ratio": {
+      "STEC": {
+        "mean": 0.403946,
+        "std": 0.370537,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.593075,
+        "std": 0.669388,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.020422,
+        "std": 1.504038,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.297209,
+        "std": 0.043393,
+        "n": 8
+      }
+    },
+    "bio_cyt_ox_state": {
+      "STEC": {
+        "mean": 0.977509,
+        "std": 0.025859,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.968041,
+        "std": 0.009745,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.967154,
+        "std": 0.020344,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.000121,
+        "std": 0.000441,
+        "n": 8
+      }
+    },
+    "bio_cyt_total": {
+      "STEC": {
+        "mean": -16.925603,
+        "std": 0.944705,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -17.114668,
+        "std": 0.577724,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -16.850274,
+        "std": 1.177457,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -16.626013,
+        "std": 0.113719,
+        "n": 8
+      }
+    },
+    "bio_alpha_helix_score": {
+      "STEC": {
+        "mean": 1.019188,
+        "std": 0.024706,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.046784,
+        "std": 0.031156,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.03787,
+        "std": 0.022501,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.998673,
+        "std": 0.001336,
+        "n": 8
+      }
+    },
+    "bio_beta_sheet_amide3": {
+      "STEC": {
+        "mean": 0.888113,
+        "std": 0.01164,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.886329,
+        "std": 0.012153,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.882753,
+        "std": 0.011978,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.87276,
+        "std": 0.005543,
+        "n": 8
+      }
+    },
+    "bio_phb_carbonyl": {
+      "STEC": {
+        "mean": -8.053306,
+        "std": 0.836518,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -8.197872,
+        "std": 0.509982,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -8.524344,
+        "std": 1.381342,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -7.682946,
+        "std": 0.203099,
+        "n": 8
+      }
+    },
+    "bio_phb_score": {
+      "STEC": {
+        "mean": 11.972683,
+        "std": 55.113495,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 6.244761,
+        "std": 25.428194,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.272347,
+        "std": 1.416478,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.553588,
+        "std": 0.026217,
+        "n": 8
+      }
+    },
+    "bio_tyr_doublet_ratio": {
+      "STEC": {
+        "mean": 2.538242,
+        "std": 8.732135,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -8.0848,
+        "std": 43.891403,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.323414,
+        "std": 4.065569,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.630926,
+        "std": 0.197833,
+        "n": 8
+      }
+    },
+    "bio_trp_content": {
+      "STEC": {
+        "mean": -8.767109,
+        "std": 0.807894,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -8.607746,
+        "std": 0.710863,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -8.73612,
+        "std": 0.993977,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -8.496861,
+        "std": 0.140867,
+        "n": 8
+      }
+    },
+    "bio_trp_indole_env": {
+      "STEC": {
+        "mean": 0.937549,
+        "std": 0.025532,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.923153,
+        "std": 0.021946,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.921888,
+        "std": 0.043735,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.998839,
+        "std": 0.000698,
+        "n": 8
+      }
+    },
+    "bio_virulence_aa_sig": {
+      "STEC": {
+        "mean": 1.290397,
+        "std": 0.382578,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.337553,
+        "std": 0.21474,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.69815,
+        "std": 0.920506,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.239805,
+        "std": 0.009573,
+        "n": 8
+      }
+    },
+    "bio_na_a_form_fraction": {
+      "STEC": {
+        "mean": 1.545521,
+        "std": 3.32419,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.588248,
+        "std": 4.180189,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.825847,
+        "std": 1.243981,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.724491,
+        "std": 0.023563,
+        "n": 8
+      }
+    },
+    "bio_rna_dna_ratio": {
+      "STEC": {
+        "mean": 0.782509,
+        "std": 0.069233,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.671629,
+        "std": 0.348649,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.530157,
+        "std": 4.212877,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.839701,
+        "std": 0.007954,
+        "n": 8
+      }
+    },
+    "dwt_energy_L1": {
+      "STEC": {
+        "mean": 0.000533,
+        "std": 0.00026,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.000483,
+        "std": 0.00023,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.000613,
+        "std": 0.000676,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.00017,
+        "std": 5.8e-05,
+        "n": 8
+      }
+    },
+    "dwt_entropy_L1": {
+      "STEC": {
+        "mean": 3.939943,
+        "std": 0.315311,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 4.448648,
+        "std": 0.232289,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 4.33851,
+        "std": 0.331755,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 3.988217,
+        "std": 0.235447,
+        "n": 8
+      }
+    },
+    "dwt_energy_L2": {
+      "STEC": {
+        "mean": 0.020529,
+        "std": 0.010707,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.014381,
+        "std": 0.004857,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.017236,
+        "std": 0.009075,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.007523,
+        "std": 0.002619,
+        "n": 8
+      }
+    },
+    "dwt_entropy_L2": {
+      "STEC": {
+        "mean": 2.259369,
+        "std": 0.324572,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 2.646275,
+        "std": 0.316491,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2.530221,
+        "std": 0.336306,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 2.341513,
+        "std": 0.261476,
+        "n": 8
+      }
+    },
+    "dwt_energy_L3": {
+      "STEC": {
+        "mean": 0.176192,
+        "std": 0.063463,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.143089,
+        "std": 0.029331,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.159953,
+        "std": 0.063221,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.096726,
+        "std": 0.019185,
+        "n": 8
+      }
+    },
+    "dwt_entropy_L3": {
+      "STEC": {
+        "mean": 2.147015,
+        "std": 0.152998,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 2.334614,
+        "std": 0.127845,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2.274841,
+        "std": 0.166621,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 2.02231,
+        "std": 0.131009,
+        "n": 8
+      }
+    },
+    "dwt_energy_L4": {
+      "STEC": {
+        "mean": 1.193162,
+        "std": 0.384927,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.878604,
+        "std": 0.174481,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.96196,
+        "std": 0.273256,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.87518,
+        "std": 0.1309,
+        "n": 8
+      }
+    },
+    "dwt_entropy_L4": {
+      "STEC": {
+        "mean": 0.81208,
+        "std": 0.2008,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.014689,
+        "std": 0.245704,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.031057,
+        "std": 0.204748,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.82497,
+        "std": 0.110047,
+        "n": 8
+      }
+    },
+    "dwt_energy_L5": {
+      "STEC": {
+        "mean": 2.485801,
+        "std": 0.490029,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 2.044356,
+        "std": 0.267783,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2.288015,
+        "std": 0.436795,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 2.592397,
+        "std": 0.57929,
+        "n": 8
+      }
+    },
+    "dwt_entropy_L5": {
+      "STEC": {
+        "mean": 1.635048,
+        "std": 0.07787,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.710427,
+        "std": 0.114429,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.672046,
+        "std": 0.14923,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.412104,
+        "std": 0.103316,
+        "n": 8
+      }
+    },
+    "dwt_energy_L6": {
+      "STEC": {
+        "mean": 10.257829,
+        "std": 1.369073,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 8.842152,
+        "std": 1.446396,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 10.021228,
+        "std": 1.981851,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 14.588132,
+        "std": 4.561996,
+        "n": 8
+      }
+    },
+    "dwt_entropy_L6": {
+      "STEC": {
+        "mean": 1.322196,
+        "std": 0.071366,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.399524,
+        "std": 0.107788,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.376673,
+        "std": 0.164148,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.082183,
+        "std": 0.065792,
+        "n": 8
+      }
+    },
+    "pca_lps_PC1": {
+      "STEC": {
+        "mean": -0.152345,
+        "std": 0.568658,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.199998,
+        "std": 0.289159,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.137625,
+        "std": 0.82323,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.126838,
+        "std": 0.118681,
+        "n": 8
+      }
+    },
+    "pca_lps_PC2": {
+      "STEC": {
+        "mean": 0.006012,
+        "std": 0.190818,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.094498,
+        "std": 0.21327,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.04596,
+        "std": 0.257204,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.071985,
+        "std": 0.063835,
+        "n": 8
+      }
+    },
+    "pca_lps_PC3": {
+      "STEC": {
+        "mean": 0.012713,
+        "std": 0.072129,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.071222,
+        "std": 0.090269,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.064092,
+        "std": 0.120377,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.325385,
+        "std": 0.07275,
+        "n": 8
+      }
+    },
+    "pca_lps_PC4": {
+      "STEC": {
+        "mean": 0.002572,
+        "std": 0.106254,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.002961,
+        "std": 0.038614,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.008894,
+        "std": 0.056247,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.028039,
+        "std": 0.044426,
+        "n": 8
+      }
+    },
+    "pca_lps_PC5": {
+      "STEC": {
+        "mean": -0.014402,
+        "std": 0.048332,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.005298,
+        "std": 0.02125,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.022018,
+        "std": 0.04358,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.008164,
+        "std": 0.049081,
+        "n": 8
+      }
+    },
+    "pca_amide_PC1": {
+      "STEC": {
+        "mean": 0.139612,
+        "std": 0.449347,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.085339,
+        "std": 0.262966,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.103808,
+        "std": 0.720389,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.180418,
+        "std": 0.116009,
+        "n": 8
+      }
+    },
+    "pca_amide_PC2": {
+      "STEC": {
+        "mean": -0.001272,
+        "std": 0.052847,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.038505,
+        "std": 0.066384,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.041755,
+        "std": 0.107881,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.190765,
+        "std": 0.005475,
+        "n": 8
+      }
+    },
+    "pca_amide_PC3": {
+      "STEC": {
+        "mean": 0.013199,
+        "std": 0.024492,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.018497,
+        "std": 0.044568,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.006671,
+        "std": 0.041858,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.01741,
+        "std": 0.005675,
+        "n": 8
+      }
+    },
+    "pca_chstretch_PC1": {
+      "STEC": {
+        "mean": 0.151679,
+        "std": 0.496201,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.087227,
+        "std": 0.301771,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.085545,
+        "std": 0.719879,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.194954,
+        "std": 0.134745,
+        "n": 8
+      }
+    },
+    "pca_chstretch_PC2": {
+      "STEC": {
+        "mean": 0.010719,
+        "std": 0.12892,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.019081,
+        "std": 0.065517,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.048535,
+        "std": 0.156143,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.212909,
+        "std": 0.01321,
+        "n": 8
+      }
+    },
+    "pca_chstretch_PC3": {
+      "STEC": {
+        "mean": 0.000476,
+        "std": 0.042838,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.005294,
+        "std": 0.021781,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.004445,
+        "std": 0.022171,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.029931,
+        "std": 0.002521,
+        "n": 8
+      }
+    },
+    "sam_class_H2O": {
+      "STEC": {
+        "mean": 0.0928,
+        "std": 0.039861,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.113218,
+        "std": 0.042987,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.127135,
+        "std": 0.044946,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.040431,
+        "std": 0.010466,
+        "n": 8
+      }
+    },
+    "sam_class_Non-STEC": {
+      "STEC": {
+        "mean": 0.093473,
+        "std": 0.041048,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.10858,
+        "std": 0.043099,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.125932,
+        "std": 0.039564,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.065218,
+        "std": 0.009012,
+        "n": 8
+      }
+    },
+    "sam_class_STEC": {
+      "STEC": {
+        "mean": 0.093683,
+        "std": 0.040587,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.110568,
+        "std": 0.043064,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.126109,
+        "std": 0.038708,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.060381,
+        "std": 0.007555,
+        "n": 8
+      }
+    },
+    "sam_class_Salmonella": {
+      "STEC": {
+        "mean": 0.101057,
+        "std": 0.039234,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.115352,
+        "std": 0.04245,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.129689,
+        "std": 0.035418,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.0687,
+        "std": 0.002701,
+        "n": 8
+      }
+    },
+    "sam_sub_83972": {
+      "STEC": {
+        "mean": 0.114916,
+        "std": 0.037716,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.123445,
+        "std": 0.041299,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.138274,
+        "std": 0.032044,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.092113,
+        "std": 0.002244,
+        "n": 8
+      }
+    },
+    "sam_sub_ATCC25922": {
+      "STEC": {
+        "mean": 0.090419,
+        "std": 0.041956,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.106877,
+        "std": 0.043187,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.124937,
+        "std": 0.042161,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.063034,
+        "std": 0.011753,
+        "n": 8
+      }
+    },
+    "sam_sub_Dublin": {
+      "STEC": {
+        "mean": 0.092014,
+        "std": 0.042864,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.110695,
+        "std": 0.04135,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.127284,
+        "std": 0.054877,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.056279,
+        "std": 0.024022,
+        "n": 8
+      }
+    },
+    "sam_sub_H2O": {
+      "STEC": {
+        "mean": 0.0928,
+        "std": 0.039861,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.113218,
+        "std": 0.042987,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.127135,
+        "std": 0.044946,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.040431,
+        "std": 0.010466,
+        "n": 8
+      }
+    },
+    "sam_sub_Heidelburg": {
+      "STEC": {
+        "mean": 0.105984,
+        "std": 0.038845,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.118798,
+        "std": 0.042086,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.13275,
+        "std": 0.033627,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.077594,
+        "std": 0.002001,
+        "n": 8
+      }
+    },
+    "sam_sub_K-12": {
+      "STEC": {
+        "mean": 0.086865,
+        "std": 0.041629,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.105733,
+        "std": 0.043373,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.123001,
+        "std": 0.045666,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.052277,
+        "std": 0.017856,
+        "n": 8
+      }
+    },
+    "sam_sub_O103H2": {
+      "STEC": {
+        "mean": 0.088909,
+        "std": 0.042503,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.108644,
+        "std": 0.042083,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.125181,
+        "std": 0.048079,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.057497,
+        "std": 0.018689,
+        "n": 8
+      }
+    },
+    "sam_sub_O121H19": {
+      "STEC": {
+        "mean": 0.095422,
+        "std": 0.03998,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.111357,
+        "std": 0.043161,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.126674,
+        "std": 0.03808,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.060523,
+        "std": 0.006754,
+        "n": 8
+      }
+    },
+    "sam_sub_O157H7": {
+      "STEC": {
+        "mean": 0.111309,
+        "std": 0.03819,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.123417,
+        "std": 0.042159,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.136308,
+        "std": 0.032689,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.080638,
+        "std": 0.00352,
+        "n": 8
+      }
+    },
+    "sam_sub_Typhimurium": {
+      "STEC": {
+        "mean": 0.143262,
+        "std": 0.034064,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.149715,
+        "std": 0.039498,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.156805,
+        "std": 0.030571,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.118654,
+        "std": 0.009873,
+        "n": 8
+      }
+    },
+    "sam_lps_class_H2O": {
+      "STEC": {
+        "mean": 0.183932,
+        "std": 0.094864,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.21358,
+        "std": 0.072431,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.274358,
+        "std": 0.130706,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.071326,
+        "std": 0.009022,
+        "n": 8
+      }
+    },
+    "sam_lps_class_Non-STEC": {
+      "STEC": {
+        "mean": 0.177037,
+        "std": 0.100852,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.199476,
+        "std": 0.071805,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.265419,
+        "std": 0.130876,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.11363,
+        "std": 0.015983,
+        "n": 8
+      }
+    },
+    "sam_lps_class_STEC": {
+      "STEC": {
+        "mean": 0.183529,
+        "std": 0.096832,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.208644,
+        "std": 0.072709,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.270133,
+        "std": 0.121336,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.103809,
+        "std": 0.007757,
+        "n": 8
+      }
+    },
+    "sam_lps_class_Salmonella": {
+      "STEC": {
+        "mean": 0.197902,
+        "std": 0.094029,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.220272,
+        "std": 0.072208,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.278421,
+        "std": 0.112743,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.120406,
+        "std": 0.003516,
+        "n": 8
+      }
+    },
+    "sam_lps_sub_83972": {
+      "STEC": {
+        "mean": 0.197799,
+        "std": 0.096086,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.217346,
+        "std": 0.071387,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.278744,
+        "std": 0.114505,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.134847,
+        "std": 0.007148,
+        "n": 8
+      }
+    },
+    "sam_lps_sub_ATCC25922": {
+      "STEC": {
+        "mean": 0.174596,
+        "std": 0.103538,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.195823,
+        "std": 0.07157,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.264514,
+        "std": 0.138247,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.117036,
+        "std": 0.021131,
+        "n": 8
+      }
+    },
+    "sam_lps_sub_Dublin": {
+      "STEC": {
+        "mean": 0.181645,
+        "std": 0.108418,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.200789,
+        "std": 0.070578,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.268906,
+        "std": 0.158846,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.122199,
+        "std": 0.029521,
+        "n": 8
+      }
+    },
+    "sam_lps_sub_H2O": {
+      "STEC": {
+        "mean": 0.183932,
+        "std": 0.094864,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.21358,
+        "std": 0.072431,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.274358,
+        "std": 0.130706,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.071326,
+        "std": 0.009022,
+        "n": 8
+      }
+    },
+    "sam_lps_sub_Heidelburg": {
+      "STEC": {
+        "mean": 0.198112,
+        "std": 0.094859,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.219388,
+        "std": 0.072227,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.278729,
+        "std": 0.112527,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.127343,
+        "std": 0.004624,
+        "n": 8
+      }
+    },
+    "sam_lps_sub_K-12": {
+      "STEC": {
+        "mean": 0.171141,
+        "std": 0.101405,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.195909,
+        "std": 0.072639,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.261662,
+        "std": 0.136606,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.100162,
+        "std": 0.018395,
+        "n": 8
+      }
+    },
+    "sam_lps_sub_O103H2": {
+      "STEC": {
+        "mean": 0.172455,
+        "std": 0.104418,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.195275,
+        "std": 0.071701,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.262996,
+        "std": 0.144026,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.111181,
+        "std": 0.023339,
+        "n": 8
+      }
+    },
+    "sam_lps_sub_O121H19": {
+      "STEC": {
+        "mean": 0.18887,
+        "std": 0.095486,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.213083,
+        "std": 0.072413,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.27328,
+        "std": 0.11865,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.109307,
+        "std": 0.005836,
+        "n": 8
+      }
+    },
+    "sam_lps_sub_O157H7": {
+      "STEC": {
+        "mean": 0.218754,
+        "std": 0.089945,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.240792,
+        "std": 0.072627,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.293961,
+        "std": 0.101991,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.126339,
+        "std": 0.009785,
+        "n": 8
+      }
+    },
+    "sam_lps_sub_Typhimurium": {
+      "STEC": {
+        "mean": 0.304809,
+        "std": 0.077899,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.317722,
+        "std": 0.069648,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.352053,
+        "std": 0.074674,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.233029,
+        "std": 0.021485,
+        "n": 8
+      }
+    },
+    "mcr_C1_mean": {
+      "STEC": {
+        "mean": 1.813137,
+        "std": 0.571367,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 2.151465,
+        "std": 0.509805,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.994749,
+        "std": 0.65927,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.434196,
+        "std": 0.114737,
+        "n": 8
+      }
+    },
+    "mcr_C1_std": {
+      "STEC": {
+        "mean": 1.029429,
+        "std": 0.68334,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.389774,
+        "std": 0.638002,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.259417,
+        "std": 0.387766,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.252452,
+        "std": 0.132596,
+        "n": 8
+      }
+    },
+    "mcr_C1_max": {
+      "STEC": {
+        "mean": 5.224127,
+        "std": 2.554542,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 6.099751,
+        "std": 2.725551,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 6.933734,
+        "std": 2.83625,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 2.577172,
+        "std": 1.227396,
+        "n": 8
+      }
+    },
+    "mcr_C1_p90": {
+      "STEC": {
+        "mean": 3.145075,
+        "std": 1.651556,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 4.046644,
+        "std": 1.543814,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 3.37019,
+        "std": 0.939952,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.662193,
+        "std": 0.173576,
+        "n": 8
+      }
+    },
+    "mcr_C2_mean": {
+      "STEC": {
+        "mean": 1.669893,
+        "std": 0.239568,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.806407,
+        "std": 0.219254,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.760184,
+        "std": 0.363256,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.993608,
+        "std": 0.228565,
+        "n": 8
+      }
+    },
+    "mcr_C2_std": {
+      "STEC": {
+        "mean": 0.593906,
+        "std": 0.280453,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.654874,
+        "std": 0.225638,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.727113,
+        "std": 0.373068,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.104758,
+        "std": 0.074563,
+        "n": 8
+      }
+    },
+    "mcr_C2_max": {
+      "STEC": {
+        "mean": 3.601762,
+        "std": 1.470199,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 3.609838,
+        "std": 1.301234,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 4.217557,
+        "std": 4.055371,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.468652,
+        "std": 0.992464,
+        "n": 8
+      }
+    },
+    "mcr_C2_p90": {
+      "STEC": {
+        "mean": 2.312874,
+        "std": 0.296971,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 2.611006,
+        "std": 0.407855,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2.491776,
+        "std": 0.41791,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 1.095567,
+        "std": 0.225805,
+        "n": 8
+      }
+    },
+    "mcr_C3_mean": {
+      "STEC": {
+        "mean": 8.980742,
+        "std": 0.455885,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 8.821581,
+        "std": 0.381682,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 9.286182,
+        "std": 0.458733,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 8.904981,
+        "std": 0.117096,
+        "n": 8
+      }
+    },
+    "mcr_C3_std": {
+      "STEC": {
+        "mean": 1.213364,
+        "std": 0.741633,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.327866,
+        "std": 0.503627,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.415464,
+        "std": 0.460352,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.285221,
+        "std": 0.078793,
+        "n": 8
+      }
+    },
+    "mcr_C3_max": {
+      "STEC": {
+        "mean": 13.09607,
+        "std": 3.418108,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 12.400564,
+        "std": 1.78112,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 12.169764,
+        "std": 1.384311,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 9.562421,
+        "std": 0.66287,
+        "n": 8
+      }
+    },
+    "mcr_C3_p90": {
+      "STEC": {
+        "mean": 10.451855,
+        "std": 1.367832,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 10.278558,
+        "std": 0.703819,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 10.862935,
+        "std": 1.064827,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 9.271366,
+        "std": 0.156305,
+        "n": 8
+      }
+    },
+    "mcr_C4_mean": {
+      "STEC": {
+        "mean": 8.411966,
+        "std": 0.543117,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 8.120091,
+        "std": 0.542428,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 8.000057,
+        "std": 0.842081,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 9.378522,
+        "std": 0.302356,
+        "n": 8
+      }
+    },
+    "mcr_C4_std": {
+      "STEC": {
+        "mean": 1.250905,
+        "std": 0.733406,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.383518,
+        "std": 0.650575,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.35708,
+        "std": 0.60861,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.396659,
+        "std": 0.104385,
+        "n": 8
+      }
+    },
+    "mcr_C4_max": {
+      "STEC": {
+        "mean": 9.763887,
+        "std": 0.336575,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 9.677541,
+        "std": 0.27911,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 9.881486,
+        "std": 0.69983,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 9.763,
+        "std": 0.347159,
+        "n": 8
+      }
+    },
+    "mcr_C4_p90": {
+      "STEC": {
+        "mean": 9.537067,
+        "std": 0.199029,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 9.41091,
+        "std": 0.216114,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 9.402105,
+        "std": 0.274467,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 9.723471,
+        "std": 0.336518,
+        "n": 8
+      }
+    },
+    "mcr_C5_mean": {
+      "STEC": {
+        "mean": 2.749786,
+        "std": 0.20454,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 2.570327,
+        "std": 0.221176,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2.473394,
+        "std": 0.431146,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 3.467835,
+        "std": 0.025778,
+        "n": 8
+      }
+    },
+    "mcr_C5_std": {
+      "STEC": {
+        "mean": 0.675641,
+        "std": 0.248236,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.72462,
+        "std": 0.181069,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.697993,
+        "std": 0.205883,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.156848,
+        "std": 0.030681,
+        "n": 8
+      }
+    },
+    "mcr_C5_max": {
+      "STEC": {
+        "mean": 3.845514,
+        "std": 0.84463,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 3.714493,
+        "std": 0.546231,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 4.090881,
+        "std": 1.890828,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 3.635408,
+        "std": 0.062963,
+        "n": 8
+      }
+    },
+    "mcr_C5_p90": {
+      "STEC": {
+        "mean": 3.527948,
+        "std": 0.079356,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 3.455028,
+        "std": 0.161114,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 3.408236,
+        "std": 0.20683,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 3.601299,
+        "std": 0.024332,
+        "n": 8
+      }
+    },
+    "mcr_C6_mean": {
+      "STEC": {
+        "mean": 1.243792,
+        "std": 0.141521,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.427533,
+        "std": 0.157178,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.349741,
+        "std": 0.266941,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.690459,
+        "std": 0.071825,
+        "n": 8
+      }
+    },
+    "mcr_C6_std": {
+      "STEC": {
+        "mean": 0.49523,
+        "std": 0.217364,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.579242,
+        "std": 0.221657,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.522443,
+        "std": 0.241824,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.14544,
+        "std": 0.021714,
+        "n": 8
+      }
+    },
+    "mcr_C6_max": {
+      "STEC": {
+        "mean": 2.995335,
+        "std": 1.360212,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 3.499528,
+        "std": 1.725662,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 3.212716,
+        "std": 1.848764,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.90709,
+        "std": 0.090659,
+        "n": 8
+      }
+    },
+    "mcr_C6_p90": {
+      "STEC": {
+        "mean": 1.833052,
+        "std": 0.399845,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 2.09592,
+        "std": 0.374997,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.927241,
+        "std": 0.534133,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.820998,
+        "std": 0.050971,
+        "n": 8
+      }
+    },
+    "mcr_C7_mean": {
+      "STEC": {
+        "mean": 4.998913,
+        "std": 0.668898,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 5.118583,
+        "std": 0.488227,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 5.281266,
+        "std": 1.132547,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 4.773473,
+        "std": 0.191455,
+        "n": 8
+      }
+    },
+    "mcr_C7_std": {
+      "STEC": {
+        "mean": 1.192473,
+        "std": 0.528522,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.694466,
+        "std": 0.7636,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1.579942,
+        "std": 0.607207,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.419879,
+        "std": 0.101581,
+        "n": 8
+      }
+    },
+    "mcr_C7_max": {
+      "STEC": {
+        "mean": 8.749941,
+        "std": 1.661973,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 10.161575,
+        "std": 2.458187,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 10.076404,
+        "std": 2.277682,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 6.191455,
+        "std": 1.257384,
+        "n": 8
+      }
+    },
+    "mcr_C7_p90": {
+      "STEC": {
+        "mean": 6.604497,
+        "std": 1.510341,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 7.640059,
+        "std": 1.795463,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 7.243511,
+        "std": 1.936427,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 5.260984,
+        "std": 0.167123,
+        "n": 8
+      }
+    },
+    "mcr_C8_mean": {
+      "STEC": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 8
+      }
+    },
+    "mcr_C8_std": {
+      "STEC": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 8
+      }
+    },
+    "mcr_C8_max": {
+      "STEC": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 8
+      }
+    },
+    "mcr_C8_p90": {
+      "STEC": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 8
+      }
+    },
+    "spat_var_lps_chain": {
+      "STEC": {
+        "mean": 838.443132,
+        "std": 1483.62739,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 925.447859,
+        "std": 1074.554339,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 1074.736835,
+        "std": 1233.305992,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 79.125787,
+        "std": 26.84389,
+        "n": 8
+      }
+    },
+    "spat_var_ch_stretch": {
+      "STEC": {
+        "mean": 245.125073,
+        "std": 379.0353,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 288.220435,
+        "std": 265.418052,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 334.884723,
+        "std": 326.036586,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 20.455792,
+        "std": 10.469382,
+        "n": 8
+      }
+    },
+    "spat_cv_lps_chain": {
+      "STEC": {
+        "mean": 0.243394,
+        "std": 0.288843,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.248465,
+        "std": 0.163596,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.314545,
+        "std": 0.272351,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.08577,
+        "std": 0.015581,
+        "n": 8
+      }
+    },
+    "spat_cv_ch_stretch": {
+      "STEC": {
+        "mean": 0.155644,
+        "std": 0.085384,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.183212,
+        "std": 0.076651,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.183558,
+        "std": 0.075994,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.053093,
+        "std": 0.012249,
+        "n": 8
+      }
+    },
+    "spat_kurt_lps_1050": {
+      "STEC": {
+        "mean": 5.235183,
+        "std": 9.686862,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 3.850536,
+        "std": 6.076599,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2.969627,
+        "std": 6.364899,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.912762,
+        "std": 0.639659,
+        "n": 8
+      }
+    },
+    "spat_kurt_lps_1117": {
+      "STEC": {
+        "mean": 4.552432,
+        "std": 9.902175,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.791582,
+        "std": 4.026144,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 2.30909,
+        "std": 4.996692,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 2.137265,
+        "std": 4.925337,
+        "n": 8
+      }
+    },
+    "spat_kurt_lps_1194": {
+      "STEC": {
+        "mean": 2.259576,
+        "std": 3.7644,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 1.06163,
+        "std": 3.066252,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 3.262938,
+        "std": 4.356819,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 7.34594,
+        "std": 15.805947,
+        "n": 8
+      }
+    },
+    "spat_skew_lps_1050": {
+      "STEC": {
+        "mean": 1.02282,
+        "std": 1.664252,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.822364,
+        "std": 1.356954,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": 0.206588,
+        "std": 1.338127,
+        "n": 27
+      },
+      "H2O": {
+        "mean": 0.393093,
+        "std": 0.515457,
+        "n": 8
+      }
+    },
+    "spat_skew_lps_1117": {
+      "STEC": {
+        "mean": 0.724162,
+        "std": 1.746329,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": 0.010153,
+        "std": 1.099161,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.624847,
+        "std": 1.132371,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -0.453619,
+        "std": 1.16867,
+        "n": 8
+      }
+    },
+    "spat_skew_lps_1194": {
+      "STEC": {
+        "mean": -0.688703,
+        "std": 1.050477,
+        "n": 27
+      },
+      "Non-STEC": {
+        "mean": -0.995269,
+        "std": 0.728794,
+        "n": 25
+      },
+      "Salmonella": {
+        "mean": -0.816059,
+        "std": 0.907554,
+        "n": 27
+      },
+      "H2O": {
+        "mean": -1.725963,
+        "std": 1.95344,
+        "n": 8
+      }
+    }
+  },
+  "top_15_stec_nonstec": [
+    "dwt_entropy_L1",
+    "fit_lipid_1454_area",
+    "fit_amide_iii_1242_rmse",
+    "fit_amide_iii_1242_height",
+    "fit_amide_iii_1242_area",
+    "fit_lps_1194_eta",
+    "dwt_entropy_L3",
+    "fit_lipid_1454_height",
+    "fit_amide_i_1658_rmse",
+    "mcr_C6_mean",
+    "d1_auc_amide_i_1658",
+    "dwt_entropy_L2",
+    "d2_auc_amide_iii_1242",
+    "d1_auc_lps_1117",
+    "fit_lipid_1454_center"
+  ],
+  "stage15f_35": [
+    "roi_ch_stretch_std",
+    "fit_amide_iii_1242_area",
+    "roi_silent_kurt",
+    "fit_amide_iii_1242_height",
+    "d1_auc_lps_1117",
+    "d1_auc_lipid_1454",
+    "d1_auc_amide_i_1658",
+    "fit_lipid_1454_height",
+    "fit_amide_iii_1242_rmse",
+    "fit_lipid_1454_area",
+    "fit_lps_1117_height",
+    "fit_lps_1117_area",
+    "fit_lps_1117_fwhm",
+    "d2_auc_lipid_1454",
+    "d2_auc_lps_1117",
+    "roi_lps_chain_entropy",
+    "fit_lps_1194_height",
+    "roi_silent_skew",
+    "d2_auc_aa_1004",
+    "fit_aa_1004_height",
+    "fit_lipid_1454_rmse",
+    "bio_trp_indole_env",
+    "fit_lps_1050_rmse",
+    "d2_auc_amide_i_1658",
+    "d1_auc_na_1338",
+    "bio_cyt_ox_state",
+    "roi_lps_chain_kurt",
+    "roi_lps_chain_skew",
+    "pca_chstretch_PC2",
+    "pca_chstretch_PC3",
+    "fit_amide_i_1658_rmse",
+    "sam_lps_sub_O121H19",
+    "fit_lps_1050_center",
+    "fit_lipid_1454_fwhm",
+    "mcr_C5_std"
+  ]
+}

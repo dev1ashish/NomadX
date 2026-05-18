@@ -1,0 +1,35 @@
+{
+  "loso_mean_acc": 0.43611111111111106,
+  "loso_fw_acc": 0.4482758620689655,
+  "bootstrap_ci_low": 0.3448275862068966,
+  "bootstrap_ci_high": 0.5517241379310345,
+  "mcnemar_p": 0.001953125,
+  "n_features": 35,
+  "per_strain_accuracy": {
+    "83972": 0.25,
+    "ATCC25922": 0.8888888888888888,
+    "Dublin": 0.1111111111111111,
+    "H2O": 0.0,
+    "Heidelburg": 0.3333333333333333,
+    "K-12": 0.0,
+    "O103H2": 0.5555555555555556,
+    "O121H19": 0.8888888888888888,
+    "O157H7": 0.5555555555555556,
+    "Typhimurium": 0.7777777777777778
+  },
+  "algo_comparison": {
+    "plsda": {
+      "mean_loso_accuracy": 0.32361111111111107,
+      "mean_loso_macro_recall": 0.08090277777777777
+    },
+    "logreg": {
+      "mean_loso_accuracy": 0.43611111111111106,
+      "mean_loso_macro_recall": 0.10902777777777777
+    },
+    "xgb": {
+      "mean_loso_accuracy": 0.24722222222222223,
+      "mean_loso_macro_recall": 0.06180555555555556
+    }
+  },
+  "plsda_raw_loso": 0.603
+}

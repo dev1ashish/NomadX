@@ -1,0 +1,17 @@
+{
+  "both_right": 29,
+  "logreg_only_right": 10,
+  "plsda_only_right": 0,
+  "both_wrong": 48,
+  "p_value": 0.001953125,
+  "n_total": 87,
+  "source": "stage15f_paper_stats.json:mcnemar.logreg_vs_plsda",
+  "plsda_raw_baseline": {
+    "both_right": 27,
+    "logreg_only_right": 12,
+    "plsda_only_right": 21,
+    "both_wrong": 19,
+    "n_total": 79,
+    "note": "PLS-DA-on-raw covers 79 bacterial files only (no H2O fold)."
+  }
+}

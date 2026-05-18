@@ -1,0 +1,38 @@
+/* NomadX design tokens — verbatim from plan/ui/ULTRAPLAN.md §0.2 */
+:root {
+  /* Brand palette (top color counts from www.nomadxholdings.com) */
+  --nx-bg:           #000000;   /* canvas */
+  --nx-fg:           #FFFFFF;   /* primary text */
+  --nx-accent:       #39B8DC;   /* signature cyan (H2, CTAs) */
+  --nx-accent-deep:  #135A6F;   /* secondary teal */
+  --nx-bg-elev-1:    #04161B;   /* elevated panel */
+  --nx-bg-elev-2:    #0C3845;   /* card hover */
+  --nx-muted:        #313131;   /* borders, dividers */
+  --nx-danger:       #FF0000;
+
+  /* Class colors (Atlas-specific, harmonized) */
+  --class-stec:       #D63333;
+  --class-nonstec:    #1F7A4D;
+  --class-salm:       #7A3D99;
+  --class-h2o:        #3070B5;
+
+  /* Type (Saans is paid; General Sans from Fontshare is the free match) */
+  --font-display: 'General Sans Variable', system-ui, sans-serif;
+  --font-body:    'General Sans Variable', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono Variable', ui-monospace, monospace;
+
+  /* Type scale (NomadX heading sizes: H2=49 lh53.9, H3=39 lh42.9, weight 400) */
+  --t-display: clamp(2.5rem, 4vw + 1rem, 3.5rem);
+  --t-h2:      3.0625rem;
+  --t-h3:      2.4375rem;
+  --t-body:    1rem;
+  --t-mono:    0.875rem;
+
+  /* Spacing — 4px grid */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px;
+  --s-5: 24px; --s-6: 32px; --s-8: 48px; --s-10: 64px;
+
+  --radius-0: 0px;   /* NomadX buttons are radius-0 */
+  --radius-sm: 4px;  /* internal */
+  --hairline: 1px solid var(--nx-muted);
+}

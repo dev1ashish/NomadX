@@ -1,0 +1,24 @@
+{
+  "name": "plsda_raw",
+  "description": "PLS-DA on preprocessed raw spectrum (987 bins). Project-headline baseline (LOSO file-weighted balanced acc = 0.603).",
+  "created_at": "2026-05-18T22:29:50.452770+00:00",
+  "sklearn_version": "1.5.1",
+  "seed": 42,
+  "n_components": 30,
+  "classes": [
+    "H2O",
+    "Non-STEC",
+    "STEC",
+    "Salmonella"
+  ],
+  "n_train_spectra": 7122,
+  "n_bins": 987,
+  "qc_mask_sum": 7122,
+  "in_sample_accuracy": 0.8125526537489469,
+  "loso_headline": {
+    "metric": "file_weighted_balanced_accuracy",
+    "value": 0.6034,
+    "source": "outputs/2026-05-14_plsda_loso_9b4a9cb3 (mean over 9 LOSO folds)",
+    "note": "This is the *generalization* score under LOSO CV. The deployed joblib was refit on all 7,122 spectra, so it does NOT have a single LOSO number \u2014 use the cross-validated value as the operational expectation."
+  }
+}
