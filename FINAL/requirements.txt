@@ -1,0 +1,27 @@
+# Atlas Raman classifier — production-inference + Streamlit UI requirements.
+# Pinned to the versions used to produce the Stage 15F artifacts (2026-05-18).
+# This is the slim, deploy-time set. The full dev environment also adds
+# torch / jupyter / umap / seaborn — not needed for inference.
+
+# Core numerics
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+pyarrow==16.1.0
+
+# Preprocessing
+pybaselines==1.1.0
+PyWavelets>=1.5,<2
+
+# MCR-ALS spectral unmixing (Stage 15C; required at inference time for the
+# saved `MCRALSWrapper`).
+pyMCR>=0.5,<1
+
+# Modeling + serialization
+scikit-learn==1.5.1
+xgboost==2.1.0
+joblib>=1.3,<2
+
+# UI
+streamlit>=1.30,<2
+matplotlib==3.9.1
