@@ -34,12 +34,29 @@ export interface Feature {
   mi_rank_stage15f?: number | null;
 }
 
+export type ModelName = "logreg_stage15f" | "plsda_raw";
+
+export interface PredictionTop2Entry {
+  class: ClassName;
+  prob: number;
+}
+
 export interface PredictionResponse {
   class: ClassName;
   probabilities: Record<ClassName, number>;
   spectrum_mean: number[];
   wn: number[];
   feature_values: Record<string, number>;
+  // Additive fields (Modal v2). Optional so the same shape works against
+  // either the pre-update or post-update endpoint.
+  abstain?: boolean;
+  top2?: PredictionTop2Entry[];
+  n_pixels_input?: number;
+  n_pixels_used?: number;
+  model?: ModelName;
+  // PLS-DA only. Each list is length === wn.length.
+  loadings_per_class?: Record<ClassName, number[]>;
+  contribution_for_predicted?: number[];
 }
 
 // ──────────────────────────────────────────────────────────────────

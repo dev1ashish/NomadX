@@ -29,8 +29,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { predict } from "@/lib/modal-client";
-import type { ClassName, FileMeta, PredictionResponse } from "@/lib/types";
+import { predict, predictPlsda } from "@/lib/modal-client";
+import type {
+  ClassName,
+  FileMeta,
+  ModelName,
+  PredictionResponse,
+} from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 import { LiveProbabilityBars } from "@/components/plots/LiveProbabilityBars";
@@ -91,21 +96,52 @@ async function fetchInventoryFiles(): Promise<FileMeta[]> {
 // Component
 // ---------------------------------------------------------------------------
 
+interface ModelOutcome {
+  data?: PredictionResponse;
+  error?: string;
+  loading: boolean;
+}
+
 type Status =
   | { kind: "idle" }
-  | { kind: "loading"; filename: string }
-  | { kind: "result"; filename: string; data: PredictionResponse }
+  | {
+      kind: "loading";
+      filename: string;
+      logreg: ModelOutcome;
+      plsda: ModelOutcome;
+    }
+  | {
+      kind: "result";
+      filename: string;
+      logreg: ModelOutcome;
+      plsda: ModelOutcome;
+    }
   | { kind: "error"; message: string };
+
+const MODEL_LABEL: Record<ModelName, string> = {
+  logreg_stage15f: "LogReg-L2 · 35 engineered features",
+  plsda_raw: "PLS-DA · raw 987-bin spectrum (project headline)",
+};
+
+const MODEL_SHORT: Record<ModelName, string> = {
+  logreg_stage15f: "LogReg-L2",
+  plsda_raw: "PLS-DA",
+};
 
 export function LiveInference() {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [dragActive, setDragActive] = useState(false);
   const [corpus, setCorpus] = useState<FileMeta[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const modalConfigured =
+  const logregConfigured =
     typeof process !== "undefined" &&
     typeof process.env?.NEXT_PUBLIC_MODAL_PREDICT_URL === "string" &&
     process.env.NEXT_PUBLIC_MODAL_PREDICT_URL.length > 0;
+  const plsdaConfigured =
+    typeof process !== "undefined" &&
+    typeof process.env?.NEXT_PUBLIC_MODAL_PREDICT_PLSDA_URL === "string" &&
+    process.env.NEXT_PUBLIC_MODAL_PREDICT_PLSDA_URL.length > 0;
+  const modalConfigured = logregConfigured && plsdaConfigured;
 
   useEffect(() => {
     let mounted = true;
@@ -118,22 +154,52 @@ export function LiveInference() {
   }, []);
 
   const runPrediction = useCallback(async (file: File) => {
-    setStatus({ kind: "loading", filename: file.name });
-    try {
-      const data = await predict(file);
-      setStatus({ kind: "result", filename: file.name, data });
-    } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Modal endpoint unreachable — check NEXT_PUBLIC_MODAL_PREDICT_URL";
-      const isMissingEnv = /NEXT_PUBLIC_MODAL_PREDICT_URL/.test(message);
-      const display = isMissingEnv
-        ? "Modal endpoint not configured — run `modal deploy` and add the URL to ui/.env.local"
-        : message;
-      toast.error("Inference failed", { description: display });
-      setStatus({ kind: "error", message: display });
-    }
+    const filename = file.name;
+    setStatus({
+      kind: "loading",
+      filename,
+      logreg: { loading: true },
+      plsda: { loading: true },
+    });
+
+    const runOne = async (
+      fn: (f: File) => Promise<PredictionResponse>,
+      key: "logreg" | "plsda",
+    ) => {
+      try {
+        const data = await fn(file);
+        setStatus((prev) => {
+          if (prev.kind !== "loading" && prev.kind !== "result") return prev;
+          if (prev.filename !== filename) return prev;
+          const next = { ...prev, [key]: { data, loading: false } } as Status;
+          return next;
+        });
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Modal endpoint unreachable";
+        setStatus((prev) => {
+          if (prev.kind !== "loading" && prev.kind !== "result") return prev;
+          if (prev.filename !== filename) return prev;
+          const next = {
+            ...prev,
+            [key]: { error: message, loading: false },
+          } as Status;
+          return next;
+        });
+        toast.error(`${key === "logreg" ? "LogReg" : "PLS-DA"} failed`, {
+          description: message,
+        });
+      }
+    };
+
+    await Promise.all([runOne(predict, "logreg"), runOne(predictPlsda, "plsda")]);
+
+    // Promote loading → result once both calls settle.
+    setStatus((prev) => {
+      if (prev.kind !== "loading") return prev;
+      if (prev.filename !== filename) return prev;
+      return { ...prev, kind: "result" } as Status;
+    });
   }, []);
 
   const handleFiles = useCallback(
@@ -188,7 +254,25 @@ export function LiveInference() {
     return out;
   }, [corpus]);
 
-  const hasResult = status.kind === "result";
+  const hasAnyResult =
+    (status.kind === "loading" || status.kind === "result") &&
+    Boolean(status.logreg.data || status.plsda.data);
+  const logregData =
+    status.kind === "loading" || status.kind === "result"
+      ? status.logreg.data
+      : undefined;
+  const plsdaData =
+    status.kind === "loading" || status.kind === "result"
+      ? status.plsda.data
+      : undefined;
+  const logregLoading =
+    (status.kind === "loading" || status.kind === "result") &&
+    status.logreg.loading;
+  const plsdaLoading =
+    (status.kind === "loading" || status.kind === "result") &&
+    status.plsda.loading;
+  const modelsDisagree =
+    logregData && plsdaData && logregData.class !== plsdaData.class;
 
   return (
     <section className="relative">
@@ -207,7 +291,7 @@ export function LiveInference() {
             </span>
             <Separator orientation="vertical" className="h-3 bg-nx-muted" />
             <span className="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-nx-fg/45">
-              Stage 15F · LogReg-L2 · 35 features
+              LogReg-L2 (35 features) + PLS-DA (raw spectrum) · side-by-side
             </span>
           </div>
           <h1 className="font-display text-[clamp(2.5rem,5.5vw,4.75rem)] leading-[1.02] tracking-tight text-nx-fg">
@@ -226,10 +310,10 @@ export function LiveInference() {
 
           {/* KPI proof bar */}
           <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-px bg-nx-muted/40 rounded-md overflow-hidden max-w-3xl">
-            <KpiCell label="Model" value="LogReg-L2" caption="Stage 15F · 35 MI features" />
+            <KpiCell label="Models" value="2 in parallel" caption="LogReg-L2 + PLS-DA-raw" />
             <KpiCell label="Training data" value="87 files" caption="7,122 spectra · 9 strains + H₂O" />
             <KpiCell label="Cold start" value="3–8 s" caption="warm: ~1 s" />
-            <KpiCell label="Returns" value="4 probs" caption="STEC · Non-STEC · Salm · H₂O" />
+            <KpiCell label="LOSO record" value="0.603" caption="PLS-DA file-weighted balanced acc" />
           </div>
         </motion.div>
       </div>
@@ -241,16 +325,25 @@ export function LiveInference() {
             <span className="size-2 rounded-full bg-amber-400/90 shrink-0 mt-1 sm:mt-0" />
             <div className="flex-1 min-w-0">
               <div className="font-mono text-[0.8rem] text-amber-300/95 mb-1">
-                Modal endpoint not deployed yet
+                {logregConfigured || plsdaConfigured
+                  ? "Only one Modal endpoint is configured"
+                  : "Modal endpoints not deployed yet"}
               </div>
               <div className="text-[0.78rem] text-nx-fg/65 leading-relaxed">
-                Inference requires the Modal Python endpoint to be running.
-                From the repo root:{" "}
-                <code className="font-mono text-nx-accent">cd inference_api && uv venv && source .venv/bin/activate && uv pip install modal && modal token new && modal deploy modal_app.py</code>
-                . Modal prints a URL — paste it into{" "}
-                <code className="font-mono text-nx-accent">ui/.env.local</code> as{" "}
-                <code className="font-mono text-nx-accent">NEXT_PUBLIC_MODAL_PREDICT_URL</code>
-                {" "}then restart the dev server.
+                The Live tab calls two endpoints in parallel:{" "}
+                <code className="font-mono text-nx-accent">
+                  NEXT_PUBLIC_MODAL_PREDICT_URL
+                </code>{" "}
+                (LogReg) and{" "}
+                <code className="font-mono text-nx-accent">
+                  NEXT_PUBLIC_MODAL_PREDICT_PLSDA_URL
+                </code>{" "}
+                (PLS-DA). Deploy from{" "}
+                <code className="font-mono text-nx-accent">inference_api/</code>{" "}
+                and paste both URLs into{" "}
+                <code className="font-mono text-nx-accent">ui/.env.local</code>{" "}
+                (see <code className="font-mono">.env.example</code>), then
+                restart the dev server.
               </div>
             </div>
           </div>
@@ -271,8 +364,11 @@ export function LiveInference() {
         />
       </div>
 
+      {/* SUGGESTED DEMO FILES — surface the most informative cases */}
+      {!hasAnyResult && status.kind !== "loading" && <DemoFilesPanel />}
+
       {/* CLASS SAMPLE CHIPS — by-class drill-down via dialog */}
-      {!hasResult && (
+      {!hasAnyResult && status.kind !== "loading" && (
         <div className="px-8 lg:px-14 pb-10">
           <div className="flex items-center gap-2 mb-4">
             <ArrowDownIcon className="size-3.5 text-nx-fg/40" />
@@ -304,7 +400,7 @@ export function LiveInference() {
 
       {/* RESULTS */}
       <AnimatePresence mode="wait">
-        {hasResult && status.kind === "result" && (
+        {hasAnyResult && (status.kind === "result" || status.kind === "loading") && (
           <motion.div
             key={status.filename}
             initial={{ opacity: 0, y: 16 }}
@@ -313,46 +409,35 @@ export function LiveInference() {
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="px-8 lg:px-14 pb-16 flex flex-col gap-6"
           >
-            <ResultBanner
-              predicted={status.data.class}
-              probabilities={status.data.probabilities}
+            {modelsDisagree && (
+              <DisagreementBadge
+                logregClass={logregData!.class}
+                plsdaClass={plsdaData!.class}
+              />
+            )}
+
+            <ModelResultBlock
+              modelName="logreg_stage15f"
+              data={logregData}
+              loading={logregLoading}
+              error={
+                status.kind === "loading" || status.kind === "result"
+                  ? status.logreg.error
+                  : undefined
+              }
               filename={status.filename}
             />
 
-            <div className="grid gap-6 lg:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-mono text-nx-accent text-sm uppercase tracking-wider">
-                    Class probabilities
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <LiveProbabilityBars
-                    key={`${status.filename}-bars`}
-                    probabilities={status.data.probabilities}
-                    predicted={status.data.class}
-                  />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-mono text-nx-accent text-sm uppercase tracking-wider">
-                    Mean preprocessed spectrum
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <LiveMeanSpectrum
-                    key={`${status.filename}-spec`}
-                    wn={status.data.wn}
-                    spectrum={status.data.spectrum_mean}
-                  />
-                </CardContent>
-              </Card>
-            </div>
-
-            <FeatureContributionTable
-              featureValues={status.data.feature_values}
+            <ModelResultBlock
+              modelName="plsda_raw"
+              data={plsdaData}
+              loading={plsdaLoading}
+              error={
+                status.kind === "loading" || status.kind === "result"
+                  ? status.plsda.error
+                  : undefined
+              }
+              filename={status.filename}
             />
           </motion.div>
         )}
@@ -620,12 +705,16 @@ interface ResultBannerProps {
   predicted: ClassName;
   probabilities: Record<ClassName, number>;
   filename: string;
+  modelName: ModelName;
+  abstain?: boolean;
 }
 
 function ResultBanner({
   predicted,
   probabilities,
   filename,
+  modelName,
+  abstain,
 }: ResultBannerProps) {
   const topProb = probabilities[predicted] ?? 0;
   return (
@@ -634,7 +723,7 @@ function ResultBanner({
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "relative flex flex-col gap-3 overflow-hidden rounded-lg px-10 py-12 text-white shadow-2xl",
+        "relative flex flex-col gap-3 overflow-hidden rounded-lg px-10 py-10 text-white shadow-2xl",
         CLASS_BG[predicted],
       )}
     >
@@ -642,15 +731,28 @@ function ResultBanner({
         aria-hidden
         className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-black/30 pointer-events-none"
       />
-      <div className="relative font-mono text-[0.7rem] uppercase tracking-[0.24em] text-white/85 flex items-center gap-2">
-        <SparklesIcon className="size-3" /> Prediction
+      <div className="relative font-mono text-[0.7rem] uppercase tracking-[0.24em] text-white/85 flex items-center gap-2 flex-wrap">
+        <SparklesIcon className="size-3" />
+        <span>Prediction · {MODEL_SHORT[modelName]}</span>
+        <span className="text-white/55">·</span>
+        <span className="text-white/65 normal-case tracking-normal text-[0.7rem]">
+          {MODEL_LABEL[modelName]}
+        </span>
+        {abstain && (
+          <Badge
+            variant="outline"
+            className="border-white/40 text-white/95 bg-white/10 ml-1 font-mono text-[0.6rem] uppercase"
+          >
+            low confidence · abstain
+          </Badge>
+        )}
       </div>
       <div className="relative flex flex-wrap items-baseline gap-5">
         <motion.span
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.4 }}
-          className="font-display text-[clamp(3rem,6vw,4.5rem)] leading-none"
+          className="font-display text-[clamp(2.5rem,5vw,3.75rem)] leading-none"
         >
           {predicted}
         </motion.span>
@@ -658,7 +760,7 @@ function ResultBanner({
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.4 }}
-          className="font-mono text-3xl text-white/90 tabular-nums"
+          className="font-mono text-2xl text-white/90 tabular-nums"
         >
           {(topProb * 100).toFixed(1)}%
         </motion.span>
@@ -667,6 +769,293 @@ function ResultBanner({
         {filename}
       </div>
     </motion.div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Disagreement badge — when the two models pick different classes
+// ---------------------------------------------------------------------------
+
+interface DisagreementBadgeProps {
+  logregClass: ClassName;
+  plsdaClass: ClassName;
+}
+
+function DisagreementBadge({ logregClass, plsdaClass }: DisagreementBadgeProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-wrap items-center gap-3 rounded-md border border-amber-500/50 bg-amber-950/25 px-5 py-3"
+    >
+      <span className="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-amber-300/95">
+        ⚠ Models disagree
+      </span>
+      <Separator orientation="vertical" className="h-3 bg-amber-500/40" />
+      <span className="font-mono text-xs text-nx-fg/85">
+        LogReg →{" "}
+        <span className={cn("font-semibold", CLASS_TEXT[logregClass])}>
+          {logregClass}
+        </span>
+        <span className="text-nx-fg/40 mx-3">·</span>
+        PLS-DA →{" "}
+        <span className={cn("font-semibold", CLASS_TEXT[plsdaClass])}>
+          {plsdaClass}
+        </span>
+      </span>
+      <span className="ml-auto font-mono text-[0.65rem] text-nx-fg/55 max-w-md leading-relaxed">
+        Two models, two feature spaces. Disagreement = the file lives in
+        the gap between engineered features and the raw spectrum.
+      </span>
+    </motion.div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Per-model result block (banner + prob bars + spectrum + details)
+// ---------------------------------------------------------------------------
+
+interface ModelResultBlockProps {
+  modelName: ModelName;
+  data?: PredictionResponse;
+  loading: boolean;
+  error?: string;
+  filename: string;
+}
+
+function ModelResultBlock({
+  modelName,
+  data,
+  loading,
+  error,
+  filename,
+}: ModelResultBlockProps) {
+  if (loading && !data) {
+    return (
+      <Card className="border-nx-muted/40 bg-nx-bg-elev-1/40">
+        <CardContent className="flex items-center gap-3 py-6">
+          <Loader2Icon className="size-4 animate-spin text-nx-accent" />
+          <span className="font-mono text-xs text-nx-fg/65">
+            Waiting on {MODEL_SHORT[modelName]} ·{" "}
+            <span className="text-nx-fg/45">{MODEL_LABEL[modelName]}</span>
+          </span>
+        </CardContent>
+      </Card>
+    );
+  }
+  if (error && !data) {
+    return (
+      <Card className="border-amber-500/40 bg-amber-950/10">
+        <CardHeader>
+          <CardTitle className="text-amber-400 font-mono uppercase tracking-wider text-sm">
+            {MODEL_SHORT[modelName]} failed
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="font-mono text-xs text-nx-fg/80 break-all">{error}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  if (!data) return null;
+  return (
+    <div className="flex flex-col gap-6">
+      <ResultBanner
+        predicted={data.class}
+        probabilities={data.probabilities}
+        filename={filename}
+        modelName={modelName}
+        abstain={data.abstain}
+      />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-mono text-nx-accent text-sm uppercase tracking-wider">
+              Class probabilities · {MODEL_SHORT[modelName]}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <LiveProbabilityBars
+              key={`${filename}-${modelName}-bars`}
+              probabilities={data.probabilities}
+              predicted={data.class}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-mono text-nx-accent text-sm uppercase tracking-wider">
+              Mean preprocessed spectrum
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <LiveMeanSpectrum
+              key={`${filename}-${modelName}-spec`}
+              wn={data.wn}
+              spectrum={data.spectrum_mean}
+            />
+          </CardContent>
+        </Card>
+      </div>
+
+      {modelName === "logreg_stage15f" &&
+        Object.keys(data.feature_values).length > 0 && (
+          <FeatureContributionTable featureValues={data.feature_values} />
+        )}
+
+      {modelName === "plsda_raw" &&
+        data.contribution_for_predicted &&
+        data.wn && (
+          <SpectralDriversPanel
+            wn={data.wn}
+            contribution={data.contribution_for_predicted}
+            predicted={data.class}
+          />
+        )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// PLS-DA spectral drivers — top wavenumber contributions cross-referenced
+// with bands.json for plain-English chemistry labels
+// ---------------------------------------------------------------------------
+
+interface BandsGroup {
+  key: string;
+  label: string;
+  biology: string;
+  bands: { name: string; center: number; chemistry: string }[];
+}
+
+interface BandsJson {
+  groups: BandsGroup[];
+}
+
+interface BandHit {
+  center: number;
+  chemistry: string;
+  group: string;
+  distance: number;
+}
+
+function nearestBand(
+  wnTarget: number,
+  flatBands: { center: number; chemistry: string; group: string }[],
+  tolerance = 25,
+): BandHit | null {
+  let best: BandHit | null = null;
+  for (const b of flatBands) {
+    const d = Math.abs(b.center - wnTarget);
+    if (d <= tolerance && (best == null || d < best.distance)) {
+      best = { center: b.center, chemistry: b.chemistry, group: b.group, distance: d };
+    }
+  }
+  return best;
+}
+
+interface SpectralDriversPanelProps {
+  wn: number[];
+  contribution: number[];
+  predicted: ClassName;
+}
+
+function SpectralDriversPanel({
+  wn,
+  contribution,
+  predicted,
+}: SpectralDriversPanelProps) {
+  const [bands, setBands] = useState<BandsJson | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    fetch("/data/bands.json", { cache: "force-cache" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j: BandsJson | null) => {
+        if (mounted && j) setBands(j);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const flatBands = useMemo(() => {
+    if (!bands) return [];
+    return bands.groups.flatMap((g) =>
+      g.bands.map((b) => ({ ...b, group: g.label })),
+    );
+  }, [bands]);
+
+  const drivers = useMemo(() => {
+    if (wn.length !== contribution.length) return [];
+    const indexed = contribution.map((c, i) => ({ i, c, wn: wn[i] }));
+    indexed.sort((a, b) => Math.abs(b.c) - Math.abs(a.c));
+    const top = indexed.slice(0, 10);
+    return top.map((row) => ({
+      wn: row.wn,
+      contribution: row.c,
+      band: flatBands.length > 0 ? nearestBand(row.wn, flatBands) : null,
+    }));
+  }, [wn, contribution, flatBands]);
+
+  const maxAbs = drivers.length > 0 ? Math.abs(drivers[0].contribution) : 1;
+  const totalContrib = useMemo(
+    () => contribution.reduce((a, b) => a + b, 0),
+    [contribution],
+  );
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-mono text-nx-accent text-sm uppercase tracking-wider">
+          Spectral drivers · PLS-DA
+        </CardTitle>
+        <p className="text-xs text-nx-fg/55 leading-relaxed">
+          Top wavenumber bins that pushed the prediction toward{" "}
+          <span className={cn("font-semibold", CLASS_TEXT[predicted])}>
+            {predicted}
+          </span>
+          . Each row is one of the 987 preprocessed bins; sign tells you
+          whether the bin pushed toward (+) or away (−) from the predicted
+          class. Sum across all 987 bins ≈ log-odds (
+          <span className="font-mono tabular-nums text-nx-fg/80">
+            {totalContrib >= 0 ? "+" : ""}
+            {totalContrib.toFixed(2)}
+          </span>
+          ).
+        </p>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-[auto_auto_1fr_auto] items-center gap-x-4 gap-y-2 font-mono text-xs">
+          <div className="text-nx-fg/40 uppercase tracking-wider">
+            Wn (cm⁻¹)
+          </div>
+          <div className="text-nx-fg/40 uppercase tracking-wider">Chem.</div>
+          <div className="text-nx-fg/40 uppercase tracking-wider">
+            Push toward {predicted}
+          </div>
+          <div className="text-right text-nx-fg/40 uppercase tracking-wider">
+            Δ log-odds
+          </div>
+          {drivers.map((d, idx) => (
+            <DriverRow
+              key={`${d.wn}-${idx}`}
+              wn={d.wn}
+              chemistry={
+                d.band ? d.band.chemistry : "no named band within 25 cm⁻¹"
+              }
+              contribution={d.contribution}
+              pct={(Math.abs(d.contribution) / maxAbs) * 100}
+              idx={idx}
+            />
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -730,6 +1119,46 @@ function FeatureContributionTable({
   );
 }
 
+interface DriverRowProps {
+  wn: number;
+  chemistry: string;
+  contribution: number;
+  pct: number;
+  idx: number;
+}
+
+function DriverRow({ wn, chemistry, contribution, pct, idx }: DriverRowProps) {
+  const positive = contribution >= 0;
+  return (
+    <>
+      <div className="text-nx-fg/95 tabular-nums">{wn.toFixed(1)}</div>
+      <div className="text-nx-fg/70 truncate max-w-[220px]" title={chemistry}>
+        {chemistry}
+      </div>
+      <div className="h-2 w-full rounded-sm bg-nx-bg-elev-2 overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ delay: 0.02 * idx, duration: 0.45, ease: "easeOut" }}
+          className={cn(
+            "h-full rounded-sm",
+            positive ? "bg-nx-accent" : "bg-class-stec",
+          )}
+        />
+      </div>
+      <div
+        className={cn(
+          "text-right tabular-nums",
+          positive ? "text-nx-accent" : "text-class-stec",
+        )}
+      >
+        {positive ? "+" : ""}
+        {contribution.toFixed(3)}
+      </div>
+    </>
+  );
+}
+
 interface FeatureRowProps {
   name: string;
   value: number;
@@ -765,5 +1194,138 @@ function FeatureRow({ name, value, pct, positive, idx }: FeatureRowProps) {
         />
       </div>
     </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Suggested demo files — the 5 most informative drops for the dual-model UI
+// ---------------------------------------------------------------------------
+
+interface DemoFile {
+  file_id: string;
+  path: string;            // path relative to Atlas Data/
+  klass: ClassName;
+  tag: "clean" | "mosaic" | "blank";
+  note: string;            // one-line "what to expect"
+}
+
+const DEMO_FILES: DemoFile[] = [
+  {
+    file_id: "R357_100_10000ms_260226",
+    path: "Non STEC/ATCC25922/",
+    klass: "Non-STEC",
+    tag: "clean",
+    note: "Clean ATCC25922 — both models agree Non-STEC ~0.77",
+  },
+  {
+    file_id: "R372_100_10000ms_260306",
+    path: "H20/",
+    klass: "H2O",
+    tag: "blank",
+    note: "Water blank — both models confident H₂O (0.88 / 0.98)",
+  },
+  {
+    file_id: "R397_100_10000ms_260310",
+    path: "STEC/",
+    klass: "STEC",
+    tag: "clean",
+    note: "Clean STEC — both correct, LogReg 0.89 / PLS-DA strong",
+  },
+  {
+    file_id: "R364_100_10000ms_260305",
+    path: "STEC/O157H7/",
+    klass: "STEC",
+    tag: "mosaic",
+    note: "Mosaic O157:H7 — LogReg says Salmonella 0.94 ✗, PLS-DA says STEC 0.55 ✓",
+  },
+  {
+    file_id: "R370_100_10000ms_260305",
+    path: "Salmonella/Dublin/",
+    klass: "Salmonella",
+    tag: "mosaic",
+    note: "Mosaic Dublin — LogReg says STEC ✗, PLS-DA says Salmonella 0.55 ✓",
+  },
+];
+
+const TAG_COPY: Record<DemoFile["tag"], { label: string; cls: string }> = {
+  clean: {
+    label: "clean",
+    cls: "bg-nx-accent/10 text-nx-accent border-nx-accent/30",
+  },
+  mosaic: {
+    label: "models disagree",
+    cls: "bg-amber-500/10 text-amber-300 border-amber-500/40",
+  },
+  blank: {
+    label: "blank",
+    cls: "bg-nx-fg/10 text-nx-fg/65 border-nx-fg/20",
+  },
+};
+
+function DemoFilesPanel() {
+  return (
+    <div className="px-8 lg:px-14 pb-10">
+      <div className="flex items-center gap-2 mb-4">
+        <SparklesIcon className="size-3.5 text-nx-accent" />
+        <span className="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-nx-fg/55">
+          Try one of these — most informative drops
+        </span>
+      </div>
+      <p className="text-xs text-nx-fg/50 mb-4 max-w-3xl leading-relaxed">
+        Drag these <code className="font-mono text-nx-fg/75">.xls</code> files
+        from your local <code className="font-mono text-nx-fg/75">Atlas Data/</code>{" "}
+        folder into the drop zone. The two mosaic files are where the models
+        disagree — the deployed LogReg fails and the project-headline PLS-DA
+        rescues it. That&apos;s the demo moment.
+      </p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+        {DEMO_FILES.map((d, idx) => (
+          <motion.div
+            key={d.file_id}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.04 * idx, duration: 0.35, ease: "easeOut" }}
+            className={cn(
+              "group flex flex-col gap-2 rounded-md border bg-nx-bg-elev-1/40 px-4 py-3 transition-colors hover:bg-nx-bg-elev-1/80",
+              d.tag === "mosaic"
+                ? "border-amber-500/30 hover:border-amber-500/60"
+                : "border-nx-muted/60 hover:border-nx-accent/50",
+            )}
+          >
+            <div className="flex items-center gap-2 flex-wrap">
+              <span
+                className={cn("inline-block size-2 rounded-full", CLASS_BG[d.klass])}
+              />
+              <span
+                className={cn(
+                  "font-mono text-xs font-semibold tracking-wide",
+                  CLASS_TEXT[d.klass],
+                )}
+              >
+                {d.klass}
+              </span>
+              <Badge
+                variant="outline"
+                className={cn(
+                  "font-mono text-[0.6rem] uppercase tracking-wide border",
+                  TAG_COPY[d.tag].cls,
+                )}
+              >
+                {TAG_COPY[d.tag].label}
+              </Badge>
+            </div>
+            <div className="font-mono text-[0.78rem] text-nx-fg/90 truncate" title={d.file_id}>
+              {d.file_id}.xls
+            </div>
+            <div className="font-mono text-[0.65rem] text-nx-fg/40 truncate">
+              Atlas Data/{d.path}
+            </div>
+            <div className="text-[0.72rem] text-nx-fg/65 leading-relaxed">
+              {d.note}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
   );
 }
