@@ -41,6 +41,15 @@ export function ComparisonPicker({
       .catch(() => setFiles([]));
   }, [open, files]);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open, onClose]);
+
   const stagedIds = useMemo(
     () => new Set(staged.map((s) => s.file_id)),
     [staged],
