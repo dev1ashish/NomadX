@@ -238,16 +238,17 @@ interface ViewBodyProps {
 }
 
 function ViewBody(props: ViewBodyProps) {
-  switch (props.view) {
+  const { view, ...viewProps } = props;
+  switch (view) {
     case "grid":
-      return <ComparisonGrid {...props} />;
+      return <ComparisonGrid {...viewProps} />;
     case "overlay":
-      return <ComparisonOverlay {...props} />;
+      return <ComparisonOverlay {...viewProps} />;
     case "waterfall":
-      return <ComparisonWaterfall {...props} />;
+      return <ComparisonWaterfall {...viewProps} />;
     case "heatmap":
-      return <ComparisonHeatmap {...props} />;
+      return <ComparisonHeatmap {...viewProps} />;
     case "diff":
-      return <ComparisonDiff {...props} />;
+      return <ComparisonDiff {...viewProps} />;
   }
 }
