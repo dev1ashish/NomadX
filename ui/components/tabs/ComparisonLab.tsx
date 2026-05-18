@@ -61,7 +61,6 @@ export function ComparisonLab() {
 
   const stage = (next: StagedSpectrum) => {
     setStaged((s) => [...s, next]);
-    setPickerOpen(false);
   };
   const remove = (file_id: string) =>
     setStaged((s) => s.filter((x) => x.file_id !== file_id));
@@ -186,6 +185,7 @@ export function ComparisonLab() {
         onClose={() => setPickerOpen(false)}
         staged={staged}
         onStage={stage}
+        onUnstage={remove}
       />
     </div>
   );

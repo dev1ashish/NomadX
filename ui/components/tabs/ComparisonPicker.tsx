@@ -6,22 +6,34 @@
  *
  * Soft cap of 12 staged spectra; over-cap, the modal disables further adds
  * and surfaces a hint to switch to Heatmap view.
+ *
+ * Multi-select UX: stays open after each pick, staged rows are clickable to
+ * remove, class-filter chips narrow the list, Done button dismisses.
  */
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { getInventory } from "@/lib/data";
-import type { FileMeta } from "@/lib/types";
+import type { ClassName, FileMeta } from "@/lib/types";
 import type { ComparisonRole, StagedSpectrum } from "@/lib/types";
 
 const SOFT_CAP = 12;
+
+const CLASS_FILTERS: { key: ClassName | "all"; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "STEC", label: "STEC" },
+  { key: "Non-STEC", label: "Non-STEC" },
+  { key: "Salmonella", label: "Salmonella" },
+  { key: "H2O", label: "H2O" },
+];
 
 interface ComparisonPickerProps {
   open: boolean;
   onClose: () => void;
   staged: StagedSpectrum[];
   onStage: (next: StagedSpectrum) => void;
+  onUnstage: (file_id: string) => void;
 }
 
 export function ComparisonPicker({
@@ -29,10 +41,12 @@ export function ComparisonPicker({
   onClose,
   staged,
   onStage,
+  onUnstage,
 }: ComparisonPickerProps) {
   const [files, setFiles] = useState<FileMeta[] | null>(null);
   const [query, setQuery] = useState("");
   const [defaultRole, setDefaultRole] = useState<ComparisonRole>("test");
+  const [classFilter, setClassFilter] = useState<ClassName | "all">("all");
 
   useEffect(() => {
     if (!open || files) return;
@@ -57,15 +71,19 @@ export function ComparisonPicker({
 
   const filtered = useMemo(() => {
     if (!files) return [];
+    let list = files;
+    if (classFilter !== "all") {
+      list = list.filter((f) => f.primary_class === classFilter);
+    }
     const q = query.trim().toLowerCase();
-    if (!q) return files;
-    return files.filter(
+    if (!q) return list;
+    return list.filter(
       (f) =>
         f.file_id.toLowerCase().includes(q) ||
         (f.subclass ?? "").toLowerCase().includes(q) ||
         f.primary_class.toLowerCase().includes(q),
     );
-  }, [files, query]);
+  }, [files, query, classFilter]);
 
   const grouped = useMemo(() => {
     const out = new Map<string, FileMeta[]>();
@@ -98,6 +116,7 @@ export function ComparisonPicker({
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-2xl max-h-[80vh] flex flex-col rounded-md border border-nx-muted bg-nx-bg-elev-1 text-nx-fg"
           >
+            {/* Header */}
             <header className="flex items-center justify-between px-5 py-3 border-b border-nx-muted">
               <div className="flex flex-col">
                 <h2 className="font-display text-base">Add spectrum</h2>
@@ -114,6 +133,25 @@ export function ComparisonPicker({
               </button>
             </header>
 
+            {/* Class-filter chips */}
+            <div className="px-5 pt-3 pb-1 flex flex-wrap gap-2">
+              {CLASS_FILTERS.map((chip) => (
+                <button
+                  key={chip.key}
+                  onClick={() => setClassFilter(chip.key)}
+                  className={cn(
+                    "px-2.5 py-0.5 rounded-full font-mono text-[0.65rem] border transition-colors",
+                    classFilter === chip.key
+                      ? "bg-nx-accent/15 text-nx-accent border-nx-accent/40"
+                      : "text-nx-fg/55 hover:text-nx-fg border-transparent hover:border-nx-muted/60",
+                  )}
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Search + role select */}
             <div className="px-5 py-3 flex items-center gap-3 border-b border-nx-muted/60">
               <input
                 value={query}
@@ -134,11 +172,12 @@ export function ComparisonPicker({
               </select>
             </div>
 
+            {/* Scrollable list */}
             <div className="flex-1 overflow-y-auto px-5 py-3">
               {atCap ? (
                 <p className="text-amber-300 font-mono text-[0.7rem] mb-3">
                   Soft cap reached. Switch to Heatmap view for &gt;12 spectra,
-                  or remove a staged file before adding more.
+                  or click a staged file to remove it before adding more.
                 </p>
               ) : null}
               {files === null ? (
@@ -154,24 +193,32 @@ export function ComparisonPicker({
                     <ul className="flex flex-col gap-1">
                       {items.map((f) => {
                         const already = stagedIds.has(f.file_id);
-                        const disabled = already || atCap;
+                        // Staged rows: always clickable (to remove).
+                        // Unstaged rows: clickable only if !atCap.
+                        const disabled = !already && atCap;
                         return (
                           <li key={f.file_id}>
                             <button
                               disabled={disabled}
-                              onClick={() =>
-                                onStage({
-                                  file_id: f.file_id,
-                                  role: defaultRole,
-                                  display_label: f.file_id,
-                                  visible: true,
-                                })
-                              }
+                              onClick={() => {
+                                if (already) {
+                                  onUnstage(f.file_id);
+                                } else {
+                                  onStage({
+                                    file_id: f.file_id,
+                                    role: defaultRole,
+                                    display_label: f.file_id,
+                                    visible: true,
+                                  });
+                                }
+                              }}
                               className={cn(
                                 "w-full flex items-center justify-between px-3 py-2 text-left rounded-sm border border-transparent transition-colors",
                                 disabled
                                   ? "opacity-40 cursor-not-allowed"
-                                  : "hover:bg-nx-bg-elev-2/60 hover:border-nx-muted/60",
+                                  : already
+                                    ? "hover:bg-red-500/10 hover:border-red-500/30 cursor-pointer"
+                                    : "hover:bg-nx-bg-elev-2/60 hover:border-nx-muted/60",
                               )}
                             >
                               <span className="flex flex-col">
@@ -184,7 +231,8 @@ export function ComparisonPicker({
                                 </span>
                               </span>
                               {already ? (
-                                <span className="font-mono text-[0.6rem] text-nx-accent">
+                                <span className="flex items-center gap-1.5 font-mono text-[0.6rem] text-nx-accent group-hover:hidden">
+                                  <Check className="size-3" />
                                   staged
                                 </span>
                               ) : null}
@@ -197,6 +245,19 @@ export function ComparisonPicker({
                 ))
               )}
             </div>
+
+            {/* Sticky footer */}
+            <footer className="flex items-center justify-between px-5 py-3 border-t border-nx-muted/60 bg-nx-bg-elev-1">
+              <span className="font-mono text-[0.65rem] text-nx-fg/55">
+                {staged.length} staged
+              </span>
+              <button
+                onClick={onClose}
+                className="flex items-center gap-2 px-3 py-2 rounded-sm border border-nx-accent text-nx-accent hover:bg-nx-accent/10 text-sm font-mono transition-colors"
+              >
+                Done
+              </button>
+            </footer>
           </motion.div>
         </motion.div>
       ) : null}
