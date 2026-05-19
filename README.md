@@ -1496,9 +1496,190 @@ deployment claim from this work should specify the protocol.**
 
 ---
 
-# 8. References
+# 8. Future work — what data would enhance these results
 
-Sourced from `plan/11_references.md` (project bibliography).
+The headline — **PLS-DA on raw spectra, LOSO mean parent-class recall
+= 0.603** — is a 9-point statistic. The bottleneck is *not* spectrum
+count (7,122 QC-passed) but **strain count**: with 9 LOSO units, every
+fold trains on 8 and tests on 1, and the production-classifier CI
+[0.345, 0.552] is too wide to reject either "no improvement" or
+"improvement over PLS-DA-on-raw". The data we need is *targeted*, not
+just more.
+
+Three actionable investments, ranked by return-on-effort:
+
+1. **Cross-corpus evaluation** on public ATCC25922 corpora — **zero
+   acquisition cost**, settles instrument-shift question (§8.2).
+2. **Author's in-house collection plan** — answers the
+   media-confounding question (§8.3).
+3. **Targeted public-dataset requests** for matched serovars and
+   instruments (§8.6).
+
+The full data-gap analysis and dataset coverage matrix live in
+[`plan/12_data_gaps_and_external_datasets.md`](../plan/12_data_gaps_and_external_datasets.md);
+all references in [`plan/11_references.md`](../plan/11_references.md).
+
+## 8.1 What's holding the headline back
+
+Ranked gaps (`plan/12 §2`):
+
+| # | Gap | Severity | Why |
+|---|---|---|---|
+| 1 | **Strain diversity** — 3 strains per primary class | ⭐⭐⭐ | LOSO can't generalize past what 2 training strains teach. Hold out K-12 and Non-STEC is anchored by 83972 + ATCC25922 only |
+| 2 | **Lab / instrument diversity** — one Raman rig, one prep protocol | ⭐⭐⭐ | DANN has no domain to discriminate against; cross-instrument transfer is untested |
+| 3 | **Biological replicates per strain** — files are mostly technical reps from 1–4 colonies | ⭐⭐ | Within-strain biological variability undersampled |
+| 4 | **Open-set negatives** — H₂O is the only non-bacterial class | ⭐⭐ | All 8 H₂O LOSO files predicted as STEC (§6.7); model has never seen "neither STEC nor Salm nor commensal" and will fail loudly in deployment |
+| 5 | **Missing STEC serotypes / Salm serovars** — 3 of ~7 clinical STEC; no Enteritidis, Newport, Infantis | ⭐ | Narrows claim scope vs the surveillance literature |
+
+## 8.2 Public datasets — the zero-cost cross-corpus path
+
+The fastest investment — no new acquisition — is **cross-corpus
+evaluation on external ATCC25922 spectra**. Three open Raman datasets
+exist (`plan/12 §5.2`):
+
+| Dataset | Strain match | Wavenumber | Why it matters |
+|---|---|---|---|
+| 🥇 **Zhu et al. 2022 — SCRS Persisters** ([Front. Microbiol.](https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2022.936726/full)) | **ATCC25922 explicit** (± ampicillin) | 400–3200 cm⁻¹ — near-perfect axis match to our 400–3049 | Closest experimental sibling: Renishaw 532 nm, single-cell point spectra. **Single sharpest external generalization test.** Open data: <http://mard.single-cell.cn/raw_spectrum_data/> |
+| 🥈 **Ho et al. 2019 — Bacteria-ID** ([Nat. Commun.](https://www.nature.com/articles/s41467-019-12898-9), [GitHub](https://github.com/csho33/bacteria-ID)) | **ATCC25922 exact** match; ~80,500 spectra | 381.98–1792.4 cm⁻¹ (narrower — must crop our axis to match) | Heavy domain shift (Horiba LabRAM, 633 nm, gold-coated silica) — the *hardest* transfer test, exactly what we want |
+| 🥉 **Liu et al. 2024 — Raman-OSDL** ([Sci. Adv.](https://www.science.org/doi/10.1126/sciadv.adp7991)) | *E. coli* + *S. enterica* at species level | 600–1800 cm⁻¹ | Built with explicit non-target "unknown bacteria" — directly addresses our **open-set negatives** gap. Data DOI: <https://doi.org/10.57760/sciencedb.15628> |
+
+**Concrete next experiment** (specified in `plan/12 §6`):
+load external ATCC25922 spectra, reuse `atlas/preprocess.py` end-to-end,
+run our best per-strain models (PLS-DA, DANN, 2-channel CNN, Patch=5)
+on the external corpus, report per-model accuracy. This is **a single
+publishable cross-lab generalization number** — achievable without any
+new in-house acquisition.
+
+**What no public dataset fills** (`plan/12 §5.1`): K-12, 83972, all
+three of our STECs (O157:H7, O121:H19, O103:H2), Salmonella Dublin
+and Heidelburg. Generalization claims for those strains rest on
+within-corpus LOSO only. This is the state of the field, not a
+search failure.
+
+## 8.3 Author suggestions — in-house collection plan
+
+The plan was drafted alongside the analysis. It answers a different
+question than §8.2: **whether the 0.603 ceiling is a biology limit
+or a media-confounded-training-data limit.**
+
+**Suggestion 1 — More data per file, three acquisition windows.**
+
+- Three batches per sample, each at a different wavenumber range:
+  - **Batch 1:** 400 / 500 → 1700 / 1800 cm⁻¹ — full fingerprint
+    matching our current crop.
+  - **Batch 2:** 700 → 1300 cm⁻¹ — LPS-chain + nucleic-acid / sugar
+    region, where `auc_lps_1194` (d = +1.03, §4.2) and `mcr_C6_mean`
+    (d = −1.23 global-fit, §5.3) live.
+  - **Batch 3:** 1500 → 1800 cm⁻¹ — protein amide-I, where the K-12
+    α-helix axis discriminates (Stage 15D, d = −0.986, §5.4).
+- **9 replicates per sample** (vs current 200-pixel cap).
+- Vary acquisition parameters across the three batches — each sample
+  acquired under three optical / wavenumber configurations.
+
+**Suggestion 2 — Growth variation and real-sample provenance.**
+
+- *(A) Multi-condition growth.* All strains grown in **three different
+  media conditions** (varying nutrients only, holding temperature /
+  pH / aeration fixed), in **triplicate**, then collect spectra per
+  Suggestion 1.
+- *(B) Real-sample isolation.* Isolate each strain from an **actual
+  sample matrix** (foodborne-surveillance source), grow per (A),
+  acquire **2× spectra** per Suggestion 1.
+- *(implicit) Lab-sharing.* Run a subset on a second instrument —
+  every spectrum here comes from one optical pipeline.
+
+## 8.4 What each §6.7 failure mode specifically demands
+
+| Failure mode (§6.7) | Likely cause | Data that would fix it |
+|---|---|---|
+| All 8 H₂O LOSO files → STEC | H₂O has zero training exemplars under LOSO; classifier falls back to a non-zero prior (STEC) | **Liu 2024 Raman-OSDL** for the "unknown bacteria" open-set probe (§8.2); + food-matrix non-bacterial controls (lettuce wash, beef serum, agar blank) |
+| K-12 recall ≈ 0 in classical models | K-12 differs at the protein-2°-structure level (Stage 15D); Non-STEC has only **one strain anchoring** that axis | More Non-STEC strains (MG1655, ATCC11775); cross-corpus verify on Zhu / Ho ATCC25922 (§8.2) |
+| Non-STEC ↔ Salm confusion (20/52 errors) | Genus-level signal is real but small; `spat_skew_lps_1117` (d = +0.725, §5.5) needs multi-strain confirmation | More Salm serovars (Enteritidis, Newport, Javiana); **Tang 2023** (gated) has Dublin + Typhimurium matched |
+| Stage 7: 10–20% F1 drop at realistic contamination | Synthetic mixed-pixel test ≠ real co-culture | Real co-cultured mixes at known ratios (Suggestion 2B) |
+| 9-point LOSO; CI [0.345, 0.552] | One file per strain per fold can't reject ±0.10 noise | Suggestion 1's 9× replicates narrows the per-strain estimate by √3 ≈ 1.7× |
+| Tang-2026's 94% cross-strain ceiling | We have ~6× less data | Sugg. 1 + 2A puts the corpus in Tang-comparable territory |
+
+## 8.5 Expected return per investment
+
+Ranked by expected lift on the LOSO baseline (0.603):
+
+| Investment | Cost | Expected lift | Settles |
+|---|---|---|---|
+| **Cross-corpus on Zhu 2022 ATCC25922** (§8.2) | 0× — public download | Calibrates external-vs-internal gap | Whether 0.603 is instrument-overfit or genuine |
+| **3 media × triplicate** (Sugg. 2A) | 9× | **+5 to +10 pp** | Whether the K-12 ↔ clinical-STEC gap is metabolic-state-driven or species-level |
+| **9 replicates per sample** (Sugg. 1) | 1× | +2 to +4 pp | Per-file mean precision; cleaner soft-vote |
+| **3 acquisition windows** (Sugg. 1) | 3× | +3 to +6 pp | Opens 3-band ensembling |
+| **Multi-lab** (Sugg. 2 implicit) | 3× | Unlocks DANN's purpose | Currently untestable: instrument-shift robustness |
+
+**Architecture sensitivity** (which method benefits from which data):
+
+- **PLS-DA on raw**: diminishing returns; linear ceiling on existing axes.
+- **LogReg-L2 (Stage 15F)**: +6–10 pp under media-variance (Sugg. 2A).
+- **CNN + DANN λ = 0.3**: **largest gain potential** under multi-lab
+  data — DANN was designed exactly for this scenario but currently has
+  no domain to discriminate against.
+- **Self-supervised pretraining** (plan/13 SSL pivot): any extra
+  unlabeled spectra are free fuel.
+
+**Statistical power.** With Sugg. 2A alone (+81 files, 27 file-condition
+× 9 strains), the bootstrap 95% CI half-width drops from ±0.103 → ±0.060
+(projected), moving the headline from "improvement within the same
+feature space" to **"LOSO mean ≥ 0.55 at α = 0.05"** — a publishable
+threshold for strain-blind 4-class Raman classification.
+
+## 8.6 Gated datasets worth emailing for
+
+These cover the matched-serovar / matched-axis gaps that no open
+dataset fills. Worst case: no replies in time, no blocker
+(`plan/12 §5.3`).
+
+| Dataset | Why pursue |
+|---|---|
+| **Tang et al. 2023** (*Talanta*) — 4-serovar Raman | **Dublin + Typhimurium** match (2 of our 3); 530–1800 cm⁻¹; 785 nm Renishaw |
+| **Roesch / Pistiki 2022** ([PMC8761712](https://pmc.ncbi.nlm.nih.gov/articles/PMC8761712/)) | **400–3050 cm⁻¹ exact axis match**; single-cell 532 nm; 1,500 UVRR + 4,168 spontaneous |
+| **Kloss / Roesch 2021** ([PMC7680742](https://pmc.ncbi.nlm.nih.gov/articles/PMC7680742/)) | **ATCC25922 explicit** + Nissle 1917; 300–3100 cm⁻¹ |
+| **Thomsen et al. 2022** ([PMC9524333](https://pmc.ncbi.nlm.nih.gov/articles/PMC9524333/)) | ATCC25922 + ATCC35218; 700–1600 cm⁻¹; 785 nm |
+
+## 8.7 What we do *not* need more of
+
+- **More STEC strains.** STEC has the strongest LOSO diagonal already
+  (R = 0.67, §6.7); ≤ 2 pp gain on STEC recall and 0 pp on the
+  Non-STEC ↔ Salm error that dominates the residual.
+- **Deeper acquisitions on the same files.** Pixel-vote denoising is
+  at the within-file cosine-similarity ceiling (≈ 0.997).
+- **Higher-resolution spectrometer.** Bands are well-resolved at
+  ≈ 1.7 cm⁻¹ / bin. The unresolved question is between-band ratios
+  *under varying biology*, not finer band shape.
+- **A 5th primary class** (Listeria, *B. cereus*). Expands scope
+  without sharpening any existing 4-class boundary.
+- **Generative augmentation alone** (DiffRaman / WGAN / VAE-LSTM;
+  see [9] §"Data generation methods"). Lifts Protocol A; cannot lift
+  LOSO — a generator trained on 8 strains cannot sample the 9th
+  strain's distribution.
+
+## 8.8 Honest writeup framing
+
+Three sentences (from `plan/12 §7`) that should appear in any external
+summary of this work:
+
+> Our evaluation is bounded by 9 strains and a single lab / instrument
+> source. LOSO mean is a 9-point statistic; cross-corpus testing
+> against an independent ATCC25922 corpus (Zhu 2022 / Ho 2019) is the
+> strongest available external anchor. No public Raman dataset covers
+> any of our STEC serotypes (O157:H7, O121:H19, O103:H2) or two of our
+> three Salmonella serovars (Dublin, Heidelburg) — generalization
+> claims for those strains rest on within-corpus LOSO only.
+
+---
+
+# 9. References
+
+Drawn from [`plan/11_references.md`](../plan/11_references.md)
+(project bibliography) and
+[`plan/12_data_gaps_and_external_datasets.md`](../plan/12_data_gaps_and_external_datasets.md)
+(data-gap + public-dataset analysis).
+
+## E. coli STEC ↔ Non-STEC discrimination
 
 1. **Cisek et al. 2013** — *Sensitive and specific discrimination of
    pathogenic and nonpathogenic E. coli using Raman spectroscopy*.
@@ -1509,194 +1690,170 @@ Sourced from `plan/11_references.md` (project bibliography).
 2. **Tang et al. 2026** — *Integrated Wasserstein GAN–Transformer for
    E. coli Strain Identification*. *Anal. Chem.*
    [doi:10.1021/acs.analchem.6c00429](https://pubs.acs.org/doi/10.1021/acs.analchem.6c00429).
-   Cross-strain ceiling at ~94% with state-of-the-art deep learning +
-   WGAN augmentation. Establishes the realistic Raman cross-strain
-   performance ceiling.
+   Cross-strain ceiling at ~94% (97% 5-fold CV → 94% independent test).
+   Establishes the realistic Raman cross-strain ceiling.
 
-3. **Soupene et al. 2003** — *Laboratory strains of E. coli K-12: things
-   are seldom what they seem*. *J. Bacteriol.* 185(18):5611.
+3. **Soupene et al. 2003** — *Laboratory strains of E. coli K-12:
+   things are seldom what they seem*. *J. Bacteriol.* 185(18):5611.
    [PMC9997739](https://pmc.ncbi.nlm.nih.gov/articles/PMC9997739/).
-   K-12 atypicality justification — large genomic deletions, missing
-   surface-structure genes vs wild-type *E. coli*.
+   K-12 atypicality — large genomic deletions, missing surface-structure
+   genes vs wild-type *E. coli*. Justifies K-12 as a known-atypical LOSO
+   fold.
 
 4. **Marler-Clark / FSIS** — *Non-O157 STEC overview*.
    <https://marlerclark.com/foodborne-illnesses/e-coli/non-o157-stec>.
    Six non-O157 serogroups (O26, O111, O103, O121, O45, O145) account
    for ~80% of US non-O157 STEC infections. **No unique biochemistry vs
-   commensal E. coli on standard media.**
+   commensal E. coli on standard media** — virulence-defined boundary.
 
-5. **Yuan et al. 2024** — *Rapid discrimination of four Salmonella
-   enterica serovars by SERS+SVM*. *J. Cell. Mol. Med.*
+5. **STEC virulence overview** — *Shiga toxin-producing E. coli*.
+   *Virulence* 4(5):368, 2013.
+   [doi:10.4161/viru.24642](https://www.tandfonline.com/doi/full/10.4161/viru.24642).
+   Stx is chromosomally encoded as part of a lysogenic phage; STEC and
+   Non-STEC differ by **one phage-encoded protein**. Sets the
+   biological ceiling on within-*E. coli* label-free discrimination.
+
+## Salmonella discrimination
+
+6. **Yuan et al. 2024** — *Rapid discrimination of four Salmonella
+   enterica serovars* (SERS + SVM). *J. Cell. Mol. Med.*
    [PMC11037414](https://pmc.ncbi.nlm.nih.gov/articles/PMC11037414/).
    Salmonella Raman bands (616 COO⁻ wag, 925 C-C skeletal, 1486 G ring,
    1542 C=C). Inter-batch numbers; cross-strain not tested.
 
-6. **RSCDM 2026** — *Raman Spectral Classification Discrepancy Model*.
+## Domain adaptation for bacterial Raman
+
+7. **RSCDM 2026** — *Raman Spectral Classification Discrepancy Model*.
    *Anal. Chem.*
    [doi:10.1021/acs.analchem.5c07113](https://pubs.acs.org/doi/10.1021/acs.analchem.5c07113).
-   Domain-adaptation framework for instrument / batch / strain shift in
-   bacterial Raman.
+   Domain-adaptation framework explicitly targeting instrument / batch /
+   strain shift in bacterial Raman.
 
-7. **Sun et al. 2025** — *Adversarial Contrastive Domain-Generative
-   Learning for cross-domain bacterial Raman identification*.
-   *Eng. Appl. Artif. Intell.*
+8. **Sun et al. 2025** — *Adversarial Contrastive Domain-Generative
+   Learning*. *Eng. Appl. Artif. Intell.*
    [S0952197625004269](https://www.sciencedirect.com/science/article/abs/pii/S0952197625004269).
+   5+ pp improvement vs no-adaptation baselines on cross-domain
+   bacterial ID. Justifies the DANN-on-file_id design.
 
-8. **Sun et al. 2025 (LoRA-CT)** — *Calibration Transfer of Deep Learning
-   Models across Raman Spectrometers*. *Anal. Chem.*
+9. **Sun et al. 2025 (LoRA-CT)** — *Calibration Transfer of Deep
+   Learning Models across Raman Spectrometers*. *Anal. Chem.*
    [doi:10.1021/acs.analchem.5c01846](https://pubs.acs.org/doi/10.1021/acs.analchem.5c01846).
-   Parameter-efficient inter-instrument fine-tuning.
+   Parameter-efficient inter-instrument fine-tuning. Confirms
+   systematic inter-device variation as a recognized distribution-shift
+   driver.
 
-9. **STEC virulence overview** — *Shiga toxin-producing E. coli*.
-   *Virulence* 4(5):368, 2013.
-   [doi:10.4161/viru.24642](https://www.tandfonline.com/doi/full/10.4161/viru.24642).
-   Stx is chromosomally encoded as part of a lysogenic phage. STEC and
-   Non-STEC differ by **one phage-encoded protein**.
+## Decomposition methods (used in this paper)
 
 10. **Windig & Guilment 1991** — *Interactive Self-Modeling Mixture
-    Analysis* (SIMPLISMA). *Anal. Chem.* 63(14):1425.
-    MCR-ALS pure-component initialization used in §5.3.
+    Analysis* (SIMPLISMA). *Anal. Chem.* 63(14):1425. MCR-ALS pure-
+    component initialization used in §5.3.
 
 11. **Almeida et al. 2010 / Aguiar et al. 2013** — bacterial-Raman
     MCR-ALS precedents recovering 5–7 biology components from
     comparable data (cited in plan/13 §2.3).
 
+## Public datasets — primary cross-corpus targets (`plan/12 §5.2`)
+
 12. **Ho et al. 2019** — *Rapid identification of pathogenic bacteria
     using Raman spectroscopy and deep learning*. *Nat. Commun.* 10:4927.
-    The Bacteria-ID public corpus; contains ATCC25922 (cross-corpus
-    eval target — future work).
+    [Nat. Commun.](https://www.nature.com/articles/s41467-019-12898-9) ·
+    [GitHub csho33/bacteria-ID](https://github.com/csho33/bacteria-ID).
+    Bacteria-ID public corpus, ~80,500 spectra. ATCC25922 explicit.
+    Wavenumber 381.98–1792.4 cm⁻¹.
+
+13. **Zhu et al. 2022** — *Single-Cell Raman Spectra of Persister Cells*.
+    *Front. Microbiol.*
+    [10.3389/fmicb.2022.936726](https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2022.936726/full) ·
+    data: <http://mard.single-cell.cn/raw_spectrum_data/>.
+    SCRS Persisters, ATCC25922 explicit (± ampicillin), 400–3200 cm⁻¹.
+    **Best axis alignment** of any candidate cross-corpus dataset.
+
+14. **Liu et al. 2024** — *Raman-OSDL* (airborne pathogens). *Sci. Adv.*
+    [10.1126/sciadv.adp7991](https://www.science.org/doi/10.1126/sciadv.adp7991) ·
+    data: <https://doi.org/10.57760/sciencedb.15628>.
+    ~23,000 single-cell spectra (*E. coli* + *S. enterica* at species
+    level). **Built with explicit open-set "unknown" class** —
+    addresses the H₂O / open-set gap.
+
+## Public datasets — gated, worth a request (`plan/12 §5.3`)
+
+15. **Tang et al. 2023** — 4-serovar Salmonella Raman. *Talanta*.
+    Dublin + Typhimurium matched; 530–1800 cm⁻¹; 785 nm Renishaw.
+
+16. **Roesch / Pistiki 2022** — multi-resistant clinical *E. coli*.
+    *Anal. Bioanal. Chem.* [PMC8761712](https://pmc.ncbi.nlm.nih.gov/articles/PMC8761712/).
+    **400–3050 cm⁻¹ exact axis match.** Single-cell 532 nm.
+
+17. **Kloss / Roesch 2021** — [PMC7680742](https://pmc.ncbi.nlm.nih.gov/articles/PMC7680742/).
+    ATCC25922 explicit + Nissle 1917; 300–3100 cm⁻¹.
+
+18. **Thomsen et al. 2022** — minimally-prepared *E. coli*. *Sci. Rep.*
+    [PMC9524333](https://pmc.ncbi.nlm.nih.gov/articles/PMC9524333/).
+    ATCC25922 + ATCC35218; 700–1600 cm⁻¹; 785 nm.
+
+## Data generation methods (`plan/12 §4`)
+
+19. **DiffRaman** — latent diffusion (VQ-VAE + DDPM) for class-conditional
+    Raman augmentation. [arXiv 2412.08131](https://arxiv.org/abs/2412.08131) ·
+    [Anal. Chim. Acta 2025](https://www.sciencedirect.com/science/article/abs/pii/S0003267025007664).
+    Lifts data-limited classifiers (Protocol A); cannot lift LOSO.
+
+20. **VAE-LSTM bacterial Raman** — *J. Chem. Inf. Model.*
+    [10.1021/acs.jcim.3c00761](https://pubs.acs.org/doi/10.1021/acs.jcim.3c00761).
+    96.9% mean accuracy across 16 strains, 5 species.
+
+21. **U-Net + noise augmentation** — *ACS Omega*.
+    [10.1021/acsomega.2c03856](https://pubs.acs.org/doi/10.1021/acsomega.2c03856).
+    95% binary / 86% on 30 isolates. Cheapest augmentation path.
+
+## Aggregators (`plan/12 §5.5`)
+
+22. **RamanBench** — 74 datasets, 325K spectra, unified loader.
+    `pip install raman-data`. arXiv 2605.02003.
+
+23. **MicrobioRaman** — EBI BioStudies official open microbial-Raman
+    repository. *Nat. Microbiol.* 2024.
+    <https://www.ebi.ac.uk/biostudies/MicrobioRaman/studies>.
+
+24. **Zenodo 15394102** — community-curated XLSX index of Raman
+    databases (May 2025, CC-BY). <https://zenodo.org/records/15394102>.
 
 ---
 
-# Appendix A — Reproducibility
+For additional bibliography (parallel-modality datasets, recent-advances
+reviews, vibrational-spectroscopy ML reviews, the full agent-confirmed
+coverage matrix), see
+[`plan/11_references.md`](../plan/11_references.md) and
+[`plan/12_data_gaps_and_external_datasets.md`](../plan/12_data_gaps_and_external_datasets.md).
 
-## A.1 Environment
+---
 
-- Python 3.12 (`.venv/bin/python`).
-- Requirements: `requirements.txt` (deploy-time slim set) or `pyproject.toml`
-  for full dev environment.
-- All randomness seeded; every run dumps `config.json` + per-fold parquets
-  under `outputs/<DATE>_<NAME>_<HASH>/`.
+# Appendix A — Reproducibility notebooks
 
-## A.2 Cache + artifact files
+The repository ships 11 Jupyter notebooks under
+[`FINAL/notebooks/`](notebooks/), one per stage / result. Each notebook
+is self-contained and reproduces the figures and tables cited in the
+section noted.
 
-| Path | Shape / type | Source |
-|---|---|---|
-| `data_cache/spectra.parquet` | (7,999, 6) | `atlas/io.py::parse_dataset` |
-| `data_cache/spectra_array.npy` | float32 (7,999, 2048) | raw stacked spectra on canonical wn |
-| `data_cache/wavenumber_axis.npy` | float32 (2048,) | `linspace(76, 3499, 2048)` |
-| `data_cache/spectra_array_preprocessed.npy` | float32 (7,999, 987) | `atlas/preprocess.py::preprocess_matrix` |
-| `data_cache/wavenumber_axis_preprocessed.npy` | float32 (987,) | crop |
-| `data_cache/qc_mask.npy` | bool (7,999,) | `atlas/qc.py` |
-| `data_cache/metadata.parquet` | (87, 23) | per-file header + provenance |
-| `data_cache/band_features.parquet` | (7,122, 166) | `atlas/band_features.feature_frame` |
-| `data_cache/spectral_features.parquet` | (7,122, 51) | `atlas/spectral_features.feature_frame_spectral` |
-| `data_cache/unmix_features.parquet` | (87, 33) | `atlas/unmix_features.feature_frame_unmix` (global fit) |
-| `data_cache/spatial_features.parquet` | (87, 10) | `atlas/spatial_features.feature_frame_spatial` |
-| `artifacts/stage15f_classifier.joblib` | fitted Pipeline | production model |
-| `artifacts/stage15f_feature_columns.json` | list[str] | MI-selected features (in order) |
-| `artifacts/stage15f_mcr_global.joblib` | `MCRALSWrapper` | inference-time MCR fit on all spectra |
-| `artifacts/stage15f_roi_pca.joblib` | `dict[str, dict]` | fitted ROI-PCA per region |
-| `artifacts/stage15f_sam_templates.joblib` | `dict` | fitted SAM templates |
-| `artifacts/stage15f_metadata.json` | `dict` | LOSO summary + per-strain + R7 verdict |
-| `artifacts/stage15f_loso_summary.csv` | (5 × 10 × 3, …) | per-fold raw results |
+| # | Notebook | What it reproduces | Paper section |
+|---|---|---|---|
+| 01 | `01_environment_inventory.ipynb` | Environment check + 87-file / 7,122-spectrum inventory | §2.1 |
+| 02 | `02_qc_preprocessing.ipynb` | QC mask + baseline correction + Savitzky-Golay smoothing | §2.3–2.4 |
+| 03 | `03_plsda_baseline.ipynb` | **PLS-DA LOSO 0.603 on raw spectra (project headline)** | §3.1 |
+| 04 | `04_stage15a_band_features.ipynb` | Pseudo-Voigt band fits (Stage 15A) | §5.1 |
+| 05 | `05_stage15b_spectral_features.ipynb` | ROI-PCA / SAM / DWT features (Stage 15B) | §5.2 |
+| 06 | `06_stage15c_mcr_unmixing.ipynb` | MCR-ALS K = 7 unmixing (Stage 15C) | §5.3 |
+| 07 | `07_stage15e_spatial_features.ipynb` | Per-tile spatial moments (Stage 15E) | §5.5 |
+| 08 | `08_stage7_mixed_sample.ipynb` | Mixed-sample degradation (10–20% drop) | §4.6 |
+| 09 | `09_stage15f_final_model.ipynb` | **LogReg-L2 final classifier + confusion matrix** | §6 |
+| 10 | `10_bootstrap_mcnemar.ipynb` | Bootstrap 95% CI + McNemar paired test | §6.7 |
+| 11 | `11_inference_demo.ipynb` | `predict_from_xls()` end-to-end demo on a held-out file | §6 (deployment) |
 
-## A.3 Public API
-
-```python
-from atlas.inference import predict_from_xls, predict_from_array, model_metadata
-
-result = predict_from_xls("Atlas Data/STEC/O157H7/R412_100_10000ms_260311.xls")
-# {'class': 'STEC',
-#  'probabilities': {'H2O': 0.01, 'Non-STEC': 0.18, 'STEC': 0.76, 'Salmonella': 0.05},
-#  'spectrum_mean': ndarray[987],
-#  'wn':            ndarray[987],
-#  'feature_values': {'auc_lps_1194': ..., 'mcr_C6_mean': ..., ...}}
-```
-
-## A.4 Streamlit UI
-
-`streamlit_app.py` at repo root. Run locally:
-
-```bash
-.venv/bin/streamlit run streamlit_app.py
-```
-
-Loads all 5 artifacts via `@st.cache_resource`. Accepts `.xls` / `.txt`
-upload; renders predicted class, per-class probability bars, mean
-preprocessed spectrum, and the model's selected feature values. Latency
-target < 5 s per upload (parse + preprocess + features + predict).
-
-Cloud deployment instructions in `DEPLOY.md`.
-
-## A.5 How to retrain Stage 15F
-
-```bash
-.venv/bin/python scripts/run_stage15f_final.py
-```
-
-Produces all six `artifacts/stage15f_*` files. Wall-clock ~90 min on a
-2024 M-series Mac (CPU; LOSO refit is the bottleneck —
-MCR-ALS @ K = 7 on ~6,400 train pixels per fold takes ~100 s).
-
-## A.6 Key file layout
-
-```
-atlas/
-├── io.py                   Atlas .xls parser + canonical-axis interpolation
-├── preprocess.py           cosmic + arPLS + SG + crop + SNV
-├── qc.py                   per-pixel SNR + background filter
-├── band_features.py        Stage 15A + 15D — pseudo-Voigt + ROI + EMSC + derivatives + biology
-├── spectral_features.py    Stage 15B — DWT + ROI-PCA + SAM
-├── unmix_features.py       Stage 15C — MCR-ALS wrapper + SIMPLISMA
-├── spatial_features.py     Stage 15E — per-file moment stats
-├── inference.py            production prediction API (Stage 15F)
-├── models_classical.py     PLS-DA / LogReg / SVM / RF / XGB
-├── models_cnn.py           1D-CNN baseline + DANN variant
-├── models_transformer.py   1D-Transformer (patch_size sweep)
-├── ensemble.py             soft-vote
-├── stacking.py             meta-learner over base probas
-├── calibrated_ensemble.py  temperature-scaled soft-vote
-├── lambda_selector.py      per-strain DANN-λ routing
-├── memprobe.py             file-id memorization probe (v1)
-├── memprobe_v2.py          file-id memorization probe (v2 — penultimate)
-├── evaluate.py             per-spectrum → per-file aggregation + metrics
-├── train.py                training loop helpers
-└── splits.py               Protocol A (StratifiedGroupKFold) + B (LOSO)
-
-scripts/
-├── build_dataset.py                parse + cache
-├── preprocess_dataset.py           run preprocess_matrix end-to-end
-├── build_band_features_cache.py    Stage 15A + 15D
-├── build_spectral_features_cache.py Stage 15B
-├── build_unmix_feat.py             Stage 15C
-├── build_spatial_features_cache.py Stage 15E
-├── run_stage15f_final.py           Stage 15F (this paper)
-├── run_classical.py / run_cnn.py / run_transformer.py / run_dann.py
-├── run_ensemble.py / run_calibrated_ensemble.py / run_stacking.py / run_lambda_selector.py
-└── run_stage1_band_stats.py / run_stage7_mixed_sample_sim.py
-
-plan/                        all design + research docs (mostly stable)
-plan/experiments/             one shard per experiment (15A–F, etc.)
-data_cache/                   parser + preprocess + feature caches
-artifacts/                    Stage 15F production artifacts (this paper)
-outputs/                      per-run experiment outputs (70+ dated dirs)
-```
-
-## A.7 Pre-registered risks tracker
-
-(From plan/15 §7.)
-
-| Risk | Mitigation | Status |
-|---|---|---|
-| R1 | Capacity / data ratio (259 ÷ 87 = 3.0) — must MI-select per fold | Live in §6 protocol |
-| R2 | Feature leakage (MCR/ROI-PCA/SAM fit on data) — per-fold refit | Live in §6 protocol |
-| R4 | Guided-NMF fallback if MCR-ALS components don't separate biology | Not triggered — MCR worked (§5.3) |
-| R5 | Off-resonance cytochromes at 785 nm laser | Confirmed weak (§5.4) |
-| R6 | Pixel count too low for Moran's I / GLCM | Fired — those features dropped (§5.5) |
-| R7 | `mcr_C1_*` substrate leakage | Permutation test in §6.2; verdict in §6.7 |
-| R8 | Ratio breakdown on SNV'd AUCs (negative AUC denominators) | Logged in §5.4.4 — treat as scores |
-| R9 | `bio_*` fractions outside [0,1] | Treat as raw scores (Stage 15F protocol) |
+Environment setup, cache files (`data_cache/`), production artifacts
+(`artifacts/`), the public inference API, retraining instructions, and
+the full repository layout are documented in
+[`FINAL/README.md`](README.md). The Streamlit UI demo is at
+`streamlit_app.py` in the repo root.
 
 ---
 
