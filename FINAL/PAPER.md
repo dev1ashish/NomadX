@@ -6,28 +6,45 @@ date: "2026-05-18"
 abstract: |
   We study bacterial identification from 87 confocal-Raman hyperspectral
   maps spanning four primary classes (STEC, Non-STEC *E. coli*,
-  *Salmonella*, H₂O) and nine bacterial subclasses. Three tracks are
-  reported. (1) **Baseline modeling** sweeps classical (PLS-DA, LogReg,
-  SVM, RF, XGB), deep (1D-CNN, 1D-Transformer), and domain-adversarial
-  (DANN) architectures; under strain-level Leave-One-Strain-Out (LOSO),
-  **PLS-DA reaches 0.603 mean parent-class recall** — the project record
-  — and five ensemble schemes fail to clear it. (2) A **band-chemistry
-  track** (Stages 1–7) falsifies the published Cisek-2013 STEC
-  discriminative triple (1338/1454/1658 cm⁻¹) at file level, instead
-  identifying the 800–1200 cm⁻¹ **LPS-chain region as the empirical
-  anchor** (`auc_lps_1194` Cohen's d = +1.03), and quantifies a 10–20%
+  *Salmonella*, H₂O) and nine bacterial subclasses. The only honest
+  evaluation is **strain-level Leave-One-Strain-Out (LOSO)**: within-strain
+  files share acquisition session, so cross-pixel and cross-file CV
+  systematically over-estimate generalization. Four tracks are reported.
+  (1) **Baseline modeling** sweeps classical (PLS-DA, LogReg, SVM, RF,
+  XGB), deep (1D-CNN, 1D-Transformer), and domain-adversarial (DANN)
+  architectures; **PLS-DA on the raw 987-bin spectrum reaches 0.603
+  mean parent-class recall — the project record** — and five ensemble
+  schemes (soft-vote, hard-vote, stacking, calibrated meta-learner,
+  DANN-augmented) fail to clear it. (2) A **band-chemistry track**
+  (Stages 1–7) falsifies the published Cisek-2013 STEC discriminative
+  triple (1338/1454/1658 cm⁻¹) at file level, identifies the
+  800–1200 cm⁻¹ **LPS-chain region as the empirical anchor**
+  (`auc_lps_1194` Cohen's d = +1.03), and quantifies a 10–20%
   mixed-sample-deployment penalty. (3) A **feature-engineering track**
-  (Stages 15A–E) produces 259 features per file across five families;
-  **MCR-ALS unmixing** is the highest-yield stage (`mcr_C6_mean`
-  d = −1.23 is the project's strongest single file-level discriminator),
-  and biology-grounded ratios surface a new protein-2°-structure axis
-  (`bio_alpha_helix_score` d = −0.986) that also separates K-12 from
-  clinical STEC strains. (4) **Stage 15F** trains the production
-  classifier under strain-level LOSO with per-fold MCR-ALS / ROI-PCA /
-  SAM refit, mutual-information feature selection, multi-seed evaluation,
-  and a shuffled-label permutation test on the substrate component;
-  artifacts are serialized and exposed via a Streamlit UI. Full methods,
-  per-strain breakdown, and discussion follow.
+  (Stages 15A–E) produces 259 features per file across five families
+  (peak-fits + ROI moments + derivatives; ROI-PCA + SAM + DWT; MCR-ALS
+  unmixing; biology-grounded ratios; spatial-map statistics).
+  **MCR-ALS unmixing** is the highest-yield stage on global fit
+  (`mcr_C6_mean` d = −1.23, the project's strongest single file-level
+  discriminator), and biology-grounded ratios surface a new
+  protein-2°-structure axis (`bio_alpha_helix_score` d = −0.986) that
+  also separates K-12 from clinical STEC strains. (4) **Stage 15F**
+  trains the production classifier under strain-level LOSO with
+  per-fold MCR-ALS / ROI-PCA / SAM refit (no leakage), mutual-information
+  feature selection (k = 35), multi-seed evaluation, bootstrap CIs over
+  files, McNemar paired algorithm tests, and a shuffled-label
+  permutation test on the substrate component. **LogReg-L2 reaches 0.448
+  file-weighted accuracy (95% bootstrap CI [0.345, 0.552])**, beats
+  PLS-DA and XGBoost on the same selected feature set (McNemar
+  p = 0.0020 vs PLS-DA, p = 0.0033 vs XGB), but **does not beat the
+  raw-spectrum PLS-DA baseline of 0.603** — the CI overlaps the 0.50
+  "modest improvement" threshold from below, so the honest verdict is
+  **Branch (C) Plateau with overlap into Branch (B)**. Serialized
+  artifacts and a Streamlit UI are shipped. Per-strain breakdown,
+  ensemble negative results, the LOSO confusion matrix (which
+  reproduces an H₂O→STEC default-class bias from earlier classical
+  baselines), and an honest discussion of why the wall is data and not
+  architecture follow.
 ---
 
 # 1. Introduction
