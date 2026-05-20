@@ -39,8 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Atlas Raman — large per-spectrum sidecars are built locally by
-# scripts/build_sidecars.py. The 87 × ~30 KB files exceed what we want
-# to track in git; ship them via the static build instead.
-public/data/spectra/*.json
