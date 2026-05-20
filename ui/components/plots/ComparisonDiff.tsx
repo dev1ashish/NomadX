@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { Data, Layout, PlotRelayoutEvent } from "plotly.js";
 import { PlotlyChart } from "./PlotlyChart";
 import { nxColors, nxPlotlyLayout } from "@/lib/plotly-theme";
-import { getSidecar } from "@/lib/data";
 import { applyNormalization } from "@/lib/normalize";
 import { useLinkedZoom } from "@/lib/use-linked-zoom";
-import { REGION_RANGES, type SpectrumSidecar } from "@/lib/types";
+import { useSpectra } from "@/lib/use-spectrum";
+import { REGION_RANGES } from "@/lib/types";
 import type { ViewProps } from "./view-props";
 
 const CLASS_COLOR: Record<string, string> = {
@@ -24,32 +24,7 @@ export function ComparisonDiff({
   linkXZoom,
   referenceFileId,
 }: ViewProps) {
-  const [byId, setById] = useState<Map<string, SpectrumSidecar>>(new Map());
-
-  useEffect(() => {
-    let cancelled = false;
-    const toLoad = staged.filter((s) => !byId.has(s.file_id));
-    if (toLoad.length === 0) return;
-    Promise.all(
-      toLoad.map((s) =>
-        getSidecar<SpectrumSidecar>(`spectra/${s.file_id}.json`)
-          .then((d) => [s.file_id, d] as const)
-          .catch(() => [s.file_id, null] as const),
-      ),
-    ).then((results) => {
-      if (cancelled) return;
-      setById((prev) => {
-        const next = new Map(prev);
-        for (const [id, sidecar] of results) {
-          if (sidecar) next.set(id, sidecar);
-        }
-        return next;
-      });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [staged, byId]);
+  const byId = useSpectra(staged.map((s) => s.file_id));
 
   const { register, onRelayout } = useLinkedZoom(linkXZoom);
 
