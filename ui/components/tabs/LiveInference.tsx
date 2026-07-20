@@ -20,7 +20,6 @@ import {
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
@@ -40,6 +39,7 @@ import { cn } from "@/lib/utils";
 
 import { LiveProbabilityBars } from "@/components/plots/LiveProbabilityBars";
 import { LiveMeanSpectrum } from "@/components/plots/LiveMeanSpectrum";
+import { ConvertPanel } from "@/components/tabs/ConvertPanel";
 
 // ---------------------------------------------------------------------------
 // Local types + constants
@@ -303,9 +303,10 @@ export function LiveInference() {
             Drop one tab-delimited{" "}
             <code className="font-mono text-nx-accent">.xls</code> Raman file
             from your <code className="font-mono text-nx-fg/80">Atlas Data/</code>{" "}
-            folder. The Modal endpoint runs the frozen preprocessing pipeline +
-            259-feature extractor + MI-selected LogReg model and returns the
-            probability over four classes.
+            folder. Both models run in parallel on the same file and their
+            verdicts, probabilities and explanations line up side by side. A raw
+            export straight off the instrument needs converting first — the
+            panel below does that in your browser.
           </p>
 
           {/* KPI proof bar */}
@@ -364,6 +365,14 @@ export function LiveInference() {
         />
       </div>
 
+      {/* RAW FILE CONVERTER — resample an instrument export onto the canonical
+          axis so the endpoints can parse it. Always mounted so a converted
+          file survives a prediction round-trip. */}
+      <ConvertPanel
+        onAnalyze={(file) => void runPrediction(file)}
+        busy={status.kind === "loading"}
+      />
+
       {/* SUGGESTED DEMO FILES — surface the most informative cases */}
       {!hasAnyResult && status.kind !== "loading" && <DemoFilesPanel />}
 
@@ -416,28 +425,31 @@ export function LiveInference() {
               />
             )}
 
-            <ModelResultBlock
-              modelName="logreg_stage15f"
-              data={logregData}
-              loading={logregLoading}
-              error={
-                status.kind === "loading" || status.kind === "result"
-                  ? status.logreg.error
-                  : undefined
-              }
+            <FileStrip
               filename={status.filename}
+              data={logregData ?? plsdaData}
             />
 
-            <ModelResultBlock
-              modelName="plsda_raw"
-              data={plsdaData}
-              loading={plsdaLoading}
-              error={
-                status.kind === "loading" || status.kind === "result"
-                  ? status.plsda.error
-                  : undefined
-              }
+            <ComparisonColumns
               filename={status.filename}
+              logreg={{
+                modelName: "logreg_stage15f",
+                data: logregData,
+                loading: logregLoading,
+                error:
+                  status.kind === "loading" || status.kind === "result"
+                    ? status.logreg.error
+                    : undefined,
+              }}
+              plsda={{
+                modelName: "plsda_raw",
+                data: plsdaData,
+                loading: plsdaLoading,
+                error:
+                  status.kind === "loading" || status.kind === "result"
+                    ? status.plsda.error
+                    : undefined,
+              }}
             />
           </motion.div>
         )}
@@ -595,7 +607,10 @@ function DropZone({
               Drop a Raman map here
             </div>
             <div className="font-mono text-xs text-nx-fg/55 tracking-wide">
-              .xls or .txt · 70-720 pixel rows · auto-detects format
+              .xls or .txt · already on the 2048-bin canonical axis
+            </div>
+            <div className="font-mono text-[0.68rem] text-nx-fg/35 tracking-wide">
+              raw export straight off the instrument? convert it below first
             </div>
           </div>
           {/* Label-for pattern: clicking the label always opens the native
@@ -704,26 +719,30 @@ function ClassSampleCard({
 interface ResultBannerProps {
   predicted: ClassName;
   probabilities: Record<ClassName, number>;
-  filename: string;
   modelName: ModelName;
   abstain?: boolean;
 }
 
+/**
+ * Verdict card, sized for a half-width column. The filename moved out to
+ * `FileStrip` (it's the same file for both models) and the long model label
+ * moved up to the column header, so this carries only what differs between
+ * the two columns: the class and its probability.
+ */
 function ResultBanner({
   predicted,
   probabilities,
-  filename,
   modelName,
   abstain,
 }: ResultBannerProps) {
   const topProb = probabilities[predicted] ?? 0;
   return (
     <motion.div
-      initial={{ scale: 0.94, opacity: 0 }}
+      initial={{ scale: 0.96, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "relative flex flex-col gap-3 overflow-hidden rounded-lg px-10 py-10 text-white shadow-2xl",
+        "relative flex h-full flex-col gap-2 overflow-hidden rounded-lg px-7 py-7 text-white shadow-2xl",
         CLASS_BG[predicted],
       )}
     >
@@ -731,43 +750,34 @@ function ResultBanner({
         aria-hidden
         className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-black/30 pointer-events-none"
       />
-      <div className="relative font-mono text-[0.7rem] uppercase tracking-[0.24em] text-white/85 flex items-center gap-2 flex-wrap">
+      <div className="relative flex flex-wrap items-center gap-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-white/85">
         <SparklesIcon className="size-3" />
-        <span>Prediction · {MODEL_SHORT[modelName]}</span>
-        <span className="text-white/55">·</span>
-        <span className="text-white/65 normal-case tracking-normal text-[0.7rem]">
-          {MODEL_LABEL[modelName]}
-        </span>
+        <span>{MODEL_SHORT[modelName]}</span>
         {abstain && (
           <Badge
             variant="outline"
-            className="border-white/40 text-white/95 bg-white/10 ml-1 font-mono text-[0.6rem] uppercase"
+            className="ml-1 border-white/40 bg-white/10 font-mono text-[0.58rem] uppercase text-white/95"
           >
             low confidence · abstain
           </Badge>
         )}
       </div>
-      <div className="relative flex flex-wrap items-baseline gap-5">
-        <motion.span
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
-          className="font-display text-[clamp(2.5rem,5vw,3.75rem)] leading-none"
-        >
-          {predicted}
-        </motion.span>
-        <motion.span
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-          className="font-mono text-2xl text-white/90 tabular-nums"
-        >
-          {(topProb * 100).toFixed(1)}%
-        </motion.span>
-      </div>
-      <div className="relative font-mono text-xs text-white/80 mt-1">
-        {filename}
-      </div>
+      <motion.span
+        initial={{ y: 8, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+        className="relative font-display text-[clamp(1.9rem,3.2vw,2.9rem)] leading-[1.05] break-words"
+      >
+        {predicted}
+      </motion.span>
+      <motion.span
+        initial={{ y: 8, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.4 }}
+        className="relative font-mono text-2xl tabular-nums text-white/90"
+      >
+        {(topProb * 100).toFixed(1)}%
+      </motion.span>
     </motion.div>
   );
 }
@@ -816,105 +826,214 @@ function DisagreementBadge({ logregClass, plsdaClass }: DisagreementBadgeProps) 
 // Per-model result block (banner + prob bars + spectrum + details)
 // ---------------------------------------------------------------------------
 
-interface ModelResultBlockProps {
+interface ModelSlot {
   modelName: ModelName;
   data?: PredictionResponse;
   loading: boolean;
   error?: string;
-  filename: string;
 }
 
-function ModelResultBlock({
-  modelName,
-  data,
-  loading,
-  error,
+/**
+ * One comparison row: the same panel type for both models, side by side.
+ *
+ * Each row is its own grid rather than all cells sharing one, so a row's two
+ * cells always align with each other, an absent cell can't shift the ones
+ * after it, and the collapse to a single column on narrow screens keeps
+ * related panels adjacent.
+ */
+function PairedRow({
+  left,
+  right,
+}: {
+  left: React.ReactNode;
+  right: React.ReactNode;
+}) {
+  return (
+    <div className="grid items-stretch gap-6 lg:grid-cols-2">
+      {left}
+      {right}
+    </div>
+  );
+}
+
+/** The file both columns describe — stated once, above the comparison. */
+function FileStrip({
   filename,
-}: ModelResultBlockProps) {
-  if (loading && !data) {
+  data,
+}: {
+  filename: string;
+  data?: PredictionResponse;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-nx-muted/50 bg-nx-bg-elev-1/40 px-5 py-3">
+      <FileTextIcon className="size-3.5 shrink-0 text-nx-fg/40" />
+      <span className="font-mono text-xs text-nx-fg/90 break-all">
+        {filename}
+      </span>
+      {data?.n_pixels_used != null && (
+        <span className="font-mono text-[0.65rem] text-nx-fg/40">
+          {data.n_pixels_used} of {data.n_pixels_input ?? data.n_pixels_used}{" "}
+          pixel rows used
+        </span>
+      )}
+      <span className="ml-auto font-mono text-[0.62rem] uppercase tracking-[0.2em] text-nx-fg/35">
+        two models · one file
+      </span>
+    </div>
+  );
+}
+
+/** Column header naming the model that owns the cells beneath it. */
+function ColumnHeader({ modelName }: { modelName: ModelName }) {
+  return (
+    <div className="flex flex-col gap-0.5 border-b border-nx-muted/50 pb-2">
+      <span className="font-display text-lg leading-tight text-nx-fg">
+        {MODEL_SHORT[modelName]}
+      </span>
+      <span className="font-mono text-[0.65rem] text-nx-fg/45">
+        {MODEL_LABEL[modelName]}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * Wraps a cell so every state renders at the same place in its row. A model
+ * that is still loading or has failed shows that inline instead of collapsing
+ * the row and pulling the other column out of alignment.
+ */
+function Cell({
+  slot,
+  title,
+  children,
+}: {
+  slot: ModelSlot;
+  title?: string;
+  children: (data: PredictionResponse) => React.ReactNode;
+}) {
+  if (slot.data) {
+    if (!title) return <>{children(slot.data)}</>;
     return (
-      <Card className="border-nx-muted/40 bg-nx-bg-elev-1/40">
-        <CardContent className="flex items-center gap-3 py-6">
-          <Loader2Icon className="size-4 animate-spin text-nx-accent" />
-          <span className="font-mono text-xs text-nx-fg/65">
-            Waiting on {MODEL_SHORT[modelName]} ·{" "}
-            <span className="text-nx-fg/45">{MODEL_LABEL[modelName]}</span>
-          </span>
-        </CardContent>
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle className="font-mono text-sm uppercase tracking-wider text-nx-accent">
+            {title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>{children(slot.data)}</CardContent>
       </Card>
     );
   }
-  if (error && !data) {
+  if (slot.error) {
     return (
-      <Card className="border-amber-500/40 bg-amber-950/10">
+      <Card className="h-full border-amber-500/40 bg-amber-950/10">
         <CardHeader>
-          <CardTitle className="text-amber-400 font-mono uppercase tracking-wider text-sm">
-            {MODEL_SHORT[modelName]} failed
+          <CardTitle className="font-mono text-sm uppercase tracking-wider text-amber-400">
+            {MODEL_SHORT[slot.modelName]} failed
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="font-mono text-xs text-nx-fg/80 break-all">{error}</p>
+          <p className="font-mono text-xs break-all text-nx-fg/80">
+            {slot.error}
+          </p>
         </CardContent>
       </Card>
     );
   }
-  if (!data) return null;
+  return (
+    <Card className="h-full border-nx-muted/40 bg-nx-bg-elev-1/40">
+      <CardContent className="flex items-center gap-3 py-6">
+        <Loader2Icon className="size-4 animate-spin text-nx-accent" />
+        <span className="font-mono text-xs text-nx-fg/65">
+          Waiting on {MODEL_SHORT[slot.modelName]}…
+        </span>
+      </CardContent>
+    </Card>
+  );
+}
+
+/** Model-specific explanation panel — differs by model, so it has no shared title. */
+function DetailCell({ slot }: { slot: ModelSlot }) {
+  const { data, modelName } = slot;
+  if (!data) return <div />;
+
+  if (modelName === "logreg_stage15f") {
+    if (Object.keys(data.feature_values).length === 0) return <div />;
+    return <FeatureContributionTable featureValues={data.feature_values} />;
+  }
+
+  if (!data.contribution_for_predicted || !data.wn) return <div />;
+  return (
+    <SpectralDriversPanel
+      wn={data.wn}
+      contribution={data.contribution_for_predicted}
+      predicted={data.class}
+    />
+  );
+}
+
+function ComparisonColumns({
+  filename,
+  logreg,
+  plsda,
+}: {
+  filename: string;
+  logreg: ModelSlot;
+  plsda: ModelSlot;
+}) {
+  const verdict = (slot: ModelSlot) => (
+    <Cell slot={slot}>
+      {(data) => (
+        <ResultBanner
+          predicted={data.class}
+          probabilities={data.probabilities}
+          modelName={slot.modelName}
+          abstain={data.abstain}
+        />
+      )}
+    </Cell>
+  );
+
+  const probabilities = (slot: ModelSlot) => (
+    <Cell slot={slot} title="Class probabilities">
+      {(data) => (
+        <LiveProbabilityBars
+          key={`${filename}-${slot.modelName}-bars`}
+          probabilities={data.probabilities}
+          predicted={data.class}
+        />
+      )}
+    </Cell>
+  );
+
+  const spectrum = (slot: ModelSlot) => (
+    <Cell slot={slot} title="Mean preprocessed spectrum">
+      {(data) => (
+        <LiveMeanSpectrum
+          key={`${filename}-${slot.modelName}-spec`}
+          wn={data.wn}
+          spectrum={data.spectrum_mean}
+        />
+      )}
+    </Cell>
+  );
+
   return (
     <div className="flex flex-col gap-6">
-      <ResultBanner
-        predicted={data.class}
-        probabilities={data.probabilities}
-        filename={filename}
-        modelName={modelName}
-        abstain={data.abstain}
+      <PairedRow
+        left={<ColumnHeader modelName={logreg.modelName} />}
+        right={<ColumnHeader modelName={plsda.modelName} />}
       />
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-mono text-nx-accent text-sm uppercase tracking-wider">
-              Class probabilities · {MODEL_SHORT[modelName]}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <LiveProbabilityBars
-              key={`${filename}-${modelName}-bars`}
-              probabilities={data.probabilities}
-              predicted={data.class}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-mono text-nx-accent text-sm uppercase tracking-wider">
-              Mean preprocessed spectrum
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <LiveMeanSpectrum
-              key={`${filename}-${modelName}-spec`}
-              wn={data.wn}
-              spectrum={data.spectrum_mean}
-            />
-          </CardContent>
-        </Card>
-      </div>
-
-      {modelName === "logreg_stage15f" &&
-        Object.keys(data.feature_values).length > 0 && (
-          <FeatureContributionTable featureValues={data.feature_values} />
-        )}
-
-      {modelName === "plsda_raw" &&
-        data.contribution_for_predicted &&
-        data.wn && (
-          <SpectralDriversPanel
-            wn={data.wn}
-            contribution={data.contribution_for_predicted}
-            predicted={data.class}
-          />
-        )}
+      <PairedRow left={verdict(logreg)} right={verdict(plsda)} />
+      <PairedRow
+        left={probabilities(logreg)}
+        right={probabilities(plsda)}
+      />
+      <PairedRow left={spectrum(logreg)} right={spectrum(plsda)} />
+      <PairedRow
+        left={<DetailCell slot={logreg} />}
+        right={<DetailCell slot={plsda} />}
+      />
     </div>
   );
 }
@@ -1009,7 +1128,7 @@ function SpectralDriversPanel({
   );
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="font-mono text-nx-accent text-sm uppercase tracking-wider">
           Spectral drivers · PLS-DA
@@ -1079,7 +1198,7 @@ function FeatureContributionTable({
   const max = rows.length ? Math.abs(rows[0][1]) : 1;
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="font-mono text-nx-accent text-sm uppercase tracking-wider">
           Feature values · {rows.length} features
