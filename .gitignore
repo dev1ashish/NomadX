@@ -7,3 +7,8 @@ outputs/
 .DS_Store
 Atlas Data/
 .playwright-mcp/
+.venv-dagster/
+orchestration/.dagster_home/
+.tmp_dagster_home_*/
+feature_store/
+.venv-*/

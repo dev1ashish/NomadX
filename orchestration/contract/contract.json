@@ -1,0 +1,1742 @@
+{
+  "contract_version": "1.0.0",
+  "generated_at": "2026-06-02T12:28:15.385491+00:00",
+  "stores": [
+    {
+      "name": "metadata",
+      "path": "data_cache/metadata.parquet",
+      "format": "parquet",
+      "grain": "per-file",
+      "key": [
+        "file_id"
+      ],
+      "join_to": "primary identity table; file_id is the universal join key",
+      "null_policy": "subclass null iff H2O (8 files); exposure_ms null for 31 files + header_numx/numy/xsize/ysize MAY be null (source headers unreliable). file_id/primary_class/n_pixels NEVER null.",
+      "not_null": [
+        "file_id",
+        "primary_class",
+        "n_pixels",
+        "grid_nx",
+        "grid_ny",
+        "file_sha256",
+        "is_complete_scan"
+      ],
+      "max_null_row_frac": 1.0,
+      "purpose": "One row per raw file: provenance, grid, class label, sha256, messy-data warnings.",
+      "observed": {
+        "exists": true,
+        "rows": 87,
+        "n_columns": 23,
+        "index_name": null,
+        "total_nulls": 39,
+        "null_columns": {
+          "subclass": 8,
+          "exposure_ms": 31
+        },
+        "null_row_frac": 0.448276,
+        "columns": [
+          {
+            "name": "file_id",
+            "dtype": "str",
+            "nulls": 0
+          },
+          {
+            "name": "file_path",
+            "dtype": "str",
+            "nulls": 0
+          },
+          {
+            "name": "primary_class",
+            "dtype": "str",
+            "nulls": 0
+          },
+          {
+            "name": "subclass",
+            "dtype": "str",
+            "nulls": 8
+          },
+          {
+            "name": "n_pixels",
+            "dtype": "int64",
+            "nulls": 0
+          },
+          {
+            "name": "grid_nx",
+            "dtype": "int64",
+            "nulls": 0
+          },
+          {
+            "name": "grid_ny",
+            "dtype": "int64",
+            "nulls": 0
+          },
+          {
+            "name": "header_numx",
+            "dtype": "int64",
+            "nulls": 0
+          },
+          {
+            "name": "header_numy",
+            "dtype": "int64",
+            "nulls": 0
+          },
+          {
+            "name": "xsize",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "ysize",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "laser",
+            "dtype": "str",
+            "nulls": 0
+          },
+          {
+            "name": "exposure_ms",
+            "dtype": "float64",
+            "nulls": 31
+          },
+          {
+            "name": "acquisition_date",
+            "dtype": "str",
+            "nulls": 0
+          },
+          {
+            "name": "ac_calibration_date",
+            "dtype": "str",
+            "nulls": 0
+          },
+          {
+            "name": "wn_start",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "wn_end",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "is_complete_scan",
+            "dtype": "bool",
+            "nulls": 0
+          },
+          {
+            "name": "file_sha256",
+            "dtype": "str",
+            "nulls": 0
+          },
+          {
+            "name": "file_mtime",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "file_size_bytes",
+            "dtype": "int64",
+            "nulls": 0
+          },
+          {
+            "name": "fatal_errors",
+            "dtype": "str",
+            "nulls": 0
+          },
+          {
+            "name": "warnings",
+            "dtype": "str",
+            "nulls": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "spectra_index",
+      "path": "data_cache/spectra.parquet",
+      "format": "parquet",
+      "grain": "per-pixel",
+      "key": [
+        "file_id",
+        "pixel_idx"
+      ],
+      "join_to": "row-aligned (position) to spectra_array.npy and qc_mask.npy",
+      "null_policy": "subclass null iff H2O pixel (767 rows). All other columns NEVER null.",
+      "not_null": [
+        "file_id",
+        "primary_class",
+        "pixel_idx",
+        "x_um",
+        "y_um"
+      ],
+      "max_null_row_frac": 1.0,
+      "purpose": "One row per ingested pixel-spectrum: identity + (x,y) coords. Row i corresponds to spectra_array.npy[i].",
+      "observed": {
+        "exists": true,
+        "rows": 7999,
+        "n_columns": 6,
+        "index_name": null,
+        "total_nulls": 767,
+        "null_columns": {
+          "subclass": 767
+        },
+        "null_row_frac": 0.095887,
+        "columns": [
+          {
+            "name": "file_id",
+            "dtype": "str",
+            "nulls": 0
+          },
+          {
+            "name": "primary_class",
+            "dtype": "str",
+            "nulls": 0
+          },
+          {
+            "name": "subclass",
+            "dtype": "str",
+            "nulls": 767
+          },
+          {
+            "name": "pixel_idx",
+            "dtype": "int64",
+            "nulls": 0
+          },
+          {
+            "name": "x_um",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "y_um",
+            "dtype": "float64",
+            "nulls": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "spectra_array",
+      "path": "data_cache/spectra_array.npy",
+      "format": "npy",
+      "grain": "matrix",
+      "key": [],
+      "join_to": "position i <-> spectra_index row i",
+      "null_policy": "all-finite (no NaN/Inf); enforced at interp in io.py",
+      "not_null": [],
+      "max_null_row_frac": 0.0,
+      "purpose": "Dense float32 (n_pixels, 2048) raw intensities on the canonical wavenumber axis.",
+      "observed": {
+        "exists": true,
+        "shape": [
+          7999,
+          2048
+        ],
+        "dtype": "float32",
+        "all_finite": true
+      }
+    },
+    {
+      "name": "qc_mask",
+      "path": "data_cache/qc_mask.npy",
+      "format": "npy",
+      "grain": "vector",
+      "key": [],
+      "join_to": "position i <-> spectra_index row i; True = kept",
+      "null_policy": "boolean, no nulls",
+      "not_null": [],
+      "max_null_row_frac": 0.0,
+      "purpose": "QC gate result. Selects which ingested spectra flow into the per-pixel feature stores.",
+      "observed": {
+        "exists": true,
+        "shape": [
+          7999
+        ],
+        "dtype": "bool",
+        "all_finite": null
+      }
+    },
+    {
+      "name": "spectra_array_preprocessed",
+      "path": "data_cache/spectra_array_preprocessed.npy",
+      "format": "npy",
+      "grain": "matrix",
+      "key": [],
+      "join_to": "position i <-> spectra_index row i (BEFORE qc_mask applied)",
+      "null_policy": "all-finite",
+      "not_null": [],
+      "max_null_row_frac": 0.0,
+      "purpose": "Dense float32 (n_pixels, 987) cleaned spectra on the 987-bin preprocessed axis. THE 987-bin axis is the guaranteed invariant.",
+      "observed": {
+        "exists": true,
+        "shape": [
+          7999,
+          987
+        ],
+        "dtype": "float32",
+        "all_finite": true
+      }
+    },
+    {
+      "name": "band_features",
+      "path": "data_cache/band_features.parquet",
+      "format": "parquet",
+      "grain": "per-pixel",
+      "key": [],
+      "join_to": "POSITIONAL: row i <-> spectra_index[qc_mask].reset_index(drop=True) row i. To attach file_id/pixel_idx, the consumer must re-derive from spectra_index filtered by qc_mask. (Contract risk: implicit key.)",
+      "null_policy": "NULL POCKET: ~3 rows / 7122 (0.04%) carry NaN in roi_*_skew/kurt and bio_* columns (degenerate/flat spectra \u2192 undefined moment). Consumer MUST impute or drop. Tolerance: <=1% of rows.",
+      "not_null": [],
+      "max_null_row_frac": 0.01,
+      "purpose": "Macromolecule band chemistry per kept pixel (AUCs, peak fits, ROI moments, derivatives, bio-axes).",
+      "observed": {
+        "exists": true,
+        "rows": 7122,
+        "n_columns": 166,
+        "index_name": null,
+        "total_nulls": 26,
+        "null_columns": {
+          "roi_fingerprint_low_skew": 1,
+          "roi_fingerprint_low_kurt": 1,
+          "roi_lps_chain_skew": 1,
+          "roi_lps_chain_kurt": 1,
+          "roi_protein_amide_extended_skew": 1,
+          "roi_protein_amide_extended_kurt": 1,
+          "roi_amide_aromatic_skew": 1,
+          "roi_amide_aromatic_kurt": 1,
+          "roi_silent_skew": 1,
+          "roi_silent_kurt": 1,
+          "roi_ch_stretch_skew": 3,
+          "roi_ch_stretch_kurt": 3,
+          "bio_cyt_pyrrole_ratio": 1,
+          "bio_cyt_ox_state": 1,
+          "bio_alpha_helix_score": 1,
+          "bio_beta_sheet_amide3": 1,
+          "bio_phb_score": 1,
+          "bio_tyr_doublet_ratio": 1,
+          "bio_trp_indole_env": 1,
+          "bio_virulence_aa_sig": 1,
+          "bio_na_a_form_fraction": 1,
+          "bio_rna_dna_ratio": 1
+        },
+        "null_row_frac": 0.000421,
+        "columns": [
+          {
+            "name": "auc_aromatic_aa",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "auc_protein_amide",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "auc_nucleic_acid",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "auc_lipid_carbohydrate",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "auc_metabolite",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "auc_lps_o_antigen_full",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_lps_chain_discrim",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_lps_1050",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_lps_1117",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_lps_1194",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_aa_762",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_aa_831",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_aa_855",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_aa_1004",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_aa_1014",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_aa_1176",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_aa_1212",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_aa_1617",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_na_720",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_na_786",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_na_1335",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_na_1338",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_na_1362",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_na_1485",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_na_1530",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_na_1575",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_amide_iii_1242",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_amide_i_1658",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_amide_i_1662",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_lipid_1080",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_lipid_1451",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_lipid_1454",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_lipid_1585",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_lipid_2850",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_lipid_2930",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_salm_616",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_salm_925",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_salm_1486",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "auc_salm_1542",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "ratio_amide_over_na",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "ratio_aa_over_amide",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "ratio_lipid_over_protein",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "ratio_na_over_lipid",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "ratio_lps_chain_over_protein",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "ratio_lps_1117_over_1050",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "ratio_lps_1194_over_1050",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "ratio_amide_1658_over_na_1338",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "ratio_phe_1004_over_amide_1658",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "ratio_na_786_over_phe_1004",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1050_center",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1050_height",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1050_fwhm",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1050_eta",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1050_area",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1050_rmse",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1117_center",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1117_height",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1117_fwhm",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1117_eta",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1117_area",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1117_rmse",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1194_center",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1194_height",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1194_fwhm",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1194_eta",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1194_area",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lps_1194_rmse",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_na_1338_center",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_na_1338_height",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_na_1338_fwhm",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_na_1338_eta",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_na_1338_area",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_na_1338_rmse",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lipid_1454_center",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lipid_1454_height",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lipid_1454_fwhm",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lipid_1454_eta",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lipid_1454_area",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_lipid_1454_rmse",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_amide_i_1658_center",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_amide_i_1658_height",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_amide_i_1658_fwhm",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_amide_i_1658_eta",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_amide_i_1658_area",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_amide_i_1658_rmse",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_aa_1004_center",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_aa_1004_height",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_aa_1004_fwhm",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_aa_1004_eta",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_aa_1004_area",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_aa_1004_rmse",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_amide_iii_1242_center",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_amide_iii_1242_height",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_amide_iii_1242_fwhm",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_amide_iii_1242_eta",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_amide_iii_1242_area",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "fit_amide_iii_1242_rmse",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "roi_fingerprint_low_mean",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_fingerprint_low_std",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_fingerprint_low_skew",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "roi_fingerprint_low_kurt",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "roi_fingerprint_low_centroid",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_fingerprint_low_entropy",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_lps_chain_mean",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_lps_chain_std",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_lps_chain_skew",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "roi_lps_chain_kurt",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "roi_lps_chain_centroid",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_lps_chain_entropy",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_protein_amide_extended_mean",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_protein_amide_extended_std",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_protein_amide_extended_skew",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "roi_protein_amide_extended_kurt",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "roi_protein_amide_extended_centroid",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_protein_amide_extended_entropy",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_amide_aromatic_mean",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_amide_aromatic_std",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_amide_aromatic_skew",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "roi_amide_aromatic_kurt",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "roi_amide_aromatic_centroid",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_amide_aromatic_entropy",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_silent_mean",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_silent_std",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_silent_skew",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "roi_silent_kurt",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "roi_silent_centroid",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_silent_entropy",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_ch_stretch_mean",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_ch_stretch_std",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_ch_stretch_skew",
+            "dtype": "float64",
+            "nulls": 3
+          },
+          {
+            "name": "roi_ch_stretch_kurt",
+            "dtype": "float64",
+            "nulls": 3
+          },
+          {
+            "name": "roi_ch_stretch_centroid",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "roi_ch_stretch_entropy",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "emsc_a",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "emsc_b",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "emsc_c1",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "emsc_c2",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "d1_auc_lps_1050",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d1_auc_lps_1117",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d1_auc_lps_1194",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d1_auc_na_1338",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d1_auc_lipid_1454",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d1_auc_amide_i_1658",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d1_auc_aa_1004",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d1_auc_amide_iii_1242",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d2_auc_lps_1050",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d2_auc_lps_1117",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d2_auc_lps_1194",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d2_auc_na_1338",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d2_auc_lipid_1454",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d2_auc_amide_i_1658",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d2_auc_aa_1004",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "d2_auc_amide_iii_1242",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "bio_cyt_pyrrole_ratio",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "bio_cyt_ox_state",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "bio_cyt_total",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "bio_alpha_helix_score",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "bio_beta_sheet_amide3",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "bio_phb_carbonyl",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "bio_phb_score",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "bio_tyr_doublet_ratio",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "bio_trp_content",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "bio_trp_indole_env",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "bio_virulence_aa_sig",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "bio_na_a_form_fraction",
+            "dtype": "float64",
+            "nulls": 1
+          },
+          {
+            "name": "bio_rna_dna_ratio",
+            "dtype": "float64",
+            "nulls": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "spectral_features",
+      "path": "data_cache/spectral_features.parquet",
+      "format": "parquet",
+      "grain": "per-pixel",
+      "key": [],
+      "join_to": "POSITIONAL: same alignment as band_features.",
+      "null_policy": "zero nulls (observed 0).",
+      "not_null": [],
+      "max_null_row_frac": 0.0,
+      "purpose": "Wavelet energies/entropies, region PCA scores, SAM template similarities per kept pixel.",
+      "observed": {
+        "exists": true,
+        "rows": 7122,
+        "n_columns": 51,
+        "index_name": null,
+        "total_nulls": 0,
+        "null_columns": {},
+        "null_row_frac": 0.0,
+        "columns": [
+          {
+            "name": "dwt_energy_L1",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "dwt_entropy_L1",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "dwt_energy_L2",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "dwt_entropy_L2",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "dwt_energy_L3",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "dwt_entropy_L3",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "dwt_energy_L4",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "dwt_entropy_L4",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "dwt_energy_L5",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "dwt_entropy_L5",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "dwt_energy_L6",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "dwt_entropy_L6",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "pca_lps_PC1",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "pca_lps_PC2",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "pca_lps_PC3",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "pca_lps_PC4",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "pca_lps_PC5",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "pca_amide_PC1",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "pca_amide_PC2",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "pca_amide_PC3",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "pca_chstretch_PC1",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "pca_chstretch_PC2",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "pca_chstretch_PC3",
+            "dtype": "float32",
+            "nulls": 0
+          },
+          {
+            "name": "sam_class_H2O",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_class_Non-STEC",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_class_STEC",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_class_Salmonella",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_sub_83972",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_sub_ATCC25922",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_sub_Dublin",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_sub_H2O",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_sub_Heidelburg",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_sub_K-12",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_sub_O103H2",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_sub_O121H19",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_sub_O157H7",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_sub_Typhimurium",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_class_H2O",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_class_Non-STEC",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_class_STEC",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_class_Salmonella",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_sub_83972",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_sub_ATCC25922",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_sub_Dublin",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_sub_H2O",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_sub_Heidelburg",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_sub_K-12",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_sub_O103H2",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_sub_O121H19",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_sub_O157H7",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "sam_lps_sub_Typhimurium",
+            "dtype": "float64",
+            "nulls": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "unmix_features",
+      "path": "data_cache/unmix_features.parquet",
+      "format": "parquet",
+      "grain": "per-file",
+      "key": [
+        "file_id"
+      ],
+      "join_to": "index = file_id (subset of metadata.file_id)",
+      "null_policy": "zero nulls (observed 0).",
+      "not_null": [],
+      "max_null_row_frac": 0.0,
+      "purpose": "MCR component abundance moments per file (8 components x 4 stats + 1 residual-norm).",
+      "observed": {
+        "exists": true,
+        "rows": 87,
+        "n_columns": 33,
+        "index_name": "file_id",
+        "total_nulls": 0,
+        "null_columns": {},
+        "null_row_frac": 0.0,
+        "columns": [
+          {
+            "name": "mcr_C1_mean",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C1_std",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C1_max",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C1_p90",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C2_mean",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C2_std",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C2_max",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C2_p90",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C3_mean",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C3_std",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C3_max",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C3_p90",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C4_mean",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C4_std",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C4_max",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C4_p90",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C5_mean",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C5_std",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C5_max",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C5_p90",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C6_mean",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C6_std",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C6_max",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C6_p90",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C7_mean",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C7_std",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C7_max",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C7_p90",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C8_mean",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C8_std",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C8_max",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_C8_p90",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "mcr_residual_norm_mean",
+            "dtype": "float64",
+            "nulls": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "spatial_features",
+      "path": "data_cache/spatial_features.parquet",
+      "format": "parquet",
+      "grain": "per-file",
+      "key": [
+        "file_id"
+      ],
+      "join_to": "index = file_id (subset of metadata.file_id)",
+      "null_policy": "zero nulls (observed 0).",
+      "not_null": [],
+      "max_null_row_frac": 0.0,
+      "purpose": "Spatial heterogeneity of LPS/C-H bands across each file's pixel grid (variance, CV, skew, kurtosis).",
+      "observed": {
+        "exists": true,
+        "rows": 87,
+        "n_columns": 10,
+        "index_name": "file_id",
+        "total_nulls": 0,
+        "null_columns": {},
+        "null_row_frac": 0.0,
+        "columns": [
+          {
+            "name": "spat_var_lps_chain",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "spat_var_ch_stretch",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "spat_cv_lps_chain",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "spat_cv_ch_stretch",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "spat_kurt_lps_1050",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "spat_kurt_lps_1117",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "spat_kurt_lps_1194",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "spat_skew_lps_1050",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "spat_skew_lps_1117",
+            "dtype": "float64",
+            "nulls": 0
+          },
+          {
+            "name": "spat_skew_lps_1194",
+            "dtype": "float64",
+            "nulls": 0
+          }
+        ]
+      }
+    }
+  ],
+  "invariants": {
+    "canonical_raw_axis": {
+      "declared": "linspace(76.0, 3499.0, 2048)",
+      "observed_n": 2048,
+      "observed_start": 76.0,
+      "observed_end": 3499.0
+    },
+    "preprocessed_axis_987_bins": {
+      "declared_n": 987,
+      "observed_n": 987,
+      "observed_min": 400.4074401855469,
+      "observed_max": 3049.17724609375,
+      "declared_range": [
+        400.0,
+        3050.0
+      ]
+    },
+    "qc_funnel": {
+      "n_input": 7999,
+      "n_drop_snr": 6,
+      "n_drop_bg": 871,
+      "n_keep": 7122,
+      "reconciles": true,
+      "retention_pct": 89.04,
+      "snr_threshold": 5.0
+    },
+    "per_pixel_rowcount_equals_qc_keep": {
+      "qc_keep": 7122,
+      "band_rows": 7122,
+      "spectral_rows": 7122
+    },
+    "feature_columns": {
+      "band": 166,
+      "spectral": 51,
+      "unmix": 33,
+      "spatial": 10,
+      "total_columns": 260,
+      "note": "unmix has 1 diagnostic column (mcr_residual_norm_mean) on top of its 32 MCR moment features; counting unmix as 32 gives the often-quoted '259 features'. The real on-disk column total is 260."
+    }
+  }
+}
